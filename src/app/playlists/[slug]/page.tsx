@@ -7,7 +7,7 @@ import { PlaylistTracks, type PlaylistRow } from "@/components/PlaylistTracks";
 import { PlaylistTopBar } from "@/components/PlaylistTopBar";
 import { platformLabels, type Artist, type Platform, type Playlist } from "@/lib/data";
 import { listArtists } from "@/lib/db";
-import { getPlaylistStyle } from "@/lib/sync-settings";
+import { getPlaylistStyle, type PlaylistStyle } from "@/lib/sync-settings";
 import { getCachedPublicPlaylist } from "@/lib/public-playlists";
 import { syncStalePlaylists } from "@/lib/platforms/playlist-sync";
 import { fetchBackendJson, isBackendConfigured } from "@/lib/backend-fetch";
@@ -53,24 +53,27 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
   const { slug } = await params;
   let playlist: Playlist | undefined;
   let artists: Artist[] = [];
+  let playlistStyle: PlaylistStyle | undefined;
   if (isBackendConfigured()) {
     const [playlistData, homeData] = await Promise.all([
-      fetchBackendJson<Playlist>(
+      fetchBackendJson<Playlist & { playlistStyle?: PlaylistStyle }>(
         `/api/public/playlists/${encodeURIComponent(slug)}`,
       ),
       fetchBackendJson<{ artists: Artist[] }>("/api/public/home"),
     ]);
     playlist = playlistData ?? undefined;
     artists = homeData?.artists ?? [];
+    playlistStyle = playlistData?.playlistStyle;
   } else {
     await syncStalePlaylists();
     playlist = await getCachedPublicPlaylist(slug);
     artists = listArtists();
+    playlistStyle = getPlaylistStyle();
   }
   if (!playlist) notFound();
 
   const playlistLinks = playlist.availableLinks ?? playlist.links;
-  const playlistStyle = getPlaylistStyle();
+  const style = playlistStyle ?? "full";
   const rows: PlaylistRow[] = playlist.entries.map((entry, index) => {
     if (entry.kind === "track") {
       const songSlug =
@@ -144,7 +147,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
     <main className="min-h-dvh bg-background">
       <PlaylistTopBar playlistName={playlist.name} playlistSlug={playlist.slug} />
 
-      {playlistStyle === "compact" ? (
+      {style === "compact" ? (
         <section className="mx-auto w-full max-w-2xl px-5 pt-8 md:px-10 md:pt-12">
           <PlaylistCompactHero
             name={playlist.name}
@@ -217,7 +220,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
 
       <section
         className={`mx-auto w-full max-w-5xl px-5 md:px-10 ${
-          playlistStyle === "compact" ? "pt-8" : "pt-12"
+          style === "compact" ? "pt-8" : "pt-12"
         }`}
       >
         <h2 className="text-[11px] uppercase tracking-[0.28em] opacity-50">

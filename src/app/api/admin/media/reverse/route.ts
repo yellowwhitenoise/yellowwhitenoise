@@ -84,7 +84,7 @@ async function createDerivative(
       "+faststart",
       outputPath,
     ],
-    { windowsHide: true, maxBuffer: 1024 * 1024 },
+    { windowsHide: true, maxBuffer: 10 * 1024 * 1024 },
   );
 }
 
@@ -119,7 +119,15 @@ function prepare(filename: string): Promise<{ playbackUrl: string; reverseUrl: s
           "FFmpeg is required to create smooth reverse playback. Install FFmpeg or set FFMPEG_PATH on the server.",
         );
       }
-      throw new Error("Could not prepare the video for reverse playback.");
+      const stderr =
+        typeof (error as { stderr?: unknown }).stderr === "string"
+          ? (error as { stderr: string }).stderr.trim().slice(-500)
+          : "";
+      throw new Error(
+        stderr
+          ? `Video preparation failed: ${stderr}`
+          : "Could not prepare the video for reverse playback.",
+      );
     }
   })();
   jobs.set(filename, job);
