@@ -22,6 +22,7 @@ export default async function NewArtistPage() {
         pageImage: "",
         backdrop: null,
         hoverMedia: null,
+        profileLinks: {},
         syncSources: {},
         syncEnabled: false,
         lastSyncedAt: null,

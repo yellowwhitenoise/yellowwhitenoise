@@ -56,7 +56,7 @@ export interface Artist {
   albums: Album[];
   heroMedia?: MediaRef;
   palette: ArtistPalette;
-  profileLinks: Record<Platform, string>;
+  profileLinks: Record<Platform, string> & { youtube?: string };
   songs: Song[];
   homeImage?: string;
   pageImage?: string;

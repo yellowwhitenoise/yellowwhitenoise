@@ -68,6 +68,12 @@ export async function POST(request: NextRequest) {
     backdrop?: { type: "video" | "image"; src: string } | null;
     hoverMedia?: { type: "video" | "image"; src: string } | null;
     hoverBackdropEnabled?: boolean;
+    profileLinks?: {
+      spotify?: string;
+      appleMusic?: string;
+      youtubeMusic?: string;
+      youtube?: string;
+    };
     syncSources?: {
       spotify?: string;
       appleMusic?: string;
@@ -83,6 +89,7 @@ export async function POST(request: NextRequest) {
     spotify: "https://open.spotify.com/",
     appleMusic: "https://music.apple.com/",
     youtubeMusic: "https://music.youtube.com/",
+    youtube: "https://www.youtube.com/",
   };
   const artist = createArtist({
     slug: slugify(body.name),
@@ -105,7 +112,11 @@ export async function POST(request: NextRequest) {
       from: body.palette?.from || "#2a3f4d",
       to: body.palette?.to || "#101b23",
     },
-    profileLinks: { ...platformHomeUrls, ...(body.syncSources ?? {}) },
+    profileLinks: {
+      ...platformHomeUrls,
+      ...(body.syncSources ?? {}),
+      ...(body.profileLinks ?? {}),
+    },
     songs: (body.songs ?? []).map((song) => ({
       slug: song.slug || slugify(song.title),
       title: song.title,

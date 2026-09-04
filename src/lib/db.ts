@@ -560,6 +560,7 @@ export function rowToArtist(row: ArtistRow): Artist & { id: number } {
       spotify: profileLinks.spotify ?? "https://open.spotify.com/",
       appleMusic: profileLinks.appleMusic ?? "https://music.apple.com/",
       youtubeMusic: profileLinks.youtubeMusic ?? "https://music.youtube.com/",
+      youtube: profileLinks.youtube || "https://www.youtube.com/",
     },
     songs,
     homeImage: row.home_image ?? undefined,

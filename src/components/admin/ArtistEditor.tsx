@@ -66,6 +66,9 @@ export function ArtistEditor({
     pageImage: string;
     backdrop: MediaRef | null;
     hoverMedia: MediaRef | null;
+    profileLinks?: {
+      youtube?: string;
+    };
     syncSources: {
       spotify?: string;
       appleMusic?: string;
@@ -92,6 +95,9 @@ export function ArtistEditor({
   );
   const [hoverMedia, setHoverMedia] = useState<MediaRef | null>(
     artist.hoverMedia ?? null,
+  );
+  const [youtubeUrl, setYoutubeUrl] = useState(
+    artist.profileLinks?.youtube ?? "",
   );
   const [syncSources, setSyncSources] = useState(artist.syncSources);
   const [syncEnabled, setSyncEnabled] = useState(artist.syncEnabled);
@@ -186,6 +192,7 @@ export function ArtistEditor({
           platformIds: song.platformIds,
           links: song.links,
         })),
+      profileLinks: { youtube: youtubeUrl },
       homeImage: homeImage || null,
       pageImage: pageImage || null,
       backdrop,
@@ -431,6 +438,15 @@ export function ArtistEditor({
                 }))
               }
               placeholder="https://music.youtube.com/channel/..."
+              className={`mt-2 ${inputClass}`}
+            />
+          </label>
+          <label className="block text-[10px] uppercase tracking-[0.18em] opacity-50">
+            YouTube channel URL
+            <input
+              value={youtubeUrl}
+              onChange={(event) => setYoutubeUrl(event.target.value)}
+              placeholder="https://www.youtube.com/@..."
               className={`mt-2 ${inputClass}`}
             />
           </label>

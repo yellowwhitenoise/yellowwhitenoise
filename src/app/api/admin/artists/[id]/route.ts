@@ -61,6 +61,12 @@ export async function PUT(request: NextRequest, { params }: Params) {
     backdrop?: { type: "video" | "image"; src: string } | null;
     hoverMedia?: { type: "video" | "image"; src: string } | null;
     hoverBackdropEnabled?: boolean;
+    profileLinks?: {
+      spotify?: string;
+      appleMusic?: string;
+      youtubeMusic?: string;
+      youtube?: string;
+    };
     syncSources?: {
       spotify?: string;
       appleMusic?: string;
@@ -99,6 +105,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     profileLinks: {
       ...existing.profileLinks,
       ...(body.syncSources ?? {}),
+      ...(body.profileLinks ?? {}),
     },
     songs: (body.songs ?? existing.songs).map((song) => ({
       slug:

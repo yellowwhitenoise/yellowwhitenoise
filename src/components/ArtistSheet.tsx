@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AlbumList } from "@/components/AlbumList";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { PlatformIcon } from "@/components/PlatformIcon";
+import { ShareMenu } from "@/components/ShareMenu";
 import { TrackGrid } from "@/components/TrackGrid";
 import { platformLabels, type Platform } from "@/lib/data";
 import { useArtistsStore } from "@/lib/store/artists";
@@ -142,7 +143,7 @@ export function ArtistSheet() {
                     <p key={index}>{paragraph}</p>
                   ))}
                 </div>
-                <div className="mt-6 flex gap-3 md:mt-8">
+                <div className="mt-6 flex items-center gap-3 md:mt-8">
                   {platforms.map((platform) => (
                     <a
                       key={platform}
@@ -158,6 +159,28 @@ export function ArtistSheet() {
                       />
                     </a>
                   ))}
+                  <a
+                    href={artist.profileLinks.youtube ?? "https://www.youtube.com/"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`YouTube — ${artist.name}`}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-foreground/15 transition-colors hover:border-yellow"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="h-4.5 w-4.5 text-foreground"
+                      fill="currentColor"
+                      aria-hidden
+                    >
+                      <path d="M23 12s0-3.85-.46-5.58a2.9 2.9 0 0 0-2-2C18.75 4 12 4 12 4s-6.75 0-8.54.42a2.9 2.9 0 0 0-2 2C1 8.15 1 12 1 12s0 3.85.46 5.58a2.9 2.9 0 0 0 2 2c1.79.42 8.54.42 8.54.42s6.75 0 8.54-.42a2.9 2.9 0 0 0 2-2C23 15.85 23 12 23 12Zm-13.2 3.27V8.73L15.5 12l-5.7 3.27Z" />
+                    </svg>
+                  </a>
+                  <span className="flex-1" />
+                  <ShareMenu
+                    entityName={artist.name}
+                    align="right"
+                    buttonClassName="cursor-pointer text-[10px] uppercase tracking-[0.22em] opacity-60 transition-opacity hover:opacity-100"
+                  />
                 </div>
               </div>
 
