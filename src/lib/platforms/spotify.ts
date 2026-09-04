@@ -73,7 +73,8 @@ export async function checkSpotifyHealth(): Promise<SpotifyHealth> {
       tokenOk: true,
       searchOk: false,
       detail:
-        `Search HTTP ${probe.status ?? "failed"} with zero usable items. ` +
+        `Search HTTP ${probe.status ?? "failed"} with zero usable items` +
+        (probe.error ? `: ${probe.error}` : ". ") +
         (probe.status === 401 || probe.status === 403
           ? "Token rejected by the API. Recreate the client secret in the Spotify dashboard."
           : probe.status === 429
@@ -91,7 +92,7 @@ export async function checkSpotifyHealth(): Promise<SpotifyHealth> {
 
 export async function debugSpotifySearch(
   query: string,
-): Promise<{ status: number | null; item: SpotifyItem | null }> {
+): Promise<{ status: number | null; item: SpotifyItem | null; error?: string }> {
   try {
     const accessToken = await getAccessToken();
     if (!accessToken) return { status: null, item: null };
@@ -99,7 +100,10 @@ export async function debugSpotifySearch(
       `https://api.spotify.com/v1/search?type=tracks&limit=3&q=${encodeURIComponent(query)}`,
       { headers: { Authorization: `Bearer ${accessToken}` }, cache: "no-store" },
     );
-    if (!response.ok) return { status: response.status, item: null };
+    if (!response.ok) {
+      const body = (await response.text().catch(() => "")).slice(0, 200);
+      return { status: response.status, item: null, error: body };
+    }
     const data = (await response.json()) as {
       tracks?: { items?: SpotifyItem[] };
     };

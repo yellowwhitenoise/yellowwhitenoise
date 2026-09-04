@@ -92,10 +92,11 @@ export async function checkYoutubeHealth(): Promise<YoutubeHealth> {
       { cache: "no-store" },
     );
     if (!response.ok) {
+      const body = (await response.text().catch(() => "")).slice(0, 200);
       return {
         configured: true,
         searchOk: false,
-        detail: `Search rejected (HTTP ${response.status}). Check key restrictions and quota.`,
+        detail: `Search rejected (HTTP ${response.status})${body ? `: ${body}` : ". Check key restrictions and quota."}`,
       };
     }
     return { configured: true, searchOk: true, detail: "Search succeeded." };
