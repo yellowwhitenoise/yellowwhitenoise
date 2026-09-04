@@ -68,9 +68,12 @@ async function createDerivative(
   // what the reverse filter must buffer, and keeps backdrop files light.
   // setpts re-bases timestamps: the reverse filter emits frames starting
   // from a negative PTS, which the mp4 muxer rejects (0kB output, failure).
+  // Note: the comma inside min() must be backslash-escaped (\\,) — args
+  // bypass the shell (execFile array), so FFmpeg itself sees the separator
+  // vs. function-argument distinction.
   const filters = reverse
-    ? ["-vf", "scale=-2:min(720,ih),reverse,setpts=PTS-STARTPTS,format=yuv420p"]
-    : ["-vf", "scale=-2:min(720,ih),format=yuv420p"];
+    ? ["-vf", "scale=-2:min(720\\,ih),reverse,setpts=PTS-STARTPTS,format=yuv420p"]
+    : ["-vf", "scale=-2:min(720\\,ih),format=yuv420p"];
   await execFileAsync(
     process.env.FFMPEG_PATH || "ffmpeg",
     [

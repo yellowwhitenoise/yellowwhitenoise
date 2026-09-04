@@ -37,24 +37,24 @@ export function ImageUploadField({
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex min-w-0 w-full max-w-full flex-col gap-2 overflow-hidden">
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder ?? "https://… or upload from device"}
-        className="w-full rounded-xl border border-foreground/15 bg-transparent px-3 py-2.5 text-[13px] outline-none focus:border-yellow"
+        className="w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-transparent px-3 py-2.5 text-[13px] outline-none focus:border-yellow"
       />
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 max-w-full items-center gap-3">
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="cursor-pointer rounded-full border border-foreground/15 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground/10 disabled:opacity-50"
+          className="shrink-0 cursor-pointer rounded-full border border-foreground/15 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground/10 disabled:opacity-50"
         >
           {uploading ? "Uploading…" : "Upload from device"}
         </button>
         {value && (
-          <span className="truncate text-[10px] uppercase tracking-[0.14em] opacity-40">
+          <span className="min-w-0 flex-1 truncate text-[10px] uppercase tracking-[0.14em] opacity-40">
             {value.startsWith("/api/uploads/") ? "Uploaded ✓" : value}
           </span>
         )}

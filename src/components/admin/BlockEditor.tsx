@@ -13,7 +13,7 @@ import {
 } from "@/lib/blocks";
 
 const inputClass =
-  "w-full rounded-xl border border-foreground/15 bg-transparent px-3 py-2.5 text-[13px] outline-none focus:border-yellow";
+  "w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-transparent px-3 py-2.5 text-[13px] outline-none focus:border-yellow";
 
 const INSERTER: { type: BlogBlock["type"]; label: string; make: () => BlogBlock }[] = [
   { type: "paragraph", label: "Paragraph", make: () => ({ type: "paragraph", text: "" }) },
@@ -68,8 +68,8 @@ export function BlockEditor({
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between">
+    <div className="min-w-0 max-w-full overflow-hidden">
+      <div className="flex min-w-0 items-center justify-between gap-2">
         <p className="text-[10px] uppercase tracking-[0.22em] opacity-50">
           Content blocks
         </p>
@@ -100,17 +100,17 @@ export function BlockEditor({
         </div>
       </div>
 
-      <ul className="mt-4 flex flex-col gap-3">
+      <ul className="mt-4 flex min-w-0 max-w-full flex-col gap-3">
         {blocks.map((block, index) => (
           <li
             key={index}
-            className="rounded-2xl border border-foreground/10 p-4"
+            className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 p-4"
           >
-            <div className="flex items-center justify-between">
-              <p className="text-[9px] uppercase tracking-[0.2em] opacity-40">
+            <div className="flex min-w-0 items-center justify-between gap-2">
+              <p className="min-w-0 flex-1 truncate text-[9px] uppercase tracking-[0.2em] opacity-40">
                 {index + 1} · {typeLabel(block)}
               </p>
-              <div className="flex gap-1.5">
+              <div className="flex shrink-0 gap-1.5">
                 <button
                   type="button"
                   onClick={() => move(index, -1)}
@@ -135,18 +135,18 @@ export function BlockEditor({
               </div>
             </div>
 
-            <div className="mt-3">
+            <div className="mt-3 min-w-0 max-w-full">
               {block.type === "paragraph" && (
                 <textarea
                   value={block.text}
                   onChange={(e) => update(index, { type: "paragraph", text: e.target.value })}
                   rows={3}
-                  className={`${inputClass} resize-y leading-relaxed`}
+                  className={`${inputClass} resize-y break-words leading-relaxed`}
                 />
               )}
 
               {block.type === "heading" && (
-                <div className="grid gap-2 sm:grid-cols-[130px_minmax(0,1fr)]">
+                <div className="grid min-w-0 max-w-full gap-2 sm:grid-cols-[130px_minmax(0,1fr)]">
                   <select
                     value={block.level}
                     onChange={(e) =>
@@ -155,7 +155,7 @@ export function BlockEditor({
                         level: Number(e.target.value) as 2 | 3 | 4,
                       })
                     }
-                    className="rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow"
+                    className="w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow"
                   >
                     <option value={2} className="bg-background text-foreground">H2</option>
                     <option value={3} className="bg-background text-foreground">H3</option>
@@ -173,7 +173,7 @@ export function BlockEditor({
               )}
 
               {block.type === "image" && (
-                <div className="grid gap-2">
+                <div className="grid min-w-0 max-w-full gap-2">
                   <ImageUploadField
                     value={block.src}
                     onChange={(src) => update(index, { type: "image", src })}
@@ -197,9 +197,9 @@ export function BlockEditor({
               )}
 
               {block.type === "gallery" && (
-                <div className="grid gap-2">
+                <div className="grid min-w-0 max-w-full gap-2">
                   {block.images.map((image, imageIndex) => (
-                    <div key={imageIndex} className="flex items-start gap-2">
+                    <div key={imageIndex} className="flex min-w-0 max-w-full items-start gap-2">
                       <div className="min-w-0 flex-1">
                         <ImageUploadField
                           value={image.src}
@@ -244,8 +244,8 @@ export function BlockEditor({
               )}
 
               {block.type === "music" && (
-                <div className="grid gap-2">
-                  <div className="grid gap-2 sm:grid-cols-2">
+                <div className="grid min-w-0 max-w-full gap-2">
+                  <div className="grid min-w-0 max-w-full gap-2 sm:grid-cols-2">
                     <select
                       value={block.provider}
                       onChange={(e) =>
@@ -254,7 +254,7 @@ export function BlockEditor({
                           provider: e.target.value as MusicProvider,
                         })
                       }
-                      className="rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow"
+                      className="w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow"
                     >
                       <option value="spotify" className="bg-background text-foreground">Spotify</option>
                       <option value="appleMusic" className="bg-background text-foreground">Apple Music</option>
@@ -268,7 +268,7 @@ export function BlockEditor({
                           contentType: e.target.value as MusicContentType,
                         })
                       }
-                      className="rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow"
+                      className="w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow"
                     >
                       <option value="track" className="bg-background text-foreground">Song / Track</option>
                       <option value="album" className="bg-background text-foreground">Album</option>
@@ -294,7 +294,7 @@ export function BlockEditor({
                     placeholder={`Paste ${block.provider === "appleMusic" ? "Apple Music" : block.provider === "youtubeMusic" ? "YouTube Music" : "Spotify"} URL`}
                     className={inputClass}
                   />
-                  <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="grid min-w-0 max-w-full gap-2 sm:grid-cols-2">
                     <input
                       value={block.title ?? ""}
                       onChange={(e) =>
@@ -323,7 +323,7 @@ export function BlockEditor({
               )}
 
               {block.type === "youtube" && (
-                <div className="grid gap-2">
+                <div className="grid min-w-0 max-w-full gap-2">
                   <input
                     value={block.videoId ? `https://www.youtube.com/watch?v=${block.videoId}` : ""}
                     onChange={(e) => {
@@ -353,7 +353,7 @@ export function BlockEditor({
               )}
 
               {block.type === "video" && (
-                <div className="grid gap-2">
+                <div className="grid min-w-0 max-w-full gap-2">
                   <VideoUploadField
                     value={block.url}
                     onChange={(url) => update(index, { type: "video", url })}
@@ -383,7 +383,7 @@ export function BlockEditor({
               )}
 
               {block.type === "quote" && (
-                <div className="grid gap-2">
+                <div className="grid min-w-0 max-w-full gap-2">
                   <textarea
                     value={block.text}
                     onChange={(e) => update(index, { type: "quote", text: e.target.value })}
@@ -400,7 +400,7 @@ export function BlockEditor({
               )}
 
               {block.type === "link" && (
-                <div className="grid gap-2">
+                <div className="grid min-w-0 max-w-full gap-2">
                   <input
                     value={block.label}
                     onChange={(e) => update(index, { type: "link", label: e.target.value })}
@@ -448,7 +448,7 @@ export function BlockEditor({
                       slot: e.target.value as typeof block.slot,
                     })
                   }
-                  className="rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow"
+                  className="w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow"
                 >
                   {AD_SLOTS.map((entry) => (
                     <option
@@ -469,7 +469,7 @@ export function BlockEditor({
               )}
 
               {block.type === "embed" && (
-                <div className="grid gap-2">
+                <div className="grid min-w-0 max-w-full gap-2">
                   <input
                     value={block.url ?? ""}
                     onChange={(e) => update(index, { type: "embed", url: e.target.value })}
@@ -539,18 +539,18 @@ function VideoUploadField({
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-3">
+    <div className="flex min-w-0 max-w-full flex-col gap-2 overflow-hidden">
+      <div className="flex min-w-0 max-w-full items-center gap-3">
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="cursor-pointer rounded-full border border-foreground/15 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground/10 disabled:opacity-50"
+          className="shrink-0 cursor-pointer rounded-full border border-foreground/15 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground/10 disabled:opacity-50"
         >
           {uploading ? "Uploading…" : value ? "Replace video" : "Upload video"}
         </button>
         {value && (
-          <span className="truncate text-[10px] uppercase tracking-[0.14em] opacity-40">
+          <span className="min-w-0 flex-1 truncate text-[10px] uppercase tracking-[0.14em] opacity-40">
             Uploaded ✓
           </span>
         )}

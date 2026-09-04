@@ -52,7 +52,7 @@ interface EditorPost {
 }
 
 const inputClass =
-  "w-full rounded-xl border border-foreground/15 bg-transparent px-3 py-2.5 text-[13px] outline-none focus:border-yellow";
+  "w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-transparent px-3 py-2.5 text-[13px] outline-none focus:border-yellow";
 
 function wordCount(text: string): number {
   return text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -189,7 +189,7 @@ export function BlogEditor({ post }: { post: EditorPost }) {
     }
   };
 
-  const labelClass = "block text-[10px] uppercase tracking-[0.22em] opacity-50";
+  const labelClass = "block min-w-0 max-w-full text-[10px] uppercase tracking-[0.22em] opacity-50";
 
   const h2Count = blocks.filter((block) => block.type === "heading" && block.level === 2).length;
   const effectiveDescription = seoDescription || brief;
@@ -214,8 +214,8 @@ export function BlogEditor({ post }: { post: EditorPost }) {
   const auditPassed = audit.filter((entry) => entry.ok).length;
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-5 pb-20 pt-12">
-      <div className="flex items-center justify-between">
+    <main className="mx-auto w-full min-w-0 max-w-3xl overflow-x-clip px-5 pb-20 pt-12">
+      <div className="flex min-w-0 items-center justify-between gap-2">
         <Link
           href="/admin"
           className="text-[10px] uppercase tracking-[0.22em] opacity-50 transition-opacity hover:opacity-100"
@@ -232,7 +232,7 @@ export function BlogEditor({ post }: { post: EditorPost }) {
         {post.id ? "Edit post" : "New post"}
       </h1>
 
-      <div className="mt-8 grid gap-4">
+      <div className="mt-8 grid min-w-0 max-w-full gap-4">
         <label className={labelClass}>
           Title
           <input
@@ -250,7 +250,7 @@ export function BlogEditor({ post }: { post: EditorPost }) {
             className={`mt-2 ${inputClass}`}
           />
         </label>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid min-w-0 max-w-full gap-4 sm:grid-cols-2">
           <label className={labelClass}>
             Display date
             <input
@@ -288,7 +288,7 @@ export function BlogEditor({ post }: { post: EditorPost }) {
             className={`mt-2 ${inputClass}`}
           />
         </label>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid min-w-0 max-w-full gap-4 sm:grid-cols-2">
           <label className={labelClass}>
             Category
             <input
@@ -332,7 +332,7 @@ export function BlogEditor({ post }: { post: EditorPost }) {
           extractable answer to the target query (aim for 40–100 words),
           followed by the detailed article below.
         </p>
-        <div className="mt-4 grid gap-4">
+        <div className="mt-4 grid min-w-0 max-w-full gap-4">
           <label className={labelClass}>
             Direct answer
             <textarea
@@ -394,7 +394,7 @@ export function BlogEditor({ post }: { post: EditorPost }) {
           Real questions readers ask around this topic, answered as visible
           sections of the article.
         </p>
-        <div className="mt-4 grid gap-4">
+        <div className="mt-4 grid min-w-0 max-w-full gap-4">
           {faq.map((entry, index) => (
             <div
               key={index}
@@ -452,7 +452,7 @@ export function BlogEditor({ post }: { post: EditorPost }) {
         <p className="text-[10px] uppercase tracking-[0.22em] opacity-50">
           Sources
         </p>
-        <div className="mt-4 grid gap-4">
+        <div className="mt-4 grid min-w-0 max-w-full gap-4">
           {sources.map((source, index) => (
             <div
               key={index}
@@ -540,8 +540,8 @@ export function BlogEditor({ post }: { post: EditorPost }) {
         <p className="text-[10px] uppercase tracking-[0.22em] opacity-50">
           Author profile
         </p>
-        <div className="mt-4 grid gap-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+        <div className="mt-4 grid min-w-0 max-w-full gap-4">
+          <div className="grid min-w-0 max-w-full gap-4 sm:grid-cols-2">
             <label className={labelClass}>
               Author job title
               <input
@@ -637,7 +637,7 @@ export function BlogEditor({ post }: { post: EditorPost }) {
         <p className="text-[10px] uppercase tracking-[0.22em] opacity-50">
           SEO &amp; scheduling
         </p>
-        <div className="mt-4 grid gap-4">
+        <div className="mt-4 grid min-w-0 max-w-full gap-4">
           <label className={labelClass}>
             SEO title (defaults to the post title)
             <input
@@ -655,7 +655,7 @@ export function BlogEditor({ post }: { post: EditorPost }) {
               className={`mt-2 ${inputClass} resize-y leading-relaxed`}
             />
           </label>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid min-w-0 max-w-full gap-4 sm:grid-cols-2">
             <label className={labelClass}>
               Primary keyword
               <input
