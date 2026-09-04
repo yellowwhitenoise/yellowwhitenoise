@@ -1,27 +1,52 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { triggerHaptic } from "@/lib/haptics";
 import { useUIStore } from "@/lib/store/ui";
-
-const links = [
-  { href: "/", label: "Home" },
-  { href: "/playlists", label: "Playlists" },
-  { href: "/about", label: "About" },
-];
+import {
+  INFO_NAV_META,
+  infoSectionFromPath,
+  useInfoNavStore,
+} from "@/lib/store/infoNav";
 
 const ABOUT_GROUP = ["/about", "/contact", "/blog", "/privacy"];
 
 export function BottomNav() {
   const pathname = usePathname();
   const chromeHidden = useUIStore((s) => s.chromeHidden);
+  const storedSection = useInfoNavStore((s) => s.section);
+  const infoNavTouched = useInfoNavStore((s) => s.touched);
+  const resetInfoNav = useInfoNavStore((s) => s.reset);
+
+  const inGroup = ABOUT_GROUP.some((path) => pathname.startsWith(path));
+
+  // Leaving the About group resets the third item back to About.
+  useEffect(() => {
+    if (!inGroup) resetInfoNav();
+  }, [inGroup, resetInfoNav]);
+
+  // While inside the group the store (updated instantly on in-page tab
+  // switches) wins; otherwise fall back to the pathname so direct loads
+  // render the right label on the first paint. Outside the group it is
+  // always About.
+  const effectiveSection = inGroup
+    ? infoNavTouched
+      ? storedSection
+      : infoSectionFromPath(pathname)
+    : "about";
+  const infoMeta = INFO_NAV_META[effectiveSection];
+
+  const links = [
+    { href: "/", label: "Home" },
+    { href: "/playlists", label: "Playlists" },
+    { href: infoMeta.href, label: infoMeta.label },
+  ];
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
-    if (href === "/about") {
-      return ABOUT_GROUP.some((path) => pathname.startsWith(path));
-    }
+    if (href === infoMeta.href && inGroup) return true;
     return pathname.startsWith(href);
   };
 

@@ -58,13 +58,28 @@ export function replaceEmailTokens(
   });
 }
 
-export function emailLayout(title: string, bodyHtml: string): string {
+export function emailHeaderHtml(logoUrl?: string): string {
+  if (logoUrl) {
+    return `<div style="text-align:center;padding-bottom:32px;">
+      <img src="${logoUrl}" alt="Yellow White Noise" width="110" style="display:inline-block;width:110px;height:auto;border:0;outline:none;" />
+    </div>`;
+  }
+  return `<div style="text-align:center;padding-bottom:32px;">
+      <div style="color:#f0b429;font-size:13px;font-weight:700;letter-spacing:8px;text-transform:uppercase;">Yellow</div>
+      <div style="color:#f5f1e8;font-size:13px;font-weight:700;letter-spacing:8px;text-transform:uppercase;">White</div>
+      <div style="color:#f5f1e8;font-size:13px;font-weight:700;letter-spacing:8px;text-transform:uppercase;">Noise</div>
+    </div>`;
+}
+
+export function emailLayout(
+  title: string,
+  bodyHtml: string,
+  logoUrl?: string,
+): string {
   return `<!DOCTYPE html>
 <html><body style="margin:0;padding:0;background:#0b0a08;font-family:Helvetica,Arial,sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:40px 24px;">
-    <div style="text-align:center;padding-bottom:32px;">
-      <img src="https://www.yellowwhitenoise.com/ywn-logo.png" alt="Yellow White Noise" width="110" style="display:inline-block;width:110px;height:auto;border:0;outline:none;" />
-    </div>
+    ${emailHeaderHtml(logoUrl)}
     <div style="background:#14120d;border:1px solid rgba(240,180,41,0.2);border-radius:24px;padding:40px 32px;text-align:center;">
       <h1 style="margin:0;color:#f5f1e8;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:2px;">${title}</h1>
       <div style="margin-top:20px;color:rgba(245,241,232,0.75);font-size:15px;line-height:1.6;">${bodyHtml}</div>
@@ -89,7 +104,13 @@ const PREVIEW_TOKENS = {
   unsubscribe: "#unsubscribe",
 };
 
-export function previewEmailHtml(template: EmailTemplate): string {
+export function previewEmailHtml(
+  template: EmailTemplate,
+  logoUrl?: string,
+): string {
   const body = replaceEmailTokens(template.html, PREVIEW_TOKENS);
-  return replaceEmailTokens(emailLayout("Example Release", body), PREVIEW_TOKENS);
+  return replaceEmailTokens(
+    emailLayout("Example Release", body, logoUrl),
+    PREVIEW_TOKENS,
+  );
 }

@@ -7,5 +7,10 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminEmailPage() {
   if (!(await isAdmin())) redirect("/admin/login");
-  return <EmailTemplatesClient initial={getEmailTemplates()} />;
+  return (
+    <EmailTemplatesClient
+      initial={getEmailTemplates()}
+      logoUrl={process.env.EMAIL_LOGO_URL?.trim() || undefined}
+    />
+  );
 }

@@ -22,8 +22,10 @@ const typeLabels: Record<NotifyType, string> = {
 
 export function EmailTemplatesClient({
   initial,
+  logoUrl,
 }: {
   initial: Record<NotifyType, EmailTemplate>;
+  logoUrl?: string;
 }) {
   const [templates, setTemplates] = useState(initial);
   const [activeType, setActiveType] = useState<NotifyType>("song");
@@ -174,7 +176,7 @@ export function EmailTemplatesClient({
           </p>
           <iframe
             title={`${typeLabels[activeType]} email preview`}
-            srcDoc={previewEmailHtml(template)}
+            srcDoc={previewEmailHtml(template, logoUrl)}
             sandbox=""
             className="mt-5 h-[600px] w-full rounded-xl border border-foreground/10 bg-white"
           />

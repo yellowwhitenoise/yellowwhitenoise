@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CopyrightName } from "@/components/CopyrightName";
 import { ResponsiveMenu } from "@/components/ResponsiveMenu";
 import { SubscribeForm } from "@/components/SubscribeForm";
+import { useInfoNavStore } from "@/lib/store/infoNav";
 import type { BlogPost } from "@/lib/blog";
 import type { SiteContent } from "@/lib/site-content";
 
@@ -66,6 +67,12 @@ export function InfoSections({
   const [sort, setSort] = useState<SortId>("newest");
   const [query, setQuery] = useState("");
   const fetchedRef = useRef(false);
+  const setInfoSection = useInfoNavStore((s) => s.setSection);
+
+  // Keep the bottom nav's third item in sync with the visible section.
+  useEffect(() => {
+    setInfoSection(initialSection);
+  }, [initialSection, setInfoSection]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -102,14 +109,17 @@ export function InfoSections({
 
   useEffect(() => {
     const onPopState = () => {
-      setActive(sectionFromPath(window.location.pathname));
+      const section = sectionFromPath(window.location.pathname);
+      setActive(section);
+      setInfoSection(section);
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
-  }, []);
+  }, [setInfoSection]);
 
   const selectSection = (id: SectionId, path: string) => {
     setActive(id);
+    setInfoSection(id);
     window.history.pushState(null, "", path);
   };
 

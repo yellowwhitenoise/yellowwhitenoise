@@ -175,9 +175,10 @@ function buildEmail(
     trackList: trackListHtml(payload.trackList),
     unsubscribe: escapeHtml(unsubscribeUrl),
   });
+  const logoUrl = process.env.EMAIL_LOGO_URL?.trim() || undefined;
   return {
     subject,
-    html: emailLayout(escapeHtml(payload.title), body).replaceAll(
+    html: emailLayout(escapeHtml(payload.title), body, logoUrl).replaceAll(
       "{{unsubscribe}}",
       escapeHtml(unsubscribeUrl),
     ),
