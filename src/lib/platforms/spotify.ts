@@ -66,22 +66,47 @@ export async function checkSpotifyHealth(): Promise<SpotifyHealth> {
         "Token request failed. Verify the client ID/secret pair in the Spotify dashboard.",
     };
   }
-  const canary = await search("tracks", "track:Water artist:Tyla");
-  if (!canary) {
+  const probe = await debugSpotifySearch("track:Water artist:Tyla");
+  if (!probe.item) {
     return {
       configured: true,
       tokenOk: true,
       searchOk: false,
       detail:
-        "Token works but search returned nothing. Check the app's API access in the Spotify dashboard.",
+        `Search HTTP ${probe.status ?? "failed"} with zero usable items. ` +
+        (probe.status === 401 || probe.status === 403
+          ? "Token rejected by the API. Recreate the client secret in the Spotify dashboard."
+          : probe.status === 429
+            ? "Rate limited. Try again in a few minutes."
+            : "Check the app's API access in the Spotify dashboard."),
     };
   }
   return {
     configured: true,
     tokenOk: true,
     searchOk: true,
-    detail: `Token + search work (e.g. "${canary.name}").`,
+    detail: `Token + search work (e.g. "${probe.item.name}").`,
   };
+}
+
+export async function debugSpotifySearch(
+  query: string,
+): Promise<{ status: number | null; item: SpotifyItem | null }> {
+  try {
+    const accessToken = await getAccessToken();
+    if (!accessToken) return { status: null, item: null };
+    const response = await fetch(
+      `https://api.spotify.com/v1/search?type=tracks&limit=3&q=${encodeURIComponent(query)}`,
+      { headers: { Authorization: `Bearer ${accessToken}` }, cache: "no-store" },
+    );
+    if (!response.ok) return { status: response.status, item: null };
+    const data = (await response.json()) as {
+      tracks?: { items?: SpotifyItem[] };
+    };
+    return { status: response.status, item: data.tracks?.items?.[0] ?? null };
+  } catch {
+    return { status: null, item: null };
+  }
 }
 
 interface SpotifyImage {
