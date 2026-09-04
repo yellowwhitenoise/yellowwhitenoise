@@ -11,10 +11,11 @@ RUN npm ci
 FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
 COPY . .
-RUN npm run build
+RUN NODE_OPTIONS="--max-old-space-size=3072" npm run build
 
 FROM node:20-bookworm-slim AS runner
 
