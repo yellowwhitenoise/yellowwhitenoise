@@ -97,7 +97,7 @@ export async function debugSpotifySearch(
     const accessToken = await getAccessToken();
     if (!accessToken) return { status: null, item: null };
     const response = await fetch(
-      `https://api.spotify.com/v1/search?type=tracks&limit=3&q=${encodeURIComponent(query)}`,
+      `https://api.spotify.com/v1/search?type=track&limit=3&q=${encodeURIComponent(query)}`,
       { headers: { Authorization: `Bearer ${accessToken}` }, cache: "no-store" },
     );
     if (!response.ok) {
