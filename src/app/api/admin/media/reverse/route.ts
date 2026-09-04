@@ -123,10 +123,17 @@ function prepare(filename: string): Promise<{ playbackUrl: string; reverseUrl: s
           "FFmpeg is required to create smooth reverse playback. Install FFmpeg or set FFMPEG_PATH on the server.",
         );
       }
-      const rawStderr =
-        typeof (error as { stderr?: unknown }).stderr === "string"
-          ? (error as { stderr: string }).stderr
-          : "";
+      const proc = error as {
+        stderr?: unknown;
+        code?: unknown;
+        signal?: unknown;
+      };
+      const rawStderr = typeof proc.stderr === "string" ? proc.stderr : "";
+      // Full output goes to the server logs (railway logs) for diagnosis.
+      console.error(
+        `[reverse] ffmpeg failed (exit=${String(proc.code)} signal=${String(proc.signal)}) on ${inputPath}:`,
+        rawStderr.slice(-4000),
+      );
       // Drop FFmpeg's carriage-return progress spam (frame=… lines) so the
       // actual error line survives truncation.
       const stderr = rawStderr
@@ -135,9 +142,15 @@ function prepare(filename: string): Promise<{ playbackUrl: string; reverseUrl: s
         .join("\n")
         .trim()
         .slice(-500);
+      const exitInfo =
+        proc.signal && proc.signal !== "null"
+          ? ` (signal ${String(proc.signal)})`
+          : proc.code !== undefined && proc.code !== "null" && proc.code !== 0
+            ? ` (exit ${String(proc.code)})`
+            : "";
       throw new Error(
         stderr
-          ? `Video preparation failed: ${stderr}`
+          ? `Video preparation failed${exitInfo}: ${stderr}`
           : "Could not prepare the video for reverse playback.",
       );
     }
