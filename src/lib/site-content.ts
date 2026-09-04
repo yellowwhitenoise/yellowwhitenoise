@@ -12,11 +12,26 @@ export interface LegalSectionData {
   paragraphs: string[];
 }
 
+export interface SocialLink {
+  label: string;
+  url: string;
+}
+
 export interface SiteContent {
   about: { paragraphs: string[] };
   contact: { entries: ContactEntry[] };
   legal: { sections: LegalSectionData[] };
+  socials: { links: SocialLink[] };
 }
+
+export const defaultSocialLinks: SocialLink[] = [
+  { label: "Instagram", url: "https://www.instagram.com/yellowwhitenoise" },
+  { label: "Facebook", url: "https://www.facebook.com/yellowwhitenoise" },
+  { label: "TikTok", url: "https://www.tiktok.com/@yellowwhitenoise" },
+  { label: "X", url: "https://x.com/yellowwhitenoise" },
+  { label: "Threads", url: "https://www.threads.net/@yellowwhitenoise" },
+  { label: "YouTube", url: "https://www.youtube.com/@yellowwhitenoise" },
+];
 
 export const defaultSiteContent: SiteContent = {
   about: {
@@ -37,4 +52,5 @@ export const defaultSiteContent: SiteContent = {
     ],
   },
   legal: { sections: legalSections },
+  socials: { links: defaultSocialLinks },
 };

@@ -5,9 +5,9 @@ import Link from "next/link";
 import { CopyrightName } from "@/components/CopyrightName";
 import { ResponsiveMenu } from "@/components/ResponsiveMenu";
 import { SubscribeForm } from "@/components/SubscribeForm";
-import { useInfoNavStore } from "@/lib/store/infoNav";
 import type { BlogPost } from "@/lib/blog";
-import type { SiteContent } from "@/lib/site-content";
+import { defaultSocialLinks, type SiteContent } from "@/lib/site-content";
+import { useInfoNavStore } from "@/lib/store/infoNav";
 
 const tabs = [
   { id: "about", label: "About", path: "/about" },
@@ -24,15 +24,6 @@ const headings: Record<SectionId, string> = {
   blog: "Blog",
   legal: "Privacy & Legal",
 };
-
-const socials = [
-  { label: "Instagram", url: "https://www.instagram.com/yellowwhitenoise" },
-  { label: "Facebook", url: "https://www.facebook.com/yellowwhitenoise" },
-  { label: "TikTok", url: "https://www.tiktok.com/@yellowwhitenoise" },
-  { label: "X", url: "https://x.com/yellowwhitenoise" },
-  { label: "Threads", url: "https://www.threads.net/@yellowwhitenoise" },
-  { label: "YouTube", url: "https://www.youtube.com/@yellowwhitenoise" },
-];
 
 const sortOptions = [
   { id: "newest", label: "Newest" },
@@ -66,6 +57,11 @@ export function InfoSections({
   const [posts, setPosts] = useState<BlogPost[]>(initialPosts);
   const [sort, setSort] = useState<SortId>("newest");
   const [query, setQuery] = useState("");
+
+  const socials = useMemo(() => {
+    const links = content.socials?.links ?? defaultSocialLinks;
+    return links.filter((link) => link.url.trim() !== "");
+  }, [content]);
   const fetchedRef = useRef(false);
   const setInfoSection = useInfoNavStore((s) => s.setSection);
 
@@ -161,13 +157,13 @@ export function InfoSections({
           <div className="mt-8 flex flex-col gap-2">
             {socials.map((social) => (
               <a
-                key={social.label}
+                key={social.url}
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[13px] text-foreground/60 transition-colors hover:text-yellow"
               >
-                {social.label}
+                {social.label || social.url}
               </a>
             ))}
           </div>
@@ -342,13 +338,13 @@ export function InfoSections({
       <div className="mt-12 flex flex-col items-center gap-2 md:hidden">
         {socials.map((social) => (
           <a
-            key={social.label}
+            key={social.url}
             href={social.url}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[13px] text-foreground/60 transition-colors hover:text-yellow"
           >
-            {social.label}
+            {social.label || social.url}
           </a>
         ))}
       </div>

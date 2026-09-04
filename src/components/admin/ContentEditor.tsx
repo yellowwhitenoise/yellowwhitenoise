@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { SiteContent } from "@/lib/site-content";
 
 const inputClass =
-  "w-full rounded-xl border border-foreground/15 bg-transparent px-3 py-2.5 text-[13px] outline-none focus:border-yellow";
+  "w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-transparent px-3 py-2.5 text-[13px] outline-none focus:border-yellow";
 
 export function ContentEditor({ initial }: { initial: SiteContent }) {
   const router = useRouter();
@@ -15,9 +15,12 @@ export function ContentEditor({ initial }: { initial: SiteContent }) {
   );
   const [entries, setEntries] = useState(initial.contact.entries);
   const [sections, setSections] = useState(initial.legal.sections);
+  const [socials, setSocials] = useState(initial.socials.links);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
-  const [tab, setTab] = useState<"about" | "contact" | "legal">("about");
+  const [tab, setTab] = useState<"about" | "contact" | "socials" | "legal">(
+    "about",
+  );
 
   const save = async () => {
     setBusy(true);
@@ -34,6 +37,14 @@ export function ContentEditor({ initial }: { initial: SiteContent }) {
         },
         contact: { entries },
         legal: { sections },
+        socials: {
+          links: socials
+            .map((link) => ({
+              label: link.label.trim(),
+              url: link.url.trim(),
+            }))
+            .filter((link) => link.url !== ""),
+        },
       }),
     });
     setBusy(false);
@@ -75,7 +86,7 @@ export function ContentEditor({ initial }: { initial: SiteContent }) {
   };
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-5 pb-20 pt-12">
+    <main className="mx-auto w-full min-w-0 max-w-3xl overflow-x-clip px-5 pb-20 pt-12">
       <Link
         href="/admin"
         className="text-[10px] uppercase tracking-[0.22em] opacity-50 transition-opacity hover:opacity-100"
@@ -94,6 +105,7 @@ export function ContentEditor({ initial }: { initial: SiteContent }) {
           [
             { id: "about", label: "About" },
             { id: "contact", label: "Contact" },
+            { id: "socials", label: "Socials" },
             { id: "legal", label: "Privacy & Legal" },
           ] as const
         ).map((entry) => (
@@ -207,6 +219,80 @@ export function ContentEditor({ initial }: { initial: SiteContent }) {
               className="mt-3 cursor-pointer rounded-full border border-foreground/15 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground/10"
             >
               + Contact entry
+            </button>
+          </div>
+        )}
+
+        {tab === "socials" && (
+          <div>
+            <p className="mb-3 text-[11px] leading-relaxed opacity-50">
+              Links shown under About, Contact, Blog and Privacy. Empty URLs
+              are hidden on the site.
+            </p>
+            <ul className="flex min-w-0 max-w-full flex-col gap-3">
+              {socials.map((social, index) => (
+                <li
+                  key={index}
+                  className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 p-4"
+                >
+                  <div className="flex min-w-0 items-center justify-between gap-2">
+                    <p className="min-w-0 flex-1 truncate text-[9px] uppercase tracking-[0.2em] opacity-40">
+                      Link {index + 1}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSocials((current) =>
+                          current.filter((_, i) => i !== index),
+                        )
+                      }
+                      className="shrink-0 cursor-pointer rounded-md border border-red-400/30 px-2 py-0.5 text-[10px] text-red-400/80 hover:bg-red-400/10"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="mt-3 grid min-w-0 max-w-full gap-2">
+                    <input
+                      value={social.label}
+                      onChange={(e) =>
+                        setSocials((current) =>
+                          current.map((item, i) =>
+                            i === index
+                              ? { ...item, label: e.target.value }
+                              : item,
+                          ),
+                        )
+                      }
+                      placeholder="Label (Instagram, X, YouTube…)"
+                      className={inputClass}
+                    />
+                    <input
+                      value={social.url}
+                      onChange={(e) =>
+                        setSocials((current) =>
+                          current.map((item, i) =>
+                            i === index
+                              ? { ...item, url: e.target.value }
+                              : item,
+                          ),
+                        )
+                      }
+                      placeholder="https://…"
+                      inputMode="url"
+                      className={inputClass}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              onClick={() =>
+                setSocials((current) => [...current, { label: "", url: "" }])
+              }
+              className="mt-3 cursor-pointer rounded-full border border-foreground/15 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground/10"
+            >
+              + Social link
             </button>
           </div>
         )}

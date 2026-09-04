@@ -49,6 +49,9 @@ export default async function BlogPage() {
     legal:
       getSiteContent<SiteContent["legal"]>("legal") ??
       defaultSiteContent.legal,
+    socials:
+      getSiteContent<SiteContent["socials"]>("socials") ??
+      defaultSiteContent.socials,
   };
 
   return <InfoSections initialSection="blog" initialPosts={posts} content={content} />;

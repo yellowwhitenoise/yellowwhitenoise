@@ -30,6 +30,9 @@ async function getContent(): Promise<SiteContent> {
     legal:
       getSiteContent<SiteContent["legal"]>("legal") ??
       defaultSiteContent.legal,
+    socials:
+      getSiteContent<SiteContent["socials"]>("socials") ??
+      defaultSiteContent.socials,
   };
 }
 

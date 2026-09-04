@@ -19,6 +19,9 @@ export default async function AdminContentPage() {
     legal:
       getSiteContent<SiteContent["legal"]>("legal") ??
       defaultSiteContent.legal,
+    socials:
+      getSiteContent<SiteContent["socials"]>("socials") ??
+      defaultSiteContent.socials,
   };
 
   return <ContentEditor initial={content} />;

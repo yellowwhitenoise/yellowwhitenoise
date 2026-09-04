@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getSetting } from "@/lib/db";
 import { BackdropMedia } from "@/components/BackdropMedia";
+import { PlaylistAboutToggle } from "@/components/PlaylistAboutToggle";
 import { StripScrollTop } from "@/components/StripScrollTop";
 import type { MediaRef, Playlist } from "@/lib/data";
 import { fetchBackendJson, isBackendConfigured } from "@/lib/backend-fetch";
@@ -84,6 +85,7 @@ function PlaylistList({
         className="pointer-events-none fixed inset-y-0 right-0 z-30 hidden w-28 bg-gradient-to-l from-background to-transparent md:block"
       />
 
+      <PlaylistAboutToggle />
       <div
         data-scroll-strip
         className="relative z-10 flex h-dvh flex-col overflow-y-auto overflow-x-hidden overscroll-contain [overflow-anchor:none] md:flex-row md:items-center md:overflow-x-auto md:overflow-y-hidden"

@@ -17,6 +17,9 @@ export async function GET() {
     legal:
       getSiteContent<SiteContent["legal"]>("legal") ??
       defaultSiteContent.legal,
+    socials:
+      getSiteContent<SiteContent["socials"]>("socials") ??
+      defaultSiteContent.socials,
   };
   return NextResponse.json(content);
 }
@@ -29,9 +32,11 @@ export async function PUT(request: NextRequest) {
     about?: { paragraphs?: string[] };
     contact?: { entries?: { label: string; email: string; note?: string }[] };
     legal?: { sections?: { id: string; heading: string; paragraphs: string[] }[] };
+    socials?: { links?: { label: string; url: string }[] };
   };
   if (body.about?.paragraphs) setSiteContent("about", body.about);
   if (body.contact?.entries) setSiteContent("contact", body.contact);
   if (body.legal?.sections) setSiteContent("legal", body.legal);
+  if (body.socials?.links) setSiteContent("socials", body.socials);
   return NextResponse.json({ ok: true });
 }

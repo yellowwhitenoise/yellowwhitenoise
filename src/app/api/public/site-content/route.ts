@@ -15,6 +15,9 @@ export function GET() {
     legal:
       getSiteContent<SiteContent["legal"]>("legal") ??
       defaultSiteContent.legal,
+    socials:
+      getSiteContent<SiteContent["socials"]>("socials") ??
+      defaultSiteContent.socials,
   };
   return NextResponse.json(content);
 }
