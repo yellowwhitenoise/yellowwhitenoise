@@ -1,4 +1,12 @@
-import { createHash, createHmac } from "node:crypto";
+import { createHash } from "node:crypto";
+
+function signParams(params: Record<string, string>, apiSecret: string): string {
+  const base = Object.keys(params)
+    .sort()
+    .map((key) => `${key}=${params[key]}`)
+    .join("&");
+  return createHash("sha1").update(base + apiSecret).digest("hex");
+}
 
 function config() {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
@@ -63,14 +71,7 @@ export async function uploadToCloudinary(
     public_id: publicId,
     timestamp: String(timestamp),
   };
-  const signature = createHmac("sha1", cfg.apiSecret)
-    .update(
-      Object.keys(params)
-        .sort()
-        .map((key) => `${key}=${params[key]}`)
-        .join("&"),
-    )
-    .digest("hex");
+  const signature = signParams(params, cfg.apiSecret);
   const form = new FormData();
   form.append("file", new Blob([new Uint8Array(buffer)], { type: mime }), filename);
   form.append("api_key", cfg.apiKey);
@@ -107,9 +108,10 @@ export async function deleteFromCloudinary(publicId: string): Promise<void> {
   const cfg = config();
   if (!cfg) return;
   const timestamp = Math.floor(Date.now() / 1000);
-  const signature = createHmac("sha1", cfg.apiSecret)
-    .update(`public_id=${publicId}&timestamp=${timestamp}`)
-    .digest("hex");
+  const signature = signParams(
+    { public_id: publicId, timestamp: String(timestamp) },
+    cfg.apiSecret,
+  );
   const form = new FormData();
   form.append("public_id", publicId);
   form.append("api_key", cfg.apiKey);
