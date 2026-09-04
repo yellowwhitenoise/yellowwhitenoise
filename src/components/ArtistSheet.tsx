@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type TouchEvent } from "react";
+import { useEffect, useState } from "react";
 import { AlbumList } from "@/components/AlbumList";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { PlatformIcon } from "@/components/PlatformIcon";
@@ -23,9 +23,7 @@ export function ArtistSheet() {
   }, [ensureLoaded]);
 
   const [mounted, setMounted] = useState(false);
-  const [pullY, setPullY] = useState(0);
   const [portraitExpanded, setPortraitExpanded] = useState(false);
-  const startY = useRef<number | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -34,7 +32,6 @@ export function ArtistSheet() {
     }
     const timer = setTimeout(() => {
       setMounted(false);
-      setPullY(0);
     }, 320);
     return () => clearTimeout(timer);
   }, [open]);
@@ -56,22 +53,6 @@ export function ArtistSheet() {
 
   if (!mounted || !artist) return null;
 
-  const onTouchStart = (event: TouchEvent<HTMLDivElement>) => {
-    startY.current = event.touches[0].clientY;
-  };
-
-  const onTouchMove = (event: TouchEvent<HTMLDivElement>) => {
-    if (startY.current === null) return;
-    const delta = event.touches[0].clientY - startY.current;
-    if (delta < 0) setPullY(delta);
-  };
-
-  const onTouchEnd = () => {
-    if (pullY < -90) closeSheet();
-    else setPullY(0);
-    startY.current = null;
-  };
-
   return (
     <div
       className="fixed inset-0 z-50"
@@ -88,15 +69,7 @@ export function ArtistSheet() {
       />
       <div className="absolute inset-0 flex h-dvh flex-col" onClick={closeSheet}>
         <div
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
           onClick={(event) => event.stopPropagation()}
-          style={
-            pullY !== 0
-              ? { transform: `translateY(${pullY}px)`, transition: "none" }
-              : undefined
-          }
           className={`relative flex min-h-0 flex-1 flex-col justify-start overflow-y-auto bg-background shadow-2xl transition-[translate] duration-300 ease-out md:justify-center ${
             open ? "sheet-in" : "-translate-y-[110%]"
           }`}
