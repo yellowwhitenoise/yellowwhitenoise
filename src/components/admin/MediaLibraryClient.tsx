@@ -14,7 +14,7 @@ type MediaFilter = "all" | "image" | "video";
 type MediaSort = "recent" | "oldest";
 
 const inputClass =
-  "rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow";
+  "w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow";
 
 const menuItemClass =
   "block w-full cursor-pointer rounded-lg px-3 py-2 text-left text-[10px] uppercase tracking-[0.14em] transition-colors hover:bg-foreground/10 disabled:cursor-default disabled:opacity-40";
@@ -231,18 +231,18 @@ export function MediaLibraryClient({
     });
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-5 pb-20 pt-12">
+    <main className="mx-auto w-full min-w-0 max-w-4xl overflow-x-clip px-5 pb-20 pt-12">
       <Link
         href="/admin"
         className="text-[10px] uppercase tracking-[0.22em] opacity-50 transition-opacity hover:opacity-100"
       >
         ← Dashboard
       </Link>
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-2xl font-semibold uppercase tracking-[0.1em]">
+      <div className="mt-4 flex min-w-0 max-w-full flex-wrap items-center justify-between gap-3">
+        <h1 className="min-w-0 max-w-full break-words font-display text-2xl font-semibold uppercase tracking-[0.1em] [overflow-wrap:anywhere]">
           Media library
         </h1>
-        <div className="flex gap-2">
+        <div className="flex min-w-0 max-w-full flex-wrap gap-2">
           <label className="cursor-pointer rounded-full border border-foreground/15 px-4 py-2 text-[10px] uppercase tracking-[0.2em] transition-colors hover:bg-foreground/10">
             {uploading === "image" ? "Uploading…" : "+ Upload image"}
             {imageInput("image")}
@@ -267,8 +267,8 @@ export function MediaLibraryClient({
       </p>
 
       {backdrop && (
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-yellow/25 bg-yellow/[0.04] px-4 py-3">
-          <div>
+        <div className="mt-6 flex min-w-0 max-w-full flex-wrap items-center justify-between gap-3 overflow-hidden rounded-xl border border-yellow/25 bg-yellow/[0.04] px-4 py-3">
+          <div className="min-w-0 max-w-full flex-1">
             <p className="text-[10px] uppercase tracking-[0.16em] text-yellow">
               Homepage + playlist backdrop is set
             </p>
@@ -298,7 +298,7 @@ export function MediaLibraryClient({
         </div>
       )}
 
-      <div className="relative z-40 mt-6 flex flex-wrap items-center gap-3 overflow-visible border-y border-foreground/10 py-4">
+      <div className="relative z-40 mt-6 flex min-w-0 max-w-full flex-wrap items-center gap-3 overflow-visible border-y border-foreground/10 py-4">
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] opacity-55">
           <span>File type</span>
           <ResponsiveMenu
@@ -387,13 +387,13 @@ export function MediaLibraryClient({
           No files match this filter.
         </p>
       ) : (
-        <ul className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <ul className="mt-8 grid min-w-0 max-w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {visibleMedia.map((entry) => {
             const isBackdrop = backdrop?.src === entry.url;
             return (
               <li
                 key={entry.id}
-                className="group relative overflow-visible rounded-2xl border border-foreground/10"
+                className="group relative min-w-0 max-w-full overflow-visible rounded-2xl border border-foreground/10"
               >
                 <button
                   type="button"
@@ -412,11 +412,11 @@ export function MediaLibraryClient({
                     </span>
                   )}
                 </button>
-                <div className="p-3">
-                  <p className="truncate text-[11px] font-medium">
+                <div className="min-w-0 max-w-full p-3">
+                  <p className="min-w-0 max-w-full truncate text-[11px] font-medium">
                     {entry.title || entry.filename}
                   </p>
-                  <p className="mt-0.5 text-[9px] uppercase tracking-[0.14em] opacity-40">
+                  <p className="mt-0.5 min-w-0 max-w-full truncate text-[9px] uppercase tracking-[0.14em] opacity-40">
                     {entry.kind} · {(entry.size / 1024 / 1024).toFixed(1)} MB
                   </p>
                   {isBackdrop && (
@@ -523,7 +523,7 @@ export function MediaLibraryClient({
           >
             ✕ Close
           </button>
-          <div className="relative z-10 mx-4 max-h-[85dvh] max-w-[90vw]">
+          <div className="relative z-10 mx-4 max-h-[85dvh] w-full min-w-0 max-w-[90vw] overflow-hidden">
             {preview.kind === "image" ? (
               <ZoomableImage
                 src={preview.url}
@@ -547,7 +547,7 @@ export function MediaLibraryClient({
               />
             )}
           </div>
-          <p className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2 text-[10px] uppercase tracking-[0.16em] text-white/50">
+          <p className="absolute bottom-4 left-1/2 z-20 w-full min-w-0 max-w-[90vw] -translate-x-1/2 truncate px-4 text-center text-[10px] uppercase tracking-[0.16em] text-white/50">
             {preview.title || preview.filename}
           </p>
         </div>

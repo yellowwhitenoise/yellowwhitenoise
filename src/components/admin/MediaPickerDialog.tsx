@@ -51,20 +51,20 @@ export function MediaPickerDialog({
         className="relative mx-4 flex max-h-[80dvh] w-full max-w-2xl flex-col rounded-2xl shadow-2xl"
         style={{ backgroundColor: "#1c1915", zIndex: 1 }}
       >
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <h2 className="font-display text-sm font-semibold uppercase tracking-[0.1em]">
+        <div className="flex min-w-0 max-w-full items-center justify-between gap-2 border-b border-white/10 px-5 py-4">
+          <h2 className="min-w-0 flex-1 truncate font-display text-sm font-semibold uppercase tracking-[0.1em]">
             Select from media library
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="cursor-pointer text-[11px] uppercase tracking-[0.16em] opacity-50 transition-opacity hover:opacity-100"
+            className="shrink-0 cursor-pointer text-[11px] uppercase tracking-[0.16em] opacity-50 transition-opacity hover:opacity-100"
           >
             Close
           </button>
         </div>
 
-        <div className="flex gap-2 border-b border-white/10 px-5 py-3">
+        <div className="flex min-w-0 max-w-full flex-wrap gap-2 border-b border-white/10 px-5 py-3">
           {(["all", "image", "video"] as const).map((kind) => (
             <button
               key={kind}
@@ -91,9 +91,9 @@ export function MediaPickerDialog({
               No media uploaded yet.
             </p>
           ) : (
-            <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+            <ul className="grid min-w-0 max-w-full grid-cols-3 gap-3 sm:grid-cols-4">
               {items.map((item) => (
-                <li key={item.id}>
+                <li key={item.id} className="min-w-0 max-w-full">
                   <button
                     type="button"
                     onClick={() => {

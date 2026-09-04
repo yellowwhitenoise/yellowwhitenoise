@@ -63,9 +63,7 @@ export function emailLayout(title: string, bodyHtml: string): string {
 <html><body style="margin:0;padding:0;background:#0b0a08;font-family:Helvetica,Arial,sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:40px 24px;">
     <div style="text-align:center;padding-bottom:32px;">
-      <div style="color:#f0b429;font-size:13px;font-weight:700;letter-spacing:8px;text-transform:uppercase;">Yellow</div>
-      <div style="color:#f5f1e8;font-size:13px;font-weight:700;letter-spacing:8px;text-transform:uppercase;">White</div>
-      <div style="color:#f5f1e8;font-size:13px;font-weight:700;letter-spacing:8px;text-transform:uppercase;">Noise</div>
+      <img src="https://www.yellowwhitenoise.com/ywn-logo.png" alt="Yellow White Noise" width="110" style="display:inline-block;width:110px;height:auto;border:0;outline:none;" />
     </div>
     <div style="background:#14120d;border:1px solid rgba(240,180,41,0.2);border-radius:24px;padding:40px 32px;text-align:center;">
       <h1 style="margin:0;color:#f5f1e8;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:2px;">${title}</h1>

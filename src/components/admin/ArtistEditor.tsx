@@ -38,7 +38,9 @@ interface AlbumDraft {
 }
 
 const inputClass =
-  "w-full rounded-xl border border-foreground/15 bg-transparent px-3 py-2.5 text-[13px] outline-none focus:border-yellow";
+  "w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-transparent px-3 py-2.5 text-[13px] outline-none focus:border-yellow";
+
+const labelClass = "block min-w-0 max-w-full text-[10px] uppercase tracking-[0.22em] opacity-50";
 
 export function ArtistEditor({
   artist,
@@ -284,7 +286,7 @@ export function ArtistEditor({
   };
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-5 pb-20 pt-12">
+    <main className="mx-auto w-full min-w-0 max-w-3xl overflow-x-clip px-5 pb-20 pt-12">
       <Link
         href="/admin"
         className="text-[10px] uppercase tracking-[0.22em] opacity-50 transition-opacity hover:opacity-100"
@@ -295,9 +297,9 @@ export function ArtistEditor({
         {artist.id ? "Edit artist" : "New artist"}
       </h1>
 
-      <div className="mt-8 grid gap-4">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+      <div className="mt-8 grid min-w-0 max-w-full gap-4">
+        <div className="grid min-w-0 max-w-full gap-4 sm:grid-cols-2">
+          <label className={labelClass}>
             Name
             <input
               value={name}
@@ -306,7 +308,7 @@ export function ArtistEditor({
               className={`mt-2 ${inputClass}`}
             />
           </label>
-          <label className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+          <label className={labelClass}>
             Genre
             <input
               value={genre}
@@ -316,7 +318,7 @@ export function ArtistEditor({
             />
           </label>
         </div>
-        <label className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+        <label className={labelClass}>
           Tagline
           <input
             value={tagline}
@@ -325,48 +327,48 @@ export function ArtistEditor({
             className={`mt-2 ${inputClass}`}
           />
         </label>
-        <label className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+        <label className={labelClass}>
           Short bio (home + sheet)
           <textarea
             value={shortBio}
             onChange={(e) => setShortBio(e.target.value)}
             rows={2}
-            className={`mt-2 ${inputClass} resize-y leading-relaxed`}
+            className={`mt-2 ${inputClass} resize-y break-words leading-relaxed`}
           />
         </label>
-        <label className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+        <label className={labelClass}>
           Full bio (artist page)
           <textarea
             value={longBio}
             onChange={(e) => setLongBio(e.target.value)}
             rows={6}
-            className={`mt-2 ${inputClass} resize-y leading-relaxed`}
+            className={`mt-2 ${inputClass} resize-y break-words leading-relaxed`}
           />
         </label>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+        <div className="grid min-w-0 max-w-full gap-4 sm:grid-cols-2">
+          <label className={labelClass}>
             Palette — from
             <input
               type="color"
               value={paletteFrom}
               onChange={(e) => setPaletteFrom(e.target.value)}
-              className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-foreground/15 bg-transparent"
+              className="mt-2 h-10 w-full min-w-0 max-w-full cursor-pointer rounded-xl border border-foreground/15 bg-transparent"
             />
           </label>
-          <label className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+          <label className={labelClass}>
             Palette — to
             <input
               type="color"
               value={paletteTo}
               onChange={(e) => setPaletteTo(e.target.value)}
-              className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-foreground/15 bg-transparent"
+              className="mt-2 h-10 w-full min-w-0 max-w-full cursor-pointer rounded-xl border border-foreground/15 bg-transparent"
             />
           </label>
         </div>
       </div>
 
-      <div className="mt-8 rounded-2xl border border-yellow/25 p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="mt-8 min-w-0 max-w-full overflow-hidden rounded-2xl border border-yellow/25 p-5">
+        <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-[10px] uppercase tracking-[0.22em] text-yellow">
               Streaming profiles &amp; catalog sync
@@ -398,8 +400,8 @@ export function ArtistEditor({
           />
           Enable automatic catalog sync
         </label>
-        <div className="mt-4 grid gap-3">
-          <label className="block text-[10px] uppercase tracking-[0.18em] opacity-50">
+        <div className="mt-4 grid min-w-0 max-w-full gap-3">
+          <label className="block min-w-0 max-w-full text-[10px] uppercase tracking-[0.18em] opacity-50">
             Spotify artist profile URL
             <input
               value={syncSources.spotify ?? ""}
@@ -413,7 +415,7 @@ export function ArtistEditor({
               className={`mt-2 ${inputClass}`}
             />
           </label>
-          <label className="block text-[10px] uppercase tracking-[0.18em] opacity-50">
+          <label className="block min-w-0 max-w-full text-[10px] uppercase tracking-[0.18em] opacity-50">
             Apple Music artist profile URL
             <input
               value={syncSources.appleMusic ?? ""}
@@ -427,7 +429,7 @@ export function ArtistEditor({
               className={`mt-2 ${inputClass}`}
             />
           </label>
-          <label className="block text-[10px] uppercase tracking-[0.18em] opacity-50">
+          <label className="block min-w-0 max-w-full text-[10px] uppercase tracking-[0.18em] opacity-50">
             YouTube Music artist/channel URL
             <input
               value={syncSources.youtubeMusic ?? ""}
@@ -441,7 +443,7 @@ export function ArtistEditor({
               className={`mt-2 ${inputClass}`}
             />
           </label>
-          <label className="block text-[10px] uppercase tracking-[0.18em] opacity-50">
+          <label className="block min-w-0 max-w-full text-[10px] uppercase tracking-[0.18em] opacity-50">
             YouTube channel URL
             <input
               value={youtubeUrl}
@@ -451,24 +453,24 @@ export function ArtistEditor({
             />
           </label>
         </div>
-        <p className="mt-4 text-[10px] uppercase tracking-[0.14em] opacity-40">
+        <p className="mt-4 min-w-0 max-w-full text-[10px] uppercase tracking-[0.14em] break-words opacity-40 [overflow-wrap:anywhere]">
           Last checked: {artist.lastSyncAttemptAt ?? "Never"}
         </p>
         {syncStatus && (
-          <p className="mt-2 text-[11px] leading-relaxed text-yellow">
+          <p className="mt-2 min-w-0 max-w-full text-[11px] leading-relaxed break-words text-yellow [overflow-wrap:anywhere]">
             {syncStatus}
           </p>
         )}
       </div>
 
-      <div className="mt-8 rounded-2xl border border-foreground/10 p-5">
+      <div className="mt-8 min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 p-5">
         <p className="text-[10px] uppercase tracking-[0.22em] opacity-50">
           Media
         </p>
-        <div className="mt-4 grid gap-6">
-          <div className="text-[10px] uppercase tracking-[0.22em] opacity-50">
+        <div className="mt-4 grid min-w-0 max-w-full gap-6">
+          <div className="min-w-0 max-w-full overflow-hidden text-[10px] uppercase tracking-[0.22em] opacity-50">
             Homepage image (the circle on the homepage)
-            <div className="mt-2">
+            <div className="mt-2 min-w-0 max-w-full">
               <ImageUploadField
                 value={homeImage}
                 onChange={setHomeImage}
@@ -476,9 +478,9 @@ export function ArtistEditor({
               />
             </div>
           </div>
-          <div className="text-[10px] uppercase tracking-[0.22em] opacity-50">
+          <div className="min-w-0 max-w-full overflow-hidden text-[10px] uppercase tracking-[0.22em] opacity-50">
             Artist page portrait
-            <div className="mt-2">
+            <div className="mt-2 min-w-0 max-w-full">
               <ImageUploadField
                 value={pageImage}
                 onChange={setPageImage}
@@ -501,29 +503,29 @@ export function ArtistEditor({
         </div>
       </div>
 
-      <div className="mt-8 rounded-2xl border border-foreground/10 p-5">
+      <div className="mt-8 min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 p-5">
         <p className="text-[10px] uppercase tracking-[0.22em] opacity-50">
           Albums
         </p>
-        <div className="mt-3 flex flex-col gap-3">
+        <div className="mt-3 flex min-w-0 max-w-full flex-col gap-3">
           {albums.map((album, index) => (
             <div
               key={index}
-              className="rounded-2xl border border-foreground/10 p-4"
+              className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 p-4"
             >
-              <div className="flex items-center justify-between">
-                <p className="text-[9px] uppercase tracking-[0.2em] opacity-40">
+              <div className="flex min-w-0 items-center justify-between gap-2">
+                <p className="min-w-0 flex-1 truncate text-[9px] uppercase tracking-[0.2em] opacity-40">
                   Album {index + 1}
                 </p>
                 <button
                   type="button"
                   onClick={() => removeAlbum(index)}
-                  className="cursor-pointer rounded-md border border-red-400/30 px-2 py-0.5 text-[10px] text-red-400/80 hover:bg-red-400/10"
+                  className="shrink-0 cursor-pointer rounded-md border border-red-400/30 px-2 py-0.5 text-[10px] text-red-400/80 hover:bg-red-400/10"
                 >
                   ✕
                 </button>
               </div>
-              <div className="mt-3 grid gap-2">
+              <div className="mt-3 grid min-w-0 max-w-full gap-2">
                 <input
                   value={album.title}
                   onChange={(e) =>
@@ -569,29 +571,29 @@ export function ArtistEditor({
         </div>
       </div>
 
-      <div className="mt-8 rounded-2xl border border-foreground/10 p-5">
+      <div className="mt-8 min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 p-5">
         <p className="text-[10px] uppercase tracking-[0.22em] opacity-50">
           Tracks
         </p>
-        <ul className="mt-3 flex flex-col gap-3">
+        <ul className="mt-3 flex min-w-0 max-w-full flex-col gap-3">
           {songs.map((song, index) => (
             <li
               key={index}
-              className="rounded-2xl border border-foreground/10 p-4"
+              className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 p-4"
             >
-              <div className="flex items-center justify-between">
-                <p className="text-[9px] uppercase tracking-[0.2em] opacity-40">
+              <div className="flex min-w-0 items-center justify-between gap-2">
+                <p className="min-w-0 flex-1 truncate text-[9px] uppercase tracking-[0.2em] opacity-40">
                   Track {index + 1}
                 </p>
                 <button
                   type="button"
                   onClick={() => removeSong(index)}
-                  className="cursor-pointer rounded-md border border-red-400/30 px-2 py-0.5 text-[10px] text-red-400/80 hover:bg-red-400/10"
+                  className="shrink-0 cursor-pointer rounded-md border border-red-400/30 px-2 py-0.5 text-[10px] text-red-400/80 hover:bg-red-400/10"
                 >
                   ✕
                 </button>
               </div>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <div className="mt-3 grid min-w-0 max-w-full gap-2 sm:grid-cols-2">
                 <input
                   value={song.title}
                   onChange={(e) =>
@@ -613,7 +615,7 @@ export function ArtistEditor({
                   onChange={(e) =>
                     updateSong(index, { type: e.target.value })
                   }
-                  className="w-full rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow"
+                  className="w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow"
                 >
                   <option
                     value="single"
@@ -655,17 +657,17 @@ export function ArtistEditor({
         </button>
       </div>
 
-      {error && <p className="mt-6 text-[12px] text-red-400">{error}</p>}
+      {error && <p className="mt-6 min-w-0 max-w-full text-[12px] break-words text-red-400 [overflow-wrap:anywhere]">{error}</p>}
 
       <button
         type="button"
         onClick={save}
         disabled={busy}
-        className="mt-8 w-full cursor-pointer rounded-full bg-foreground px-4 py-3 text-[11px] uppercase tracking-[0.2em] text-background transition-opacity hover:opacity-85 disabled:opacity-50"
+        className="mt-8 w-full min-w-0 max-w-full cursor-pointer rounded-full bg-foreground px-4 py-3 text-[11px] uppercase tracking-[0.2em] text-background transition-opacity hover:opacity-85 disabled:opacity-50"
       >
         {busy ? "Saving…" : "Save artist"}
       </button>
-      <p className="mt-3 text-center text-[10px] uppercase tracking-[0.16em] opacity-40">
+      <p className="mt-3 min-w-0 max-w-full break-words text-center text-[10px] uppercase tracking-[0.16em] opacity-40 [overflow-wrap:anywhere]">
         Saving updates the homepage strip and creates /{name
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-")

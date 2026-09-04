@@ -99,33 +99,33 @@ export function MediaRefUploadField({
   };
 
   return (
-    <div className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+    <div className="block min-w-0 max-w-full overflow-hidden text-[10px] uppercase tracking-[0.22em] opacity-50">
       {label}
-      <div className="mt-2 flex flex-wrap items-center gap-3">
+      <div className="mt-2 flex min-w-0 max-w-full flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="cursor-pointer rounded-full border border-foreground/15 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground/10 disabled:opacity-50"
+          className="shrink-0 cursor-pointer rounded-full border border-foreground/15 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground/10 disabled:opacity-50"
         >
           {uploading ? "Uploading…" : "Upload"}
         </button>
         <button
           type="button"
           onClick={() => setPickerOpen(true)}
-          className="cursor-pointer rounded-full border border-foreground/15 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground/10"
+          className="shrink-0 cursor-pointer rounded-full border border-foreground/15 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground/10"
         >
           Choose from media
         </button>
         {value && (
           <>
-            <span className="truncate text-[10px] uppercase tracking-[0.14em] opacity-40">
+            <span className="min-w-0 max-w-full flex-1 truncate text-[10px] uppercase tracking-[0.14em] opacity-40">
               {value.type} ✓
             </span>
             <button
               type="button"
               onClick={() => onChange(null)}
-              className="cursor-pointer text-[10px] uppercase tracking-[0.16em] text-red-400/80 underline underline-offset-4 hover:text-red-400"
+              className="shrink-0 cursor-pointer text-[10px] uppercase tracking-[0.16em] text-red-400/80 underline underline-offset-4 hover:text-red-400"
             >
               Remove
             </button>
@@ -147,13 +147,13 @@ export function MediaRefUploadField({
         </label>
       )}
       {value && (
-        <div className="mt-2 overflow-hidden rounded-xl border border-foreground/10">
+        <div className="mt-2 min-w-0 max-w-full overflow-hidden rounded-xl border border-foreground/10">
           {value.type === "video" ? (
             value.loopBackwards && value.reverseSrc && value.playbackSrc ? (
               <PingPongVideo
                 src={value.playbackSrc}
                 reverseSrc={value.reverseSrc}
-                className="max-h-32 w-auto"
+                className="max-h-32 w-auto max-w-full"
                 controls
                 muted
                 loop
@@ -162,7 +162,7 @@ export function MediaRefUploadField({
             ) : value.src.toLowerCase().split("?")[0].endsWith(".ts") ? (
               <MpegTsVideo
                 src={value.src}
-                className="max-h-32 w-auto"
+                className="max-h-32 w-auto max-w-full"
                 controls
                 muted
                 loop
@@ -170,7 +170,7 @@ export function MediaRefUploadField({
             ) : (
               <PingPongVideo
                 src={value.playbackSrc ?? value.src}
-                className="max-h-32 w-auto"
+                className="max-h-32 w-auto max-w-full"
                 controls
                 muted
                 loop
@@ -180,17 +180,17 @@ export function MediaRefUploadField({
             <img
               src={value.src}
               alt=""
-              className="max-h-32 w-auto object-cover"
+              className="max-h-32 w-auto max-w-full object-cover"
             />
           )}
         </div>
       )}
       {hint && (
-        <p className="mt-1.5 text-[10px] normal-case tracking-normal opacity-40">
+        <p className="mt-1.5 min-w-0 max-w-full text-[10px] normal-case tracking-normal break-words opacity-40 [overflow-wrap:anywhere]">
           {hint}
         </p>
       )}
-      {error && <p className="mt-1 text-[11px] text-red-400">{error}</p>}
+      {error && <p className="mt-1 min-w-0 max-w-full text-[11px] break-words text-red-400 [overflow-wrap:anywhere]">{error}</p>}
       <input
         ref={inputRef}
         type="file"
