@@ -133,12 +133,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               </svg>
             )}
           </button>
-          <Link
-            href="/admin"
-            className="justify-self-center font-display text-[11px] font-semibold uppercase tracking-[0.3em]"
-          >
-            WN Admin
-          </Link>
+          <span />
           <Link
             href="/"
             target="_blank"
@@ -167,10 +162,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             open ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <div className="flex items-center justify-between px-5 pt-4 pb-2">
-            <span className="font-display text-[11px] font-semibold uppercase tracking-[0.3em]">
-              YWN
-            </span>
+          <div className="flex items-center justify-end px-5 pt-4 pb-2">
             <button
               type="button"
               onClick={() => setOpen(false)}
@@ -218,9 +210,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             >
               {loggingOut ? "Logging out…" : "Log out"}
             </button>
-            <p className="mt-3 text-[10px] uppercase tracking-[0.2em] opacity-40">
-              Swipe right to open · left to close
-            </p>
           </div>
         </aside>
 
