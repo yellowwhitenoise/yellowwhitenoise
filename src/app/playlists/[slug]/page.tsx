@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PlatformCta } from "@/components/PlatformCta";
+import { PlaylistCompactHero } from "@/components/PlaylistCompactHero";
 import { PlaylistTracks, type PlaylistRow } from "@/components/PlaylistTracks";
 import { PlaylistTopBar } from "@/components/PlaylistTopBar";
 import { platformLabels, type Artist, type Platform, type Playlist } from "@/lib/data";
 import { listArtists } from "@/lib/db";
+import { getPlaylistStyle } from "@/lib/sync-settings";
 import { getCachedPublicPlaylist } from "@/lib/public-playlists";
 import { syncStalePlaylists } from "@/lib/platforms/playlist-sync";
 import { fetchBackendJson, isBackendConfigured } from "@/lib/backend-fetch";
@@ -68,6 +70,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
   if (!playlist) notFound();
 
   const playlistLinks = playlist.availableLinks ?? playlist.links;
+  const playlistStyle = getPlaylistStyle();
   const rows: PlaylistRow[] = playlist.entries.map((entry, index) => {
     if (entry.kind === "track") {
       const songSlug =
@@ -141,63 +144,82 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
     <main className="min-h-dvh bg-background">
       <PlaylistTopBar playlistName={playlist.name} playlistSlug={playlist.slug} />
 
-      <section className="mx-auto w-full max-w-5xl px-5 pt-10 md:px-10 md:pt-16">
-        <div className="md:grid md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-center md:gap-12">
-          <div
-            className="relative aspect-square w-full max-w-[420px] overflow-hidden rounded-3xl shadow-[0_40px_80px_-30px_rgba(0,0,0,0.6)]"
-            style={{
-              backgroundImage: playlist.coverUrl
-                ? `url(${playlist.coverUrl})`
-                : `linear-gradient(150deg, ${playlist.coverPalette.from}, ${playlist.coverPalette.to})`,
-            }}
-          >
-            <div
-              aria-hidden
-              className="grain absolute inset-0 opacity-25 mix-blend-overlay"
-            />
-            <span className="absolute inset-0 flex items-center justify-center font-display text-[7rem] text-white/20">
-              {playlist.name[0]}
-            </span>
-          </div>
+      {playlistStyle === "compact" ? (
+        <section className="mx-auto w-full max-w-2xl px-5 pt-8 md:px-10 md:pt-12">
+          <PlaylistCompactHero
+            name={playlist.name}
+            tagline={playlist.tagline}
+            description={playlist.description}
+            links={playlistLinks}
+            coverUrl={playlist.coverUrl}
+            palette={playlist.coverPalette}
+          />
+        </section>
+      ) : (
+        <>
+          <section className="mx-auto w-full max-w-5xl px-5 pt-10 md:px-10 md:pt-16">
+            <div className="md:grid md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-center md:gap-12">
+              <div
+                className="relative aspect-square w-full max-w-[420px] overflow-hidden rounded-3xl shadow-[0_40px_80px_-30px_rgba(0,0,0,0.6)]"
+                style={{
+                  backgroundImage: playlist.coverUrl
+                    ? `url(${playlist.coverUrl})`
+                    : `linear-gradient(150deg, ${playlist.coverPalette.from}, ${playlist.coverPalette.to})`,
+                }}
+              >
+                <div
+                  aria-hidden
+                  className="grain absolute inset-0 opacity-25 mix-blend-overlay"
+                />
+                <span className="absolute inset-0 flex items-center justify-center font-display text-[7rem] text-white/20">
+                  {playlist.name[0]}
+                </span>
+              </div>
 
-          <div className="mt-8 md:mt-0">
-            <p className="text-[11px] uppercase tracking-[0.28em] opacity-50">
-              Yellow White Noise · Playlist
-            </p>
-            <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-[0.08em] md:text-5xl">
-              {playlist.name}
-            </h1>
-            <p className="mt-4 max-w-[48ch] text-[15px] leading-relaxed opacity-70">
-              {playlist.tagline}
-            </p>
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {platforms.map((platform) => {
-                const href = playlistLinks[platform];
-                if (!href) return null;
-                return (
-                  <PlatformCta
-                    key={platform}
-                    platform={platform}
-                    href={href}
-                    entity={playlist.name}
-                  />
-                );
-              })}
+              <div className="mt-8 md:mt-0">
+                <p className="text-[11px] uppercase tracking-[0.28em] opacity-50">
+                  Yellow White Noise · Playlist
+                </p>
+                <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-[0.08em] md:text-5xl">
+                  {playlist.name}
+                </h1>
+                <p className="mt-4 max-w-[48ch] text-[15px] leading-relaxed opacity-70">
+                  {playlist.tagline}
+                </p>
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                  {platforms.map((platform) => {
+                    const href = playlistLinks[platform];
+                    if (!href) return null;
+                    return (
+                      <PlatformCta
+                        key={platform}
+                        platform={platform}
+                        href={href}
+                        entity={playlist.name}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
+          </section>
 
-      <section className="mx-auto w-full max-w-5xl px-5 pt-14 md:px-10">
-        <h2 className="text-[11px] uppercase tracking-[0.28em] opacity-50">
-          About this playlist
-        </h2>
-        <p className="mt-4 max-w-[65ch] text-[15px] leading-relaxed opacity-80">
-          {playlist.description}
-        </p>
-      </section>
+          <section className="mx-auto w-full max-w-5xl px-5 pt-14 md:px-10">
+            <h2 className="text-[11px] uppercase tracking-[0.28em] opacity-50">
+              About this playlist
+            </h2>
+            <p className="mt-4 max-w-[65ch] text-[15px] leading-relaxed opacity-80">
+              {playlist.description}
+            </p>
+          </section>
+        </>
+      )}
 
-      <section className="mx-auto w-full max-w-5xl px-5 pt-12 md:px-10">
+      <section
+        className={`mx-auto w-full max-w-5xl px-5 md:px-10 ${
+          playlistStyle === "compact" ? "pt-8" : "pt-12"
+        }`}
+      >
         <h2 className="text-[11px] uppercase tracking-[0.28em] opacity-50">
           Track preview
         </h2>

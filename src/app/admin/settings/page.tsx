@@ -4,6 +4,7 @@ import { SettingsClient } from "@/components/admin/SettingsClient";
 import {
   getArtistSyncMinutes,
   getHapticsEnabled,
+  getPlaylistStyle,
   getPlaylistSyncMinutes,
 } from "@/lib/sync-settings";
 
@@ -16,6 +17,7 @@ export default async function AdminSettingsPage() {
       initialPlaylistMinutes={getPlaylistSyncMinutes()}
       initialArtistMinutes={getArtistSyncMinutes()}
       initialHaptics={getHapticsEnabled()}
+      initialPlaylistStyle={getPlaylistStyle()}
     />
   );
 }

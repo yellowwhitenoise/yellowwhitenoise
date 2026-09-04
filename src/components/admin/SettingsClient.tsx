@@ -1,6 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { ResponsiveMenu } from "@/components/ResponsiveMenu";
+import type { PlaylistStyle } from "@/lib/sync-settings";
+
+const playlistStyles: { id: PlaylistStyle; label: string; hint: string }[] = [
+  {
+    id: "full",
+    label: "Full",
+    hint: "Large cover art, stacked streaming buttons, full description.",
+  },
+  {
+    id: "compact",
+    label: "Compact",
+    hint: "Small cover thumbnail, icons in one row, collapsible about.",
+  },
+];
 
 type Unit = "minutes" | "hours";
 
@@ -70,10 +85,12 @@ export function SettingsClient({
   initialPlaylistMinutes,
   initialArtistMinutes,
   initialHaptics,
+  initialPlaylistStyle,
 }: {
   initialPlaylistMinutes: number;
   initialArtistMinutes: number;
   initialHaptics: boolean;
+  initialPlaylistStyle: PlaylistStyle;
 }) {
   const playlist = splitMinutes(initialPlaylistMinutes);
   const artist = splitMinutes(initialArtistMinutes);
@@ -82,6 +99,8 @@ export function SettingsClient({
   const [artistValue, setArtistValue] = useState(artist.value);
   const [artistUnit, setArtistUnit] = useState<Unit>(artist.unit);
   const [haptics, setHaptics] = useState(initialHaptics);
+  const [playlistStyle, setPlaylistStyle] =
+    useState<PlaylistStyle>(initialPlaylistStyle);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -99,6 +118,7 @@ export function SettingsClient({
         ["playlist_sync_interval_minutes", String(playlistMinutes)],
         ["artist_sync_interval_minutes", String(artistMinutes)],
         ["haptics_enabled", haptics ? "true" : "false"],
+        ["playlist_style", playlistStyle],
       ];
       for (const [key, value] of entries) {
         const response = await fetch("/api/admin/settings", {
@@ -142,6 +162,47 @@ export function SettingsClient({
           onValue={setArtistValue}
           onUnit={setArtistUnit}
         />
+
+        <div className="rounded-2xl border border-foreground/10 p-5">
+          <p className="font-display text-base font-semibold uppercase tracking-[0.08em]">
+            Playlist style
+          </p>
+          <p className="mt-1 text-[11px] leading-relaxed opacity-70">
+            Layout of the individual playlist page.
+          </p>
+          <div className="mt-4">
+            <ResponsiveMenu
+              label="Playlist style"
+              activeLabel={`Style: ${playlistStyles.find((option) => option.id === playlistStyle)?.label ?? "Full"}`}
+              buttonClassName="cursor-pointer rounded-xl border border-foreground/15 px-4 py-2.5 text-[10px] uppercase tracking-[0.18em] transition-colors hover:bg-foreground/10"
+            >
+              {(close) => (
+                <>
+                  {playlistStyles.map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => {
+                        setPlaylistStyle(option.id);
+                        close();
+                      }}
+                      className={`block w-full cursor-pointer rounded-xl px-4 py-3 text-left transition-colors hover:bg-foreground/10 ${
+                        playlistStyle === option.id ? "text-yellow" : ""
+                      }`}
+                    >
+                      <span className="block text-[13px] font-medium">
+                        {option.label}
+                      </span>
+                      <span className="mt-0.5 block text-[11px] leading-relaxed opacity-60">
+                        {option.hint}
+                      </span>
+                    </button>
+                  ))}
+                </>
+              )}
+            </ResponsiveMenu>
+          </div>
+        </div>
 
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-foreground/10 p-5">
           <div>

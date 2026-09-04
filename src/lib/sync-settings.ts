@@ -38,3 +38,9 @@ export function getArtistSyncIntervalMs(): number {
 export function getHapticsEnabled(): boolean {
   return getSetting("haptics_enabled") !== "false";
 }
+
+export type PlaylistStyle = "full" | "compact";
+
+export function getPlaylistStyle(): PlaylistStyle {
+  return getSetting("playlist_style") === "compact" ? "compact" : "full";
+}
