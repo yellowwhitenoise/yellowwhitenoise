@@ -63,11 +63,14 @@ async function createDerivative(
   outputPath: string,
   reverse: boolean,
 ) {
+  // Cap at 720p: the container's memory cannot hold 1080p x264 encoding
+  // (the platform SIGKILLs FFmpeg mid-pass). Scaling first also shrinks
+  // what the reverse filter must buffer, and keeps backdrop files light.
   // setpts re-bases timestamps: the reverse filter emits frames starting
   // from a negative PTS, which the mp4 muxer rejects (0kB output, failure).
   const filters = reverse
-    ? ["-vf", "reverse,setpts=PTS-STARTPTS,format=yuv420p"]
-    : [];
+    ? ["-vf", "scale=-2:min(720,ih),reverse,setpts=PTS-STARTPTS,format=yuv420p"]
+    : ["-vf", "scale=-2:min(720,ih),format=yuv420p"];
   await execFileAsync(
     process.env.FFMPEG_PATH || "ffmpeg",
     [
