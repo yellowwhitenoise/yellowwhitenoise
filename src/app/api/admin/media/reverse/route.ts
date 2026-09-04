@@ -63,7 +63,11 @@ async function createDerivative(
   outputPath: string,
   reverse: boolean,
 ) {
-  const filters = reverse ? ["-vf", "reverse,format=yuv420p"] : [];
+  // setpts re-bases timestamps: the reverse filter emits frames starting
+  // from a negative PTS, which the mp4 muxer rejects (0kB output, failure).
+  const filters = reverse
+    ? ["-vf", "reverse,setpts=PTS-STARTPTS,format=yuv420p"]
+    : [];
   await execFileAsync(
     process.env.FFMPEG_PATH || "ffmpeg",
     [
@@ -119,10 +123,18 @@ function prepare(filename: string): Promise<{ playbackUrl: string; reverseUrl: s
           "FFmpeg is required to create smooth reverse playback. Install FFmpeg or set FFMPEG_PATH on the server.",
         );
       }
-      const stderr =
+      const rawStderr =
         typeof (error as { stderr?: unknown }).stderr === "string"
-          ? (error as { stderr: string }).stderr.trim().slice(-500)
+          ? (error as { stderr: string }).stderr
           : "";
+      // Drop FFmpeg's carriage-return progress spam (frame=… lines) so the
+      // actual error line survives truncation.
+      const stderr = rawStderr
+        .split(/[\r\n]+/)
+        .filter((line) => !/^\s*frame=/.test(line))
+        .join("\n")
+        .trim()
+        .slice(-500);
       throw new Error(
         stderr
           ? `Video preparation failed: ${stderr}`
