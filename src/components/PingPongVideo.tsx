@@ -37,16 +37,38 @@ export function PingPongVideo({
     const reverse = reverseRef.current;
     if (!forward || !reverse) return;
 
-    const onForwardEnded = () => {
-      reverse.currentTime = 0;
-      setActive("reverse");
-      startPlayback(reverse);
+    // Swap only once the incoming clip has actually seeked to its first
+    // frame — flipping visibility before a frame is painted reads as a
+    // black flash at the loop point. Timeout is the fallback for clips
+    // that never fire `seeked` (e.g. already sitting at 0).
+    const swapWhenReady = (
+      video: HTMLVideoElement,
+      name: "forward" | "reverse",
+    ) => {
+      let done = false;
+      const timer = window.setTimeout(go, 350);
+      function cleanup() {
+        video.removeEventListener("seeked", go);
+        window.clearTimeout(timer);
+      }
+      function go() {
+        if (done) return;
+        done = true;
+        cleanup();
+        setActive(name);
+        startPlayback(video);
+      }
+      video.addEventListener("seeked", go);
+      try {
+        if (typeof video.fastSeek === "function") video.fastSeek(0);
+        else video.currentTime = 0;
+      } catch {
+        go();
+      }
     };
-    const onReverseEnded = () => {
-      forward.currentTime = 0;
-      setActive("forward");
-      startPlayback(forward);
-    };
+
+    const onForwardEnded = () => swapWhenReady(reverse, "reverse");
+    const onReverseEnded = () => swapWhenReady(forward, "forward");
 
     forward.addEventListener("ended", onForwardEnded);
     reverse.addEventListener("ended", onReverseEnded);

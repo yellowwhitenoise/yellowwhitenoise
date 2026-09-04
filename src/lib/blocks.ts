@@ -97,9 +97,19 @@ export function parseAppleMusicUrl(
 }
 
 export function normalizeBlocks(raw: unknown): BlogBlock[] {
-  if (!Array.isArray(raw)) return [];
+  let list: unknown = raw;
+  if (typeof list === "string") {
+    const trimmed = list.trim();
+    if (!trimmed) return [];
+    try {
+      list = JSON.parse(trimmed) as unknown;
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(list)) return [];
   const blocks: BlogBlock[] = [];
-  for (const item of raw) {
+  for (const item of list) {
     if (!item || typeof item !== "object") continue;
     const block = item as Record<string, unknown>;
     switch (block.type) {

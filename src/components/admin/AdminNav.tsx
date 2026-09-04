@@ -96,7 +96,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className="min-h-dvh bg-background text-foreground"
+      className="min-h-dvh min-w-0 max-w-full overflow-x-clip bg-background text-foreground"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
@@ -216,7 +216,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
         {/* Page content: overlays on mobile, shifts right on desktop */}
         <div
-          className={`transition-[padding] duration-300 ease-out ${
+          className={`min-w-0 max-w-full overflow-x-clip transition-[padding] duration-300 ease-out ${
             open ? "md:pl-[280px]" : "md:pl-0"
           }`}
         >

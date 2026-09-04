@@ -213,7 +213,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   };
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-5 pb-36 pt-24 md:pt-28">
+    <main className="mx-auto w-full min-w-0 max-w-2xl overflow-x-clip px-5 pb-36 pt-24 md:pt-28">
       <div
         aria-hidden
         className="pointer-events-none fixed inset-x-0 top-0 z-30 h-24 bg-gradient-to-b from-background to-transparent"

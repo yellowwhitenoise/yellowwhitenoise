@@ -398,7 +398,7 @@ export function BlogEditor({ post }: { post: EditorPost }) {
           {faq.map((entry, index) => (
             <div
               key={index}
-              className="rounded-xl border border-foreground/10 p-3"
+              className="min-w-0 max-w-full overflow-hidden rounded-xl border border-foreground/10 p-3"
             >
               <input
                 value={entry.question}
@@ -456,9 +456,9 @@ export function BlogEditor({ post }: { post: EditorPost }) {
           {sources.map((source, index) => (
             <div
               key={index}
-              className="rounded-xl border border-foreground/10 p-3"
+              className="min-w-0 max-w-full overflow-hidden rounded-xl border border-foreground/10 p-3"
             >
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="grid min-w-0 max-w-full gap-2 sm:grid-cols-2">
                 <input
                   value={source.label}
                   onChange={(e) =>
@@ -574,9 +574,9 @@ export function BlogEditor({ post }: { post: EditorPost }) {
           </label>
           <div className={labelClass}>
             Social / profile links
-            <div className="mt-2 grid gap-2">
+            <div className="mt-2 grid min-w-0 max-w-full gap-2">
               {authorLinks.map((link, index) => (
-                <div key={index} className="flex gap-2">
+                <div key={index} className="flex min-w-0 max-w-full flex-col gap-2 sm:flex-row sm:items-center">
                   <input
                     value={link.label}
                     onChange={(e) =>
@@ -589,7 +589,7 @@ export function BlogEditor({ post }: { post: EditorPost }) {
                       )
                     }
                     placeholder="X / Instagram / LinkedIn"
-                    className={`${inputClass} flex-1`}
+                    className={`${inputClass} sm:flex-1`}
                   />
                   <input
                     value={link.url}
@@ -601,7 +601,7 @@ export function BlogEditor({ post }: { post: EditorPost }) {
                       )
                     }
                     placeholder="https://…"
-                    className={`${inputClass} flex-[2]`}
+                    className={`${inputClass} sm:flex-[2]`}
                   />
                   <button
                     type="button"
@@ -610,7 +610,7 @@ export function BlogEditor({ post }: { post: EditorPost }) {
                         current.filter((_, i) => i !== index),
                       )
                     }
-                    className="cursor-pointer text-[9px] uppercase tracking-[0.16em] text-red-400/80 underline underline-offset-4 hover:text-red-400"
+                    className="shrink-0 cursor-pointer self-start text-[9px] uppercase tracking-[0.16em] text-red-400/80 underline underline-offset-4 hover:text-red-400 sm:self-center"
                   >
                     Remove
                   </button>
@@ -715,7 +715,7 @@ export function BlogEditor({ post }: { post: EditorPost }) {
               className={`mt-2 ${inputClass}`}
             />
           </label>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid min-w-0 max-w-full gap-4 sm:grid-cols-3">
             <label className={labelClass}>
               Schedule for
               <input

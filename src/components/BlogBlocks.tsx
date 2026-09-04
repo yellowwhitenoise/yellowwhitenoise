@@ -60,9 +60,9 @@ function MusicEmbed({ block }: { block: Extract<BlogBlock, { type: "music" }> })
     block.provider === "youtubeMusic" ? extractYouTubeId(block.url) : null;
 
   return (
-    <figure className="my-8">
+    <figure className="my-8 min-w-0 max-w-full overflow-hidden">
       {embed ? (
-        <div className="overflow-hidden rounded-2xl border border-foreground/10">
+        <div className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10">
           <iframe
             src={embed.src}
             title={embed.title}
@@ -153,19 +153,23 @@ export function BlogBlocks({
   const rendered = autoAds ? insertAutomaticAds(blocks) : blocks;
 
   return (
-    <div className="space-y-5 text-[15px] leading-relaxed opacity-90">
+    <div className="min-w-0 max-w-full space-y-5 overflow-x-clip text-[15px] leading-relaxed break-words opacity-90 [overflow-wrap:anywhere]">
       {rendered.map((block, index) => {
         switch (block.type) {
           case "paragraph":
-            return <p key={index}>{renderInlineLinks(block.text)}</p>;
+            return (
+              <p key={index} className="min-w-0 max-w-full break-words [overflow-wrap:anywhere]">
+                {renderInlineLinks(block.text)}
+              </p>
+            );
           case "link":
             return (
               <div
                 key={index}
-                className="my-8 rounded-2xl border border-yellow/25 bg-yellow/[0.04] p-5 text-center"
+                className="my-8 min-w-0 max-w-full overflow-hidden rounded-2xl border border-yellow/25 bg-yellow/[0.04] p-5 text-center"
               >
                 {block.description && (
-                  <p className="text-[13px] leading-relaxed opacity-75">
+                  <p className="text-[13px] leading-relaxed break-words opacity-75 [overflow-wrap:anywhere]">
                     {block.description}
                   </p>
                 )}
@@ -177,7 +181,7 @@ export function BlogBlocks({
                       ? "noopener noreferrer sponsored nofollow"
                       : "noopener noreferrer"
                   }
-                  className="mt-3 inline-block rounded-full bg-foreground px-6 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-background transition-opacity hover:opacity-85"
+                  className="mt-3 inline-block max-w-full rounded-full bg-foreground px-6 py-3 text-[11px] font-medium break-all uppercase tracking-[0.2em] text-background transition-opacity hover:opacity-85"
                 >
                   {block.label || block.url}
                 </a>
@@ -199,15 +203,15 @@ export function BlogBlocks({
             );
           case "image":
             return (
-              <figure key={index} className="my-8">
+              <figure key={index} className="my-8 min-w-0 max-w-full overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={block.src}
                   alt={block.alt}
-                  className="w-full rounded-2xl"
+                  className="h-auto w-full max-w-full rounded-2xl"
                 />
                 {block.caption && (
-                  <figcaption className="mt-2 text-[11px] leading-relaxed opacity-50">
+                  <figcaption className="mt-2 text-[11px] leading-relaxed break-words opacity-50 [overflow-wrap:anywhere]">
                     {block.caption}
                   </figcaption>
                 )}
@@ -215,14 +219,14 @@ export function BlogBlocks({
             );
           case "gallery":
             return (
-              <div key={index} className="my-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div key={index} className="my-8 grid min-w-0 max-w-full grid-cols-1 gap-3 overflow-hidden sm:grid-cols-2">
                 {block.images.map((image, imageIndex) => (
-                  <figure key={imageIndex}>
+                  <figure key={imageIndex} className="min-w-0 max-w-full overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={image.src}
                       alt={image.alt ?? ""}
-                      className="w-full rounded-2xl object-cover"
+                      className="h-auto w-full max-w-full rounded-2xl object-cover"
                     />
                     {image.caption && (
                       <figcaption className="mt-2 text-[11px] opacity-50">
@@ -237,8 +241,8 @@ export function BlogBlocks({
             return <MusicEmbed key={index} block={block} />;
           case "youtube":
             return (
-              <figure key={index} className="my-8">
-                <div className="overflow-hidden rounded-2xl border border-foreground/10">
+              <figure key={index} className="my-8 min-w-0 max-w-full overflow-hidden">
+                <div className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10">
                   <iframe
                     src={`https://www.youtube.com/embed/${block.videoId}`}
                     title="YouTube video"
@@ -257,12 +261,12 @@ export function BlogBlocks({
             );
           case "video":
             return (
-              <figure key={index} className="my-8">
+              <figure key={index} className="my-8 min-w-0 max-w-full overflow-hidden">
                 <video
                   controls
                   preload="metadata"
                   poster={block.thumbnailUrl}
-                  className="w-full rounded-2xl"
+                  className="w-full max-w-full rounded-2xl"
                 >
                   <source src={block.url} />
                 </video>
@@ -301,14 +305,14 @@ export function BlogBlocks({
             return <hr key={index} className="border-foreground/15" />;
           case "embed":
             return block.html ? (
-              <div key={index} dangerouslySetInnerHTML={{ __html: block.html }} />
+              <div key={index} className="min-w-0 max-w-full overflow-hidden [&_iframe]:max-w-full" dangerouslySetInnerHTML={{ __html: block.html }} />
             ) : block.url ? (
-              <p key={index}>
+              <p key={index} className="min-w-0 max-w-full">
                 <a
                   href={block.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline underline-offset-4 hover:text-yellow"
+                  className="underline underline-offset-4 break-all hover:text-yellow"
                 >
                   {block.url}
                 </a>

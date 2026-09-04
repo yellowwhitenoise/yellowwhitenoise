@@ -72,7 +72,12 @@ async function createDerivative(
   // bypass the shell (execFile array), so FFmpeg itself sees the separator
   // vs. function-argument distinction.
   const filters = reverse
-    ? ["-vf", "scale=-2:min(720\\,ih),reverse,setpts=PTS-STARTPTS,format=yuv420p"]
+    ? [
+        "-vf",
+        // Drop the reversed clip's first frame: it duplicates the forward
+        // clip's last frame, which reads as a hitch at the loop point.
+        "scale=-2:min(720\\,ih),reverse,select=not(eq(n\\,0)),setpts=N/FRAME_RATE/TB,format=yuv420p",
+      ]
     : ["-vf", "scale=-2:min(720\\,ih),format=yuv420p"];
   await execFileAsync(
     process.env.FFMPEG_PATH || "ffmpeg",
@@ -105,8 +110,10 @@ function prepare(filename: string): Promise<{ playbackUrl: string; reverseUrl: s
     const inputPath = path.join(UPLOAD_DIR, filename);
     if (!fs.existsSync(inputPath)) throw new Error("The source video was not found.");
     const base = path.basename(filename, path.extname(filename));
-    const playbackName = `playback-${base}.mp4`;
-    const reverseName = `reverse-${base}.mp4`;
+    // v2: 720p cap + seamless loop-point (first reversed frame dropped).
+    // Renamed so already-prepared videos regenerate with the fix.
+    const playbackName = `playback-v2-${base}.mp4`;
+    const reverseName = `reverse-v2-${base}.mp4`;
     const playbackPath = path.join(UPLOAD_DIR, playbackName);
     const reversePath = path.join(UPLOAD_DIR, reverseName);
     try {
