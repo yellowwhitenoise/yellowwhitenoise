@@ -128,7 +128,7 @@ export function InfoSections({
   );
 
   return (
-    <main className="relative mx-auto w-full max-w-5xl px-5 pt-20 pb-24 md:px-10 md:pt-28 md:pb-16">
+    <main className="relative mx-auto w-full max-w-5xl px-5 pt-28 pb-24 md:px-10 md:pt-28 md:pb-16">
       <h1 className="sr-only">{headings[active]} — Yellow White Noise</h1>
 
       <div

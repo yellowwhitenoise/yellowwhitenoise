@@ -26,6 +26,18 @@ export function AlbumList({
   const resolvedMap = useCatalogStore((s) => s.resolved);
   const resolveAlbumAction = useCatalogStore((s) => s.resolveAlbum);
   const listRef = useRef<HTMLUListElement>(null);
+  const itemRefs = useRef(new Map<string, HTMLLIElement>());
+
+  useEffect(() => {
+    if (pinnedTitle) {
+      const el = itemRefs.current.get(pinnedTitle);
+      // Ensure the expanded streaming links scroll into view above the
+      // fixed track strip at the bottom of the artist sheet (mobile).
+      requestAnimationFrame(() => {
+        el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      });
+    }
+  }, [pinnedTitle]);
 
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
@@ -44,12 +56,17 @@ export function AlbumList({
     album.links[platform];
 
   return (
-    <ul ref={listRef} className="space-y-0.5 md:space-y-1">
+    <ul ref={listRef} className="space-y-1 md:space-y-1">
       {albums.map((album) => {
         const open = openTitle === album.title;
         return (
           <li
             key={album.title}
+            ref={(el) => {
+              if (el) itemRefs.current.set(album.title, el);
+              else itemRefs.current.delete(album.title);
+            }}
+            className="scroll-mb-24"
             onMouseEnter={
               canHover
                 ? () => {
@@ -73,7 +90,7 @@ export function AlbumList({
                 );
               }}
               aria-expanded={open}
-              className="cursor-pointer text-left text-[12px] transition-colors hover:text-yellow md:text-sm"
+              className="cursor-pointer py-1 text-left text-[12px] transition-colors hover:text-yellow md:text-sm"
             >
               {album.title}
             </button>
@@ -94,7 +111,7 @@ export function AlbumList({
                     onClick={() =>
                       trackOutbound(platformLabels[platform], album.title)
                     }
-                    className="block py-0.5 text-[10px] uppercase tracking-[0.16em] text-foreground/70 transition-colors hover:text-yellow"
+                    className="block py-1.5 text-[10px] uppercase tracking-[0.16em] text-foreground/70 transition-colors hover:text-yellow"
                   >
                     {platformLabels[platform]}
                   </a>

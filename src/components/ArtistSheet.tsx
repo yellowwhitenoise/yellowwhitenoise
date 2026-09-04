@@ -119,7 +119,7 @@ export function ArtistSheet() {
             </svg>
           </button>
 
-          <div className="w-full px-5 py-4 md:px-10 md:py-6">
+          <div className="w-full scroll-smooth px-5 pt-4 pb-12 md:px-10 md:py-6">
             <div className="md:grid md:grid-cols-[190px_minmax(0,1fr)_200px] md:items-center md:gap-10">
               <div className="flex flex-col">
                 <h2 className="font-display text-xl font-semibold uppercase tracking-[0.1em]">
@@ -204,7 +204,10 @@ export function ArtistSheet() {
           </div>
         </div>
 
-        <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="relative z-10 shrink-0 border-t border-foreground/10 bg-background/95 backdrop-blur"
+          onClick={(e) => e.stopPropagation()}
+        >
           <TrackGrid
             songs={artist.songs}
             palette={artist.palette}

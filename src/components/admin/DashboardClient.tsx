@@ -122,12 +122,6 @@ export function DashboardClient({
     );
   };
 
-  const logout = async () => {
-    await fetch("/api/admin/logout", { method: "POST" });
-    router.push("/admin/login");
-    router.refresh();
-  };
-
   const removePost = async (id: number) => {
     await fetch(`/api/admin/posts/${id}`, { method: "DELETE" });
     router.refresh();
@@ -176,16 +170,6 @@ export function DashboardClient({
 
   return (
     <main className="mx-auto w-full max-w-4xl px-5 pb-20">
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={logout}
-          className="cursor-pointer rounded-full border border-foreground/15 px-4 py-2 text-[10px] uppercase tracking-[0.2em] transition-colors hover:bg-foreground/10"
-        >
-          Log out
-        </button>
-      </div>
-
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         <div className="rounded-2xl border border-foreground/10 p-5">
           <p className="text-[10px] uppercase tracking-[0.22em] opacity-50">

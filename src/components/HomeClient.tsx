@@ -235,7 +235,7 @@ export default function HomeClient({
             ref={(node) => {
               groupRefs.current[copy] = node;
             }}
-            className={`m-auto flex flex-col items-center gap-14 px-7 py-7 transition-opacity duration-700 md:flex-row md:gap-[4vw] md:px-[5vw] md:py-7 ${
+            className={`m-auto flex flex-col items-center gap-10 px-7 pt-28 pb-24 transition-opacity duration-700 md:flex-row md:gap-[4vw] md:px-[5vw] md:py-7 ${
               immersed ? "pointer-events-none opacity-0" : "opacity-100"
             }`}
           >
