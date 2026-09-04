@@ -29,14 +29,25 @@ export function AlbumList({
   const itemRefs = useRef(new Map<string, HTMLLIElement>());
 
   useEffect(() => {
-    if (pinnedTitle) {
-      const el = itemRefs.current.get(pinnedTitle);
-      // Ensure the expanded streaming links scroll into view above the
-      // fixed track strip at the bottom of the artist sheet (mobile).
-      requestAnimationFrame(() => {
-        el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      });
-    }
+    if (!pinnedTitle) return;
+    const el = itemRefs.current.get(pinnedTitle);
+    if (!el) return;
+    // Phase 1: bring the tapped album into view right away.
+    const frame = requestAnimationFrame(() => {
+      el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    });
+    // Phase 2: the links expand over a 300ms transition, so a scroll fired
+    // immediately lands on the still-collapsed row and the last links end
+    // up below the fold. Once expansion finishes, pin the whole links
+    // block fully into view above the track strip — no manual scroll needed.
+    const timer = setTimeout(() => {
+      const links = el.querySelector("[data-album-links]");
+      (links ?? el).scrollIntoView({ block: "end", behavior: "smooth" });
+    }, 350);
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(timer);
+    };
   }, [pinnedTitle]);
 
   useEffect(() => {
@@ -101,7 +112,7 @@ export function AlbumList({
                   : "grid-rows-[0fr] opacity-0"
               }`}
             >
-              <div className="overflow-hidden">
+              <div data-album-links className="scroll-mb-28 overflow-hidden">
                 {platforms.map((platform) => (
                   <a
                     key={platform}

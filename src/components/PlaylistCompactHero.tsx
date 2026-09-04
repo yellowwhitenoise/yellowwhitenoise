@@ -53,7 +53,7 @@ export function PlaylistCompactHero({
           <p className="text-[10px] uppercase tracking-[0.24em] opacity-50">
             YWN · Playlist
           </p>
-          <h1 className="mt-1 truncate font-display text-2xl font-semibold uppercase tracking-[0.08em]">
+          <h1 className="mt-1 font-display text-2xl font-semibold uppercase leading-tight tracking-[0.08em]">
             {name}
           </h1>
           <p className="mt-1 line-clamp-2 text-[13px] leading-snug opacity-70">

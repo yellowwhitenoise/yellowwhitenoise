@@ -148,11 +148,35 @@ export function PlaylistManagerClient({
   const [importingDiscovered, setImportingDiscovered] = useState<string | null>(
     null,
   );
+  const [clearingCache, setClearingCache] = useState(false);
 
   const updateLocal = (id: number, patch: Partial<ManagedPlaylist>) => {
     setItems((current) =>
       current.map((item) => (item.id === id ? { ...item, ...patch } : item)),
     );
+  };
+
+  const clearCache = async () => {
+    setClearingCache(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const response = await fetch("/api/admin/cache/clear", {
+        method: "POST",
+      });
+      const data = (await response.json().catch(() => ({}))) as {
+        cleared?: number;
+      };
+      if (!response.ok) throw new Error();
+      setNotice(
+        `Cleared ${data.cleared ?? 0} cached track resolution(s). Tracks re-resolve on next view.`,
+      );
+    } catch {
+      setError("Could not clear the resolution cache.");
+    } finally {
+      setClearingCache(false);
+    }
+    router.refresh();
   };
 
   const importPlaylist = async (event: React.FormEvent) => {
@@ -391,16 +415,26 @@ export function PlaylistManagerClient({
         <h1 className="font-display text-3xl font-semibold uppercase tracking-[0.1em]">
           Playlists
         </h1>
-        {items.length > 0 && (
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => void syncAll()}
-            disabled={syncingAll || syncingId !== null}
-            className="cursor-pointer rounded-full border border-yellow/40 px-4 py-2 text-[10px] uppercase tracking-[0.18em] text-yellow transition-colors hover:bg-yellow/10 disabled:opacity-50"
+            onClick={() => void clearCache()}
+            disabled={clearingCache || syncingAll}
+            className="cursor-pointer rounded-full border border-foreground/15 px-4 py-2 text-[10px] uppercase tracking-[0.18em] opacity-70 transition-colors hover:bg-foreground/10 disabled:opacity-50"
           >
-            {syncingAll ? "Syncing…" : "Sync all now"}
+            {clearingCache ? "Clearing…" : "Clear resolution cache"}
           </button>
-        )}
+          {items.length > 0 && (
+            <button
+              type="button"
+              onClick={() => void syncAll()}
+              disabled={syncingAll || syncingId !== null}
+              className="cursor-pointer rounded-full border border-yellow/40 px-4 py-2 text-[10px] uppercase tracking-[0.18em] text-yellow transition-colors hover:bg-yellow/10 disabled:opacity-50"
+            >
+              {syncingAll ? "Syncing…" : "Sync all now"}
+            </button>
+          )}
+        </div>
       </div>
 
       <section className="mt-8 rounded-2xl border border-yellow/25 p-5">

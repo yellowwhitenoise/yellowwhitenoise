@@ -1540,6 +1540,13 @@ export function setCachedJson(key: string, value: unknown, ttlMs: number) {
     .run(key, JSON.stringify(value), Date.now() + ttlMs);
 }
 
+export function clearCachedByPrefix(prefix: string): number {
+  const info = getDb()
+    .prepare("DELETE FROM app_cache WHERE cache_key LIKE ? ESCAPE '\\'")
+    .run(`${prefix.replace(/[\\%_]/g, "\\$&")}%`);
+  return Number(info.changes);
+}
+
 const subscriberSelect = `
   SELECT subscribers.*,
     (SELECT COUNT(*) FROM playlist_subscriptions

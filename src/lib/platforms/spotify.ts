@@ -39,6 +39,7 @@ async function getAccessToken(): Promise<string | null> {
 export interface SpotifyHealth {
   configured: boolean;
   tokenOk: boolean;
+  searchOk: boolean;
   detail: string;
 }
 
@@ -50,6 +51,7 @@ export async function checkSpotifyHealth(): Promise<SpotifyHealth> {
     return {
       configured: false,
       tokenOk: false,
+      searchOk: false,
       detail: "SPOTIFY_CLIENT_ID / SPOTIFY_CLIENT_SECRET missing.",
     };
   }
@@ -59,11 +61,27 @@ export async function checkSpotifyHealth(): Promise<SpotifyHealth> {
     return {
       configured: true,
       tokenOk: false,
+      searchOk: false,
       detail:
         "Token request failed. Verify the client ID/secret pair in the Spotify dashboard.",
     };
   }
-  return { configured: true, tokenOk: true, detail: "Token issued." };
+  const canary = await search("tracks", "track:Water artist:Tyla");
+  if (!canary) {
+    return {
+      configured: true,
+      tokenOk: true,
+      searchOk: false,
+      detail:
+        "Token works but search returned nothing. Check the app's API access in the Spotify dashboard.",
+    };
+  }
+  return {
+    configured: true,
+    tokenOk: true,
+    searchOk: true,
+    detail: `Token + search work (e.g. "${canary.name}").`,
+  };
 }
 
 interface SpotifyImage {
@@ -113,7 +131,7 @@ interface SpotifyAlbumTracksPage {
   next: string | null;
 }
 
-async function search(
+export async function search(
   type: "tracks" | "albums" | "playlists",
   query: string,
 ): Promise<SpotifyItem | null> {

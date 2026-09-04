@@ -2,7 +2,16 @@ import { appleAlbum, appleTrack } from "./apple";
 import { spotifyAlbum, spotifyPlaylist, spotifyTrack } from "./spotify";
 import { youtubePlaylist, youtubeTrack } from "./youtube";
 import type { Platform } from "@/lib/data";
-import { getCachedJson, setCachedJson } from "@/lib/db";
+import {
+  clearCachedByPrefix,
+  getCachedJson,
+  setCachedJson,
+} from "@/lib/db";
+
+export function clearCatalogCache(): number {
+  cache.clear();
+  return clearCachedByPrefix("catalog:");
+}
 
 export interface ResolvedCatalogEntry {
   matched: boolean;
