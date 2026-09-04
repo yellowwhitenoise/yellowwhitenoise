@@ -1,0 +1,8 @@
+.git
+.next
+.data
+node_modules
+coverage
+dev-*.log
+prod-test.log
+npm-debug.log
