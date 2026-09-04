@@ -82,7 +82,10 @@ export async function uploadToCloudinary(
     { method: "POST", body: form },
   );
   if (!response.ok) {
-    throw new Error("Cloudinary upload failed.");
+    const detail = (await response.text().catch(() => "")).slice(0, 300);
+    throw new Error(
+      `Cloudinary upload failed (${response.status}). ${detail}`,
+    );
   }
   const data = (await response.json()) as {
     secure_url?: string;

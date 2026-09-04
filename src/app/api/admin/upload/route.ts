@@ -94,9 +94,12 @@ export async function POST(request: NextRequest) {
         id: media.id,
         kind: media.kind,
       });
-    } catch {
+    } catch (error) {
       return NextResponse.json(
-        { error: "Cloudinary upload failed." },
+        {
+          error:
+            error instanceof Error ? error.message : "Cloudinary upload failed.",
+        },
         { status: 502 },
       );
     }
