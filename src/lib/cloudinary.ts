@@ -56,8 +56,9 @@ export async function uploadToCloudinary(
   if (!cfg) throw new Error("Cloudinary is not configured.");
   const timestamp = Math.floor(Date.now() / 1000);
   const publicId = `${cfg.folder}/${Date.now().toString(36)}-${createHash("md5").update(filename + timestamp).digest("hex").slice(0, 8)}`;
+  // Note: api_key is sent as a form field but must NOT be part of the
+  // signed string — Cloudinary signs only the remaining parameters.
   const params: Record<string, string> = {
-    api_key: cfg.apiKey,
     folder: cfg.folder,
     public_id: publicId,
     timestamp: String(timestamp),
@@ -72,7 +73,7 @@ export async function uploadToCloudinary(
     .digest("hex");
   const form = new FormData();
   form.append("file", new Blob([new Uint8Array(buffer)], { type: mime }), filename);
-  form.append("api_key", params.api_key);
+  form.append("api_key", cfg.apiKey);
   form.append("timestamp", params.timestamp);
   form.append("folder", params.folder);
   form.append("public_id", params.public_id);
