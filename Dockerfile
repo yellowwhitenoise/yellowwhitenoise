@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim AS dependencies
+FROM node:22-bookworm-slim AS dependencies
 
 WORKDIR /app
 RUN apt-get update \
@@ -8,7 +8,7 @@ RUN apt-get update \
 COPY package.json package-lock.json ./
 RUN npm ci
 
-FROM node:20-bookworm-slim AS builder
+FROM node:22-bookworm-slim AS builder
 
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -17,7 +17,7 @@ COPY package.json package-lock.json ./
 COPY . .
 RUN NODE_OPTIONS="--max-old-space-size=3072" npm run build
 
-FROM node:20-bookworm-slim AS runner
+FROM node:22-bookworm-slim AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production
