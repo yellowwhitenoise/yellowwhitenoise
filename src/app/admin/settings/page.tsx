@@ -4,8 +4,11 @@ import { SettingsClient } from "@/components/admin/SettingsClient";
 import {
   getArtistSyncMinutes,
   getHapticsEnabled,
-  getPlaylistStyle,
+  getPlaylistStyleDesktop,
+  getPlaylistStyleMobile,
   getPlaylistSyncMinutes,
+  getTapHideEnabled,
+  getTapHidePlaylistEnabled,
 } from "@/lib/sync-settings";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +20,10 @@ export default async function AdminSettingsPage() {
       initialPlaylistMinutes={getPlaylistSyncMinutes()}
       initialArtistMinutes={getArtistSyncMinutes()}
       initialHaptics={getHapticsEnabled()}
-      initialPlaylistStyle={getPlaylistStyle()}
+      initialPlaylistStyleMobile={getPlaylistStyleMobile()}
+      initialPlaylistStyleDesktop={getPlaylistStyleDesktop()}
+      initialTapHide={getTapHideEnabled()}
+      initialTapHidePlaylist={getTapHidePlaylistEnabled()}
     />
   );
 }

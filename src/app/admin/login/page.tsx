@@ -51,6 +51,9 @@ export default function AdminLoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             className="mt-2 w-full rounded-xl border border-foreground/15 bg-transparent px-4 py-2.5 text-[13px] tracking-normal text-foreground outline-none focus:border-yellow"
           />
         </label>
@@ -61,6 +64,9 @@ export default function AdminLoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             className="mt-2 w-full rounded-xl border border-foreground/15 bg-transparent px-4 py-2.5 text-[13px] tracking-normal text-foreground outline-none focus:border-yellow"
           />
         </label>

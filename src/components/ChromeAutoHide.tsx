@@ -17,6 +17,10 @@ export function ChromeAutoHide() {
   const pathname = usePathname();
 
   useEffect(() => {
+    // Never carry tap-to-hide immersion across pages — otherwise the logo
+    // and bottom nav would stay hidden after navigating away.
+    useUIStore.getState().setImmersed(false);
+
     const enabled = ENABLED_PREFIXES.some((prefix) =>
       prefix === "/" ? pathname === "/" : pathname.startsWith(prefix),
     );

@@ -16,6 +16,8 @@ const ABOUT_GROUP = ["/about", "/contact", "/blog", "/privacy"];
 export function BottomNav() {
   const pathname = usePathname();
   const chromeHidden = useUIStore((s) => s.chromeHidden);
+  const immersed = useUIStore((s) => s.immersed);
+  const hidden = chromeHidden || immersed;
   const storedSection = useInfoNavStore((s) => s.section);
   const infoNavTouched = useInfoNavStore((s) => s.touched);
   const resetInfoNav = useInfoNavStore((s) => s.reset);
@@ -64,7 +66,7 @@ export function BottomNav() {
   return (
     <nav
       className={`fixed inset-x-0 bottom-0 z-40 text-white transition-all duration-300 ${
-        chromeHidden ? "translate-y-full opacity-0" : "translate-y-0 opacity-100"
+        hidden ? "translate-y-full opacity-0" : "translate-y-0 opacity-100"
       }`}
     >
       <ul className="flex items-center justify-center gap-7 pt-3 pb-[max(env(safe-area-inset-bottom),1.25rem)] text-[13px] uppercase tracking-[0.18em]">

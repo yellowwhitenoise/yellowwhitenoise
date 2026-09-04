@@ -4,6 +4,7 @@ import { getSetting, listArtists } from "@/lib/db";
 import type { Artist, MediaRef } from "@/lib/data";
 import { fetchBackendJson, isBackendConfigured } from "@/lib/backend-fetch";
 import { syncStaleArtists } from "@/lib/platforms/artist-sync";
+import { getTapHideEnabled } from "@/lib/sync-settings";
 
 export const dynamic = "force-dynamic";
 
@@ -22,13 +23,14 @@ export default async function HomePage() {
       artists: Artist[];
       backdrop: MediaRef | null;
     }>("/api/public/home");
-    return (
-      <HomeClient
-        artists={data?.artists ?? []}
-        backdrop={data?.backdrop ?? undefined}
-      />
-    );
-  }
+  return (
+    <HomeClient
+      artists={data?.artists ?? []}
+      backdrop={data?.backdrop ?? undefined}
+      tapHideEnabled
+    />
+  );
+}
   await syncStaleArtists();
   const artists = listArtists();
   let backdrop: MediaRef | undefined;
@@ -40,5 +42,11 @@ export default async function HomePage() {
       backdrop = undefined;
     }
   }
-  return <HomeClient artists={artists} backdrop={backdrop} />;
+  return (
+    <HomeClient
+      artists={artists}
+      backdrop={backdrop}
+      tapHideEnabled={getTapHideEnabled()}
+    />
+  );
 }

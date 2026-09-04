@@ -41,6 +41,32 @@ export function getHapticsEnabled(): boolean {
 
 export type PlaylistStyle = "full" | "compact";
 
+function parsePlaylistStyle(raw: string | null): PlaylistStyle | null {
+  return raw === "full" || raw === "compact" ? raw : null;
+}
+
 export function getPlaylistStyle(): PlaylistStyle {
-  return getSetting("playlist_style") === "compact" ? "compact" : "full";
+  return parsePlaylistStyle(getSetting("playlist_style")) ?? "full";
+}
+
+export function getPlaylistStyleMobile(): PlaylistStyle {
+  return (
+    parsePlaylistStyle(getSetting("playlist_style_mobile")) ??
+    getPlaylistStyle()
+  );
+}
+
+export function getPlaylistStyleDesktop(): PlaylistStyle {
+  return (
+    parsePlaylistStyle(getSetting("playlist_style_desktop")) ??
+    getPlaylistStyle()
+  );
+}
+
+export function getTapHideEnabled(): boolean {
+  return getSetting("tap_hide_enabled") !== "false";
+}
+
+export function getTapHidePlaylistEnabled(): boolean {
+  return getSetting("tap_hide_playlist") !== "false";
 }

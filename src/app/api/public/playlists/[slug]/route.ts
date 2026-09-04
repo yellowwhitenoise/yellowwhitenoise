@@ -1,6 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCachedPublicPlaylist } from "@/lib/public-playlists";
-import { getPlaylistStyle } from "@/lib/sync-settings";
+import {
+  getPlaylistStyle,
+  getPlaylistStyleDesktop,
+  getPlaylistStyleMobile,
+} from "@/lib/sync-settings";
 
 export const dynamic = "force-dynamic";
 
@@ -11,5 +15,10 @@ export async function GET(
   const { slug } = await params;
   const playlist = await getCachedPublicPlaylist(slug);
   if (!playlist) return NextResponse.json({ error: "not found" }, { status: 404 });
-  return NextResponse.json({ ...playlist, playlistStyle: getPlaylistStyle() });
+  return NextResponse.json({
+    ...playlist,
+    playlistStyle: getPlaylistStyle(),
+    playlistStyleMobile: getPlaylistStyleMobile(),
+    playlistStyleDesktop: getPlaylistStyleDesktop(),
+  });
 }

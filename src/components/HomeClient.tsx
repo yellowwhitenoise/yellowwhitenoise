@@ -20,10 +20,12 @@ export default function HomeClient({
   artists,
   backdrop,
   initialSheet,
+  tapHideEnabled = true,
 }: {
   artists: Artist[];
   backdrop?: MediaRef;
   initialSheet?: string;
+  tapHideEnabled?: boolean;
 }) {
   const immersed = useUIStore((s) => s.immersed);
   const toggleImmersed = useUIStore((s) => s.toggleImmersed);
@@ -163,8 +165,12 @@ export default function HomeClient({
 
   return (
     <main
-      onClick={() => toggleImmersed()}
-      className="relative flex min-h-dvh cursor-pointer flex-col overflow-hidden"
+      onClick={() => {
+        if (tapHideEnabled) toggleImmersed();
+      }}
+      className={`relative flex min-h-dvh flex-col overflow-hidden ${
+        tapHideEnabled ? "cursor-pointer" : ""
+      }`}
     >
       <h1 className="sr-only">
         Yellow White Noise — Independent Amapiano &amp; Afrobeats Label

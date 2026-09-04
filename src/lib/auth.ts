@@ -43,14 +43,18 @@ export function checkCredentials(
   email: string,
   password: string,
 ): boolean {
-  const expectedEmail = adminEmail();
-  const expectedPassword = adminPassword();
+  // Forgiving comparison for phone keyboards: trim stray whitespace and
+  // ignore email case (autocapitalize loves the first letter).
+  const givenEmail = email.trim().toLowerCase();
+  const expectedEmail = adminEmail().trim().toLowerCase();
+  const givenPassword = password.trim();
+  const expectedPassword = adminPassword().trim();
   const emailOk =
-    email.length === expectedEmail.length &&
-    timingSafeEqual(Buffer.from(email), Buffer.from(expectedEmail));
+    givenEmail.length === expectedEmail.length &&
+    timingSafeEqual(Buffer.from(givenEmail), Buffer.from(expectedEmail));
   const passwordOk =
-    password.length === expectedPassword.length &&
-    timingSafeEqual(Buffer.from(password), Buffer.from(expectedPassword));
+    givenPassword.length === expectedPassword.length &&
+    timingSafeEqual(Buffer.from(givenPassword), Buffer.from(expectedPassword));
   return emailOk && passwordOk;
 }
 

@@ -34,6 +34,85 @@ function toMinutes(value: string, unit: Unit): number | null {
   return Math.floor(minutes);
 }
 
+function Switch({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={onChange}
+      className={`relative h-7 w-12 shrink-0 cursor-pointer rounded-full transition-colors ${
+        checked ? "bg-yellow" : "bg-foreground/20"
+      }`}
+    >
+      <span
+        className={`absolute top-1 h-5 w-5 rounded-full bg-black transition-all ${
+          checked ? "left-6" : "left-1"
+        }`}
+      />
+    </button>
+  );
+}
+
+function StylePicker({
+  title,
+  value,
+  onChange,
+}: {
+  title: string;
+  value: PlaylistStyle;
+  onChange: (style: PlaylistStyle) => void;
+}) {
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-[0.22em] opacity-50">
+        {title}
+      </p>
+      <div className="mt-2">
+        <ResponsiveMenu
+          label={`${title} playlist style`}
+          activeLabel={`Style: ${playlistStyles.find((option) => option.id === value)?.label ?? "Full"}`}
+          buttonClassName="cursor-pointer rounded-xl border border-foreground/15 px-4 py-2.5 text-[10px] uppercase tracking-[0.18em] transition-colors hover:bg-foreground/10"
+        >
+          {(close) => (
+            <>
+              {playlistStyles.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => {
+                    onChange(option.id);
+                    close();
+                  }}
+                  className={`block w-full cursor-pointer rounded-xl px-4 py-3 text-left transition-colors hover:bg-foreground/10 ${
+                    value === option.id ? "text-yellow" : ""
+                  }`}
+                >
+                  <span className="block text-[13px] font-medium">
+                    {option.label}
+                  </span>
+                  <span className="mt-0.5 block text-[11px] leading-relaxed opacity-60">
+                    {option.hint}
+                  </span>
+                </button>
+              ))}
+            </>
+          )}
+        </ResponsiveMenu>
+      </div>
+    </div>
+  );
+}
+
 function IntervalRow({
   title,
   description,
@@ -85,12 +164,18 @@ export function SettingsClient({
   initialPlaylistMinutes,
   initialArtistMinutes,
   initialHaptics,
-  initialPlaylistStyle,
+  initialPlaylistStyleMobile,
+  initialPlaylistStyleDesktop,
+  initialTapHide,
+  initialTapHidePlaylist,
 }: {
   initialPlaylistMinutes: number;
   initialArtistMinutes: number;
   initialHaptics: boolean;
-  initialPlaylistStyle: PlaylistStyle;
+  initialPlaylistStyleMobile: PlaylistStyle;
+  initialPlaylistStyleDesktop: PlaylistStyle;
+  initialTapHide: boolean;
+  initialTapHidePlaylist: boolean;
 }) {
   const playlist = splitMinutes(initialPlaylistMinutes);
   const artist = splitMinutes(initialArtistMinutes);
@@ -99,8 +184,14 @@ export function SettingsClient({
   const [artistValue, setArtistValue] = useState(artist.value);
   const [artistUnit, setArtistUnit] = useState<Unit>(artist.unit);
   const [haptics, setHaptics] = useState(initialHaptics);
-  const [playlistStyle, setPlaylistStyle] =
-    useState<PlaylistStyle>(initialPlaylistStyle);
+  const [playlistStyleMobile, setPlaylistStyleMobile] =
+    useState<PlaylistStyle>(initialPlaylistStyleMobile);
+  const [playlistStyleDesktop, setPlaylistStyleDesktop] =
+    useState<PlaylistStyle>(initialPlaylistStyleDesktop);
+  const [tapHide, setTapHide] = useState(initialTapHide);
+  const [tapHidePlaylist, setTapHidePlaylist] = useState(
+    initialTapHidePlaylist,
+  );
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -118,7 +209,10 @@ export function SettingsClient({
         ["playlist_sync_interval_minutes", String(playlistMinutes)],
         ["artist_sync_interval_minutes", String(artistMinutes)],
         ["haptics_enabled", haptics ? "true" : "false"],
-        ["playlist_style", playlistStyle],
+        ["playlist_style_mobile", playlistStyleMobile],
+        ["playlist_style_desktop", playlistStyleDesktop],
+        ["tap_hide_enabled", tapHide ? "true" : "false"],
+        ["tap_hide_playlist", tapHidePlaylist ? "true" : "false"],
       ];
       for (const [key, value] of entries) {
         const response = await fetch("/api/admin/settings", {
@@ -168,39 +262,49 @@ export function SettingsClient({
             Playlist style
           </p>
           <p className="mt-1 text-[11px] leading-relaxed opacity-70">
-            Layout of the individual playlist page.
+            Layout of the individual playlist page, per device. Set mobile
+            to Compact and desktop to Full to mix them.
           </p>
-          <div className="mt-4">
-            <ResponsiveMenu
-              label="Playlist style"
-              activeLabel={`Style: ${playlistStyles.find((option) => option.id === playlistStyle)?.label ?? "Full"}`}
-              buttonClassName="cursor-pointer rounded-xl border border-foreground/15 px-4 py-2.5 text-[10px] uppercase tracking-[0.18em] transition-colors hover:bg-foreground/10"
-            >
-              {(close) => (
-                <>
-                  {playlistStyles.map((option) => (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => {
-                        setPlaylistStyle(option.id);
-                        close();
-                      }}
-                      className={`block w-full cursor-pointer rounded-xl px-4 py-3 text-left transition-colors hover:bg-foreground/10 ${
-                        playlistStyle === option.id ? "text-yellow" : ""
-                      }`}
-                    >
-                      <span className="block text-[13px] font-medium">
-                        {option.label}
-                      </span>
-                      <span className="mt-0.5 block text-[11px] leading-relaxed opacity-60">
-                        {option.hint}
-                      </span>
-                    </button>
-                  ))}
-                </>
-              )}
-            </ResponsiveMenu>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <StylePicker
+              title="Mobile"
+              value={playlistStyleMobile}
+              onChange={setPlaylistStyleMobile}
+            />
+            <StylePicker
+              title="Desktop"
+              value={playlistStyleDesktop}
+              onChange={setPlaylistStyleDesktop}
+            />
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-foreground/10 p-5">
+          <p className="font-display text-base font-semibold uppercase tracking-[0.08em]">
+            Tap to hide
+          </p>
+          <p className="mt-1 text-[11px] leading-relaxed opacity-70">
+            Tapping the page fades out profiles, the brand logo and the
+            bottom navigation for a clean full-screen view. Tap again to
+            bring everything back.
+          </p>
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-[13px]">Home page artist profiles</p>
+              <Switch
+                checked={tapHide}
+                onChange={() => setTapHide((current) => !current)}
+                label="Tap to hide on home page"
+              />
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-[13px]">Individual playlist pages</p>
+              <Switch
+                checked={tapHidePlaylist}
+                onChange={() => setTapHidePlaylist((current) => !current)}
+                label="Tap to hide on playlist pages"
+              />
+            </div>
           </div>
         </div>
 

@@ -73,7 +73,11 @@ export function PlaylistCompactHero({
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`Listen on ${platformLabels[platform]} — ${name}`}
-              onClick={() => trackOutbound(platformLabels[platform], name)}
+              onClick={(event) => {
+                // Don't trigger tap-to-hide when using the streaming icons.
+                event.stopPropagation();
+                trackOutbound(platformLabels[platform], name);
+              }}
               className="flex h-12 w-12 items-center justify-center rounded-full border border-foreground/15 transition-colors hover:border-yellow"
             >
               <PlatformIcon platform={platform} className="h-5 w-5" />
@@ -85,7 +89,11 @@ export function PlaylistCompactHero({
       <div className="mt-5 border-t border-foreground/10">
         <button
           type="button"
-          onClick={() => setAboutOpen((current) => !current)}
+          onClick={(event) => {
+            // Don't trigger tap-to-hide when expanding the description.
+            event.stopPropagation();
+            setAboutOpen((current) => !current);
+          }}
           aria-expanded={aboutOpen}
           className="flex w-full cursor-pointer items-center justify-between py-3 text-left"
         >

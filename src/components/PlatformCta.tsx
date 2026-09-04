@@ -21,7 +21,11 @@ export function PlatformCta({
       href={buildOutboundUrl(href)}
       target="_blank"
       rel="noopener noreferrer"
-      onClick={() => trackOutbound(platformLabels[platform], entity)}
+      onClick={(event) => {
+        // Don't trigger tap-to-hide on pages that hide chrome on tap.
+        event.stopPropagation();
+        trackOutbound(platformLabels[platform], entity);
+      }}
       className={`flex items-center border border-foreground/10 transition-colors hover:bg-foreground/[0.06] ${
         compact
           ? "justify-start gap-2.5 rounded-xl px-3 py-2"
