@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { triggerHaptic } from "@/lib/haptics";
 import { useUIStore } from "@/lib/store/ui";
 
 const links = [
@@ -28,6 +29,7 @@ export function BottomNav() {
     event: React.MouseEvent<HTMLAnchorElement>,
     href: string,
   ) => {
+    triggerHaptic();
     if (!isActive(href)) return;
     event.preventDefault();
     window.dispatchEvent(new CustomEvent("ywn:scroll-to-top"));

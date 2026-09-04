@@ -10,10 +10,16 @@ import {
 import { notifyPlaylistSubscribers } from "@/lib/mailer";
 import type { PlaylistTrack } from "@/lib/data";
 import { invalidatePublicPlaylists } from "@/lib/public-playlists";
+import {
+  DEFAULT_PLAYLIST_SYNC_MINUTES,
+  getPlaylistSyncIntervalMs,
+} from "@/lib/sync-settings";
 import { importPlaylistFromUrl } from "./playlist-import";
 import { getSpotifyUserAccessToken } from "./spotify-auth";
 
-export const PLAYLIST_SYNC_INTERVAL_MS = 15 * 60 * 1000;
+// Default refresh interval; the live value is configurable in Admin → Settings.
+export const PLAYLIST_SYNC_INTERVAL_MS =
+  DEFAULT_PLAYLIST_SYNC_MINUTES * 60 * 1000;
 
 export interface PlaylistSyncReport {
   id: number;
@@ -183,7 +189,9 @@ function isStale(row: PlaylistRow, now: number): boolean {
     ? lastAttempt
     : `${lastAttempt.replace(" ", "T")}Z`;
   const timestamp = Date.parse(normalized);
-  return Number.isNaN(timestamp) || now - timestamp >= PLAYLIST_SYNC_INTERVAL_MS;
+  return (
+    Number.isNaN(timestamp) || now - timestamp >= getPlaylistSyncIntervalMs()
+  );
 }
 
 export function syncStalePlaylists(): Promise<PlaylistSyncReport[]> {

@@ -16,6 +16,10 @@ import {
 import {
   notifyArtistReleaseEvent,
 } from "@/lib/mailer";
+import {
+  DEFAULT_ARTIST_SYNC_MINUTES,
+  getArtistSyncIntervalMs,
+} from "@/lib/sync-settings";
 import { importArtistCatalog } from "./artist-import";
 import type {
   ImportedArtistAlbum,
@@ -23,7 +27,8 @@ import type {
   ImportedArtistSong,
 } from "./artist-types";
 
-export const ARTIST_SYNC_INTERVAL_MS = 6 * 60 * 60 * 1000;
+// Default refresh interval; the live value is configurable in Admin → Settings.
+export const ARTIST_SYNC_INTERVAL_MS = DEFAULT_ARTIST_SYNC_MINUTES * 60 * 1000;
 
 export interface ArtistSyncReport {
   id: number;
@@ -347,7 +352,9 @@ function isStale(artist: Artist & { id: number }, now: number): boolean {
     ? lastAttempt
     : `${lastAttempt.replace(" ", "T")}Z`;
   const timestamp = Date.parse(normalized);
-  return Number.isNaN(timestamp) || now - timestamp >= ARTIST_SYNC_INTERVAL_MS;
+  return (
+    Number.isNaN(timestamp) || now - timestamp >= getArtistSyncIntervalMs()
+  );
 }
 
 export function syncStaleArtists(): Promise<ArtistSyncReport[]> {

@@ -120,12 +120,15 @@ platform in the **Connected accounts** section of `/admin/playlists`:
    explicitly; otherwise the app derives it from the request origin.
 
 When deployed on Vercel, `/api/cron/playlists` checks all imported source
-playlists every 15 minutes. Set `CRON_SECRET` in the deployment environment;
-the public playlist pages also refresh stale sources when they are visited.
+playlists on the playlist refresh interval (default 15 minutes,
+configurable in Admin → Settings). Set `CRON_SECRET` in the deployment
+environment; the public playlist pages also refresh stale sources when they
+are visited.
 
 Artist catalog sync is configured inside each artist editor. Add the official
 Spotify artist URL, Apple Music artist URL, or YouTube Music channel URL,
-enable automatic sync, and save. Enabled artists are checked every six hours;
+enable automatic sync, and save. Enabled artists are checked on the artist
+refresh interval (default six hours, configurable in Admin → Settings);
 new tracks and albums are merged by ISRC, platform ID, then normalized release
 metadata. Existing manual releases are preserved.
 

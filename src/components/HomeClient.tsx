@@ -8,6 +8,7 @@ import {
 } from "react";
 import { usePathname } from "next/navigation";
 import { BackdropMedia } from "@/components/BackdropMedia";
+import { triggerHaptic } from "@/lib/haptics";
 import type { Artist, MediaRef } from "@/lib/data";
 import { useArtistsStore } from "@/lib/store/artists";
 import { useUIStore } from "@/lib/store/ui";
@@ -246,6 +247,7 @@ export default function HomeClient({
                 aria-label={`${name} — ${genre}`}
                 onClick={(e) => {
                   e.stopPropagation();
+                  triggerHaptic();
                   openSheet(slug);
                 }}
                 onMouseEnter={() => handleArtistEnter(slug)}

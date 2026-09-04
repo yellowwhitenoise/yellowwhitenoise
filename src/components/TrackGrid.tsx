@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { trackOutbound } from "@/lib/ads";
+import { triggerHaptic } from "@/lib/haptics";
 import {
   isTrackActive,
   usePlaybackStore,
@@ -83,6 +84,7 @@ export function TrackGrid({
 
   const handleClick = (song: Song, event: MouseEvent) => {
     const pointerType = (event.nativeEvent as PointerEvent).pointerType;
+    triggerHaptic();
     ensureResolved(song);
     setPinnedSlug((current) => (current === song.slug ? null : song.slug));
     if (pointerType === "touch") togglePlay(song);

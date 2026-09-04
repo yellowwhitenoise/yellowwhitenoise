@@ -64,6 +64,46 @@ async function youtubeSearch(
   return data.items?.[0] ?? null;
 }
 
+export interface YoutubeHealth {
+  configured: boolean;
+  searchOk: boolean;
+  detail: string;
+}
+
+export async function checkYoutubeHealth(): Promise<YoutubeHealth> {
+  const key = process.env.YOUTUBE_API_KEY;
+  if (!key) {
+    return {
+      configured: false,
+      searchOk: false,
+      detail: "YOUTUBE_API_KEY missing.",
+    };
+  }
+  try {
+    const query = new URLSearchParams({
+      part: "snippet",
+      type: "video",
+      q: "Tyla Water",
+      maxResults: "1",
+      key,
+    });
+    const response = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?${query.toString()}`,
+      { cache: "no-store" },
+    );
+    if (!response.ok) {
+      return {
+        configured: true,
+        searchOk: false,
+        detail: `Search rejected (HTTP ${response.status}). Check key restrictions and quota.`,
+      };
+    }
+    return { configured: true, searchOk: true, detail: "Search succeeded." };
+  } catch {
+    return { configured: true, searchOk: false, detail: "Network error." };
+  }
+}
+
 export async function youtubeTrack(
   title: string,
   artist: string,

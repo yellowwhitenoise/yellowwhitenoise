@@ -12,6 +12,7 @@ const items = [
   { href: "/admin/subscribers", label: "Subscribers" },
   { href: "/admin/email", label: "Email" },
   { href: "/admin/advertising", label: "Advertising" },
+  { href: "/admin/settings", label: "Settings" },
 ];
 
 function isActive(pathname: string, href: string) {

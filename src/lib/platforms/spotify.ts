@@ -36,6 +36,36 @@ async function getAccessToken(): Promise<string | null> {
   return cachedToken.value;
 }
 
+export interface SpotifyHealth {
+  configured: boolean;
+  tokenOk: boolean;
+  detail: string;
+}
+
+export async function checkSpotifyHealth(): Promise<SpotifyHealth> {
+  const configured = Boolean(
+    process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET,
+  );
+  if (!configured) {
+    return {
+      configured: false,
+      tokenOk: false,
+      detail: "SPOTIFY_CLIENT_ID / SPOTIFY_CLIENT_SECRET missing.",
+    };
+  }
+  cachedToken = null;
+  const token = await getAccessToken();
+  if (!token) {
+    return {
+      configured: true,
+      tokenOk: false,
+      detail:
+        "Token request failed. Verify the client ID/secret pair in the Spotify dashboard.",
+    };
+  }
+  return { configured: true, tokenOk: true, detail: "Token issued." };
+}
+
 interface SpotifyImage {
   url: string;
 }

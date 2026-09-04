@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { CopyrightName } from "@/components/CopyrightName";
 import { ResponsiveMenu } from "@/components/ResponsiveMenu";
 import { SubscribeForm } from "@/components/SubscribeForm";
 import type { BlogPost } from "@/lib/blog";
@@ -161,7 +162,7 @@ export function InfoSections({
             ))}
           </div>
           <p className="mt-8 text-[10px] uppercase tracking-[0.18em] opacity-35">
-            © 2026 Yellow White Noise
+            © 2026 <CopyrightName />
           </p>
         </div>
 
@@ -343,7 +344,7 @@ export function InfoSections({
       </div>
 
       <p className="mt-8 pb-4 text-center text-[10px] uppercase tracking-[0.18em] opacity-35 md:hidden">
-        © 2026 Yellow White Noise
+        © 2026 <CopyrightName />
       </p>
     </main>
   );

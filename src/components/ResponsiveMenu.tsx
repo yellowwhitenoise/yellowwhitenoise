@@ -25,6 +25,7 @@ export function ResponsiveMenu({
   const [open, setOpen] = useState(false);
   const [pullY, setPullY] = useState(0);
   const startY = useRef<number | null>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
   const close = () => {
     setOpen(false);
     setPullY(0);
@@ -45,8 +46,21 @@ export function ResponsiveMenu({
 
   const onTouchMove = (event: TouchEvent) => {
     if (startY.current === null) return;
+    const sheet = sheetRef.current;
+    // If the sheet content is scrolled, the gesture is a scroll — not a
+    // dismiss. Translating the sheet at the same time fights native
+    // scrolling and causes the jitter.
+    if (sheet && sheet.scrollTop > 0) {
+      if (pullY !== 0) setPullY(0);
+      return;
+    }
     const delta = event.touches[0].clientY - startY.current;
-    if (delta > 0) setPullY(delta);
+    // Small threshold so resting fingers / scroll noise don't move the sheet.
+    if (delta < 10) {
+      if (pullY !== 0) setPullY(0);
+      return;
+    }
+    setPullY(delta);
   };
 
   const onTouchEnd = () => {
@@ -61,20 +75,23 @@ export function ResponsiveMenu({
           <div className="fixed inset-0 z-[80] md:hidden">
             <div className="absolute inset-0 bg-black/60" onClick={close} />
             <div
+              ref={sheetRef}
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
               onTouchEnd={onTouchEnd}
               style={
                 mobilePresentation === "sheet" && pullY !== 0
                   ? { transform: `translateY(${pullY}px)`, transition: "none" }
-                  : undefined
+                  : mobilePresentation === "sheet"
+                    ? { transition: "transform 0.18s ease-out" }
+                    : undefined
               }
               role="dialog"
               aria-modal="true"
               className={
                 mobilePresentation === "center"
-                  ? "rise-in absolute left-1/2 top-1/2 max-h-[80dvh] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl bg-background p-6 shadow-2xl"
-                  : "sheet-up-in absolute inset-x-0 bottom-0 max-h-[75dvh] overflow-y-auto rounded-t-3xl bg-background p-5 pb-[max(env(safe-area-inset-bottom),1.5rem)] shadow-2xl"
+                  ? "rise-in absolute left-1/2 top-1/2 max-h-[80dvh] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-3xl bg-background p-6 shadow-2xl"
+                  : "sheet-up-in absolute inset-x-0 bottom-0 max-h-[75dvh] overflow-y-auto overscroll-contain rounded-t-3xl bg-background p-5 pb-[max(env(safe-area-inset-bottom),1.5rem)] shadow-2xl"
               }
             >
               {mobilePresentation === "sheet" && (

@@ -14,12 +14,16 @@ import {
 } from "@/lib/push-client";
 
 type ShareIconName =
+  | "share"
   | "link"
+  | "messages"
   | "x"
   | "facebook"
   | "whatsapp"
   | "linkedin"
-  | "instagram";
+  | "threads"
+  | "pinterest"
+  | "telegram";
 
 function ShareIcon({ name }: { name: ShareIconName }) {
   if (name === "link") {
@@ -60,11 +64,42 @@ function ShareIcon({ name }: { name: ShareIconName }) {
       </svg>
     );
   }
+  if (name === "share") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+        <circle cx="6" cy="12" r="2.5" />
+        <circle cx="18" cy="6" r="2.5" />
+        <circle cx="18" cy="18" r="2.5" />
+        <path d="m8.2 10.8 7.6-3.6M8.2 13.2l7.6 3.6" />
+      </svg>
+    );
+  }
+  if (name === "messages") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+        <path d="M4 5.5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9.5L4 20.5v-15Z" />
+        <path d="M8 10.5h8M8 13h5" />
+      </svg>
+    );
+  }
+  if (name === "telegram") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+        <path d="M21 4.5 3.5 11.5l7 2.5 2.5 7 4.5-6.5 3.5-10Z" />
+        <path d="m10.5 14 10.5-9.5" />
+      </svg>
+    );
+  }
+  if (name === "threads") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden>
+        <text x="12" y="17.5" textAnchor="middle" fontSize="15" fontWeight="600">@</text>
+      </svg>
+    );
+  }
   return (
-    <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
-      <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
-      <circle cx="12" cy="12" r="4" />
-      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden>
+      <text x="12" y="17.5" textAnchor="middle" fontSize="14" fontWeight="700">P</text>
     </svg>
   );
 }
@@ -73,12 +108,16 @@ const shareItems: {
   name: ShareIconName;
   label: string;
 }[] = [
+  { name: "share", label: "Share via…" },
   { name: "link", label: "Copy link" },
   { name: "x", label: "X" },
-  { name: "facebook", label: "Facebook" },
+  { name: "facebook", label: "Feed" },
   { name: "whatsapp", label: "WhatsApp" },
   { name: "linkedin", label: "LinkedIn" },
-  { name: "instagram", label: "Instagram" },
+  { name: "messages", label: "Messages" },
+  { name: "threads", label: "Threads" },
+  { name: "pinterest", label: "Pinterest" },
+  { name: "telegram", label: "Telegram" },
 ];
 
 export function PlaylistTopBar({
@@ -139,6 +178,20 @@ export function PlaylistTopBar({
   const shareText = () =>
     encodeURIComponent(`Check out ${playlistName} on Yellow White Noise`);
 
+  const shareVia = async () => {
+    const url = window.location.href;
+    const text = `Check out ${playlistName} on Yellow White Noise`;
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      try {
+        await navigator.share({ title: playlistName, text, url });
+      } catch {
+        // Share sheet dismissed — stay silent.
+      }
+    } else {
+      await copyLink();
+    }
+  };
+
   const triggerClass =
     "cursor-pointer text-[10px] uppercase tracking-[0.22em] opacity-60 transition-opacity hover:opacity-100";
 
@@ -147,7 +200,7 @@ export function PlaylistTopBar({
       <div className="justify-self-start">
         <ResponsiveMenu
           label="Subscribe"
-          mobilePresentation="center"
+          mobilePresentation="sheet"
           buttonClassName={triggerClass}
           align="left"
           menuClassName="w-72"
@@ -216,6 +269,26 @@ export function PlaylistTopBar({
                     "flex w-20 shrink-0 flex-col items-center gap-2 text-center text-[10px] tracking-[0.02em] transition-opacity hover:opacity-65";
                   const iconClass =
                     "flex h-14 w-14 items-center justify-center rounded-full border border-foreground/15";
+                  if (item.name === "share") {
+                    return (
+                      <button
+                        key={item.name}
+                        type="button"
+                        onClick={() => {
+                          void shareVia();
+                          close();
+                        }}
+                        className={`${tileClass} cursor-pointer`}
+                      >
+                        <span className={iconClass}>
+                          <ShareIcon name="share" />
+                        </span>
+                        <span className="whitespace-nowrap text-foreground opacity-80">
+                          {item.label}
+                        </span>
+                      </button>
+                    );
+                  }
                   if (item.name === "link") {
                     return (
                       <button
@@ -245,19 +318,20 @@ export function PlaylistTopBar({
                           ? `https://wa.me/?text=${shareText()}%20${shareUrl()}`
                           : item.name === "linkedin"
                             ? `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl()}`
-                            : "https://www.instagram.com/";
+                            : item.name === "messages"
+                              ? `sms:?&body=${shareText()}%20${shareUrl()}`
+                              : item.name === "threads"
+                                ? `https://www.threads.net/intent/post?text=${shareText()}%20${shareUrl()}`
+                                : item.name === "pinterest"
+                                  ? `https://pinterest.com/pin/create/button/?url=${shareUrl()}&description=${shareText()}`
+                                  : `https://t.me/share/url?url=${shareUrl()}&text=${shareText()}`;
                   return (
                     <a
                       key={item.name}
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={() => {
-                        if (item.name === "instagram") {
-                          void copyLink();
-                        }
-                        close();
-                      }}
+                      onClick={() => close()}
                       className={tileClass}
                     >
                       <span className={iconClass}>
