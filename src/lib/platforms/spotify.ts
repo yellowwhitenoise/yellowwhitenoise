@@ -74,7 +74,7 @@ export async function checkSpotifyHealth(): Promise<SpotifyHealth> {
       searchOk: false,
       detail:
         `Search HTTP ${probe.status ?? "failed"} with zero usable items` +
-        (probe.error ? `: ${probe.error}` : ". ") +
+        (probe.error ? `: ${probe.error} ` : ". ") +
         (probe.status === 401 || probe.status === 403
           ? "Token rejected by the API. Recreate the client secret in the Spotify dashboard."
           : probe.status === 429
@@ -160,14 +160,22 @@ interface SpotifyAlbumTracksPage {
   next: string | null;
 }
 
-export async function search(
+export const SINGULAR_TYPE = {
+  tracks: "track",
+  albums: "album",
+  playlists: "playlist",
+} as const;
+
+async function search(
   type: "tracks" | "albums" | "playlists",
   query: string,
 ): Promise<SpotifyItem | null> {
   const accessToken = await getAccessToken();
   if (!accessToken) return null;
+  // NB: the query takes the SINGULAR type ("track"), while the JSON
+  // response nests items under the PLURAL key ("tracks").
   const response = await fetch(
-    `https://api.spotify.com/v1/search?type=${type}&limit=3&q=${encodeURIComponent(query)}`,
+    `https://api.spotify.com/v1/search?type=${SINGULAR_TYPE[type]}&limit=3&q=${encodeURIComponent(query)}`,
     { headers: { Authorization: `Bearer ${accessToken}` }, cache: "no-store" },
   );
   if (!response.ok) return null;
