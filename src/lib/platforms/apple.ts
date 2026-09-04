@@ -286,6 +286,23 @@ async function itunesLookup(
   return data.results ?? [];
 }
 
+export interface AppleHealth {
+  lookupOk: boolean;
+  detail: string;
+}
+
+export async function checkAppleHealth(): Promise<AppleHealth> {
+  try {
+    const items = await itunesLookup("909253", "album", "US", 1);
+    if (items.length === 0) {
+      return { lookupOk: false, detail: "Lookup returned no results." };
+    }
+    return { lookupOk: true, detail: "Lookup succeeded (no key needed)." };
+  } catch {
+    return { lookupOk: false, detail: "Network error." };
+  }
+}
+
 export async function fetchAppleArtistCatalogViaLookup(
   artistId: string,
   country = "US",
