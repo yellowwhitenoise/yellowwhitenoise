@@ -9,10 +9,10 @@ function signParams(params: Record<string, string>, apiSecret: string): string {
 }
 
 function config() {
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-  const apiKey = process.env.CLOUDINARY_API_KEY;
-  const apiSecret = process.env.CLOUDINARY_API_SECRET;
-  const cloudinaryUrl = process.env.CLOUDINARY_URL;
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+  const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
+  const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
+  const cloudinaryUrl = process.env.CLOUDINARY_URL?.trim();
   if (cloudinaryUrl) {
     try {
       const parsed = new URL(cloudinaryUrl);
@@ -85,8 +85,14 @@ export async function uploadToCloudinary(
   );
   if (!response.ok) {
     const detail = (await response.text().catch(() => "")).slice(0, 300);
+    // Lengths only — never log secret material. A signature mismatch with
+    // the correct string-to-sign means the server's API secret does not
+    // belong to the API key being sent.
+    const diag =
+      ` [cfg via=${process.env.CLOUDINARY_URL?.trim() ? "CLOUDINARY_URL" : "CLOUDINARY_*"} ` +
+      `cloud=${cfg.cloudName} keyLen=${cfg.apiKey.length} secretLen=${cfg.apiSecret.length}]`;
     throw new Error(
-      `Cloudinary upload failed (${response.status}). ${detail}`,
+      `Cloudinary upload failed (${response.status}). ${detail}${diag}`,
     );
   }
   const data = (await response.json()) as {

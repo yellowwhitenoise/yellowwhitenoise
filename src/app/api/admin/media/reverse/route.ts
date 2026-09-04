@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { promisify } from "node:util";
 import fs from "node:fs";
 import path from "node:path";
@@ -22,6 +23,39 @@ function uploadedFilename(src: string): string | null {
   } catch {
     return null;
   }
+}
+
+function isCloudinaryUrl(src: string): boolean {
+  try {
+    const url = new URL(src);
+    return (
+      (url.protocol === "https:" || url.protocol === "http:") &&
+      url.hostname.includes("res.cloudinary.com")
+    );
+  } catch {
+    return false;
+  }
+}
+
+// FFmpeg works on local files, so Cloudinary-hosted videos are downloaded
+// once into the uploads dir (content-hashed name) and the derivatives are
+// prepared from there.
+async function fetchCloudinaryToCache(src: string): Promise<string> {
+  const hash = createHash("md5").update(src).digest("hex").slice(0, 16);
+  const filename = `remote-${hash}.mp4`;
+  const dest = path.join(UPLOAD_DIR, filename);
+  if (fs.existsSync(dest) && fs.statSync(dest).size > 0) return filename;
+  const response = await fetch(src);
+  if (!response.ok) {
+    throw new Error("Could not download the video from Cloudinary.");
+  }
+  const buffer = Buffer.from(await response.arrayBuffer());
+  if (buffer.length === 0) {
+    throw new Error("Could not download the video from Cloudinary.");
+  }
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  fs.writeFileSync(dest, buffer);
+  return filename;
 }
 
 async function createDerivative(
@@ -107,7 +141,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const body = (await request.json().catch(() => ({}))) as { src?: string };
-  const filename = body.src ? uploadedFilename(body.src) : null;
+  let filename = body.src ? uploadedFilename(body.src) : null;
+  if (!filename && body.src && isCloudinaryUrl(body.src)) {
+    try {
+      filename = await fetchCloudinaryToCache(body.src);
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : "Video preparation failed." },
+        { status: 422 },
+      );
+    }
+  }
   if (!filename) {
     return NextResponse.json(
       { error: "Only uploaded videos can use reverse playback." },
