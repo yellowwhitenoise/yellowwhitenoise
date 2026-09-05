@@ -70,3 +70,7 @@ export function getTapHideEnabled(): boolean {
 export function getTapHidePlaylistEnabled(): boolean {
   return getSetting("tap_hide_playlist") !== "false";
 }
+
+export function getPlaylistBottomNavEnabled(): boolean {
+  return getSetting("playlist_bottom_nav") === "true";
+}

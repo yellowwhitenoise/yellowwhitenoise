@@ -4,6 +4,7 @@ import { SettingsClient } from "@/components/admin/SettingsClient";
 import {
   getArtistSyncMinutes,
   getHapticsEnabled,
+  getPlaylistBottomNavEnabled,
   getPlaylistStyleDesktop,
   getPlaylistStyleMobile,
   getPlaylistSyncMinutes,
@@ -24,6 +25,7 @@ export default async function AdminSettingsPage() {
       initialPlaylistStyleDesktop={getPlaylistStyleDesktop()}
       initialTapHide={getTapHideEnabled()}
       initialTapHidePlaylist={getTapHidePlaylistEnabled()}
+      initialPlaylistBottomNav={getPlaylistBottomNavEnabled()}
     />
   );
 }

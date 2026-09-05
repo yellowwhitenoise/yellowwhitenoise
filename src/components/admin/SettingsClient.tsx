@@ -168,6 +168,7 @@ export function SettingsClient({
   initialPlaylistStyleDesktop,
   initialTapHide,
   initialTapHidePlaylist,
+  initialPlaylistBottomNav,
 }: {
   initialPlaylistMinutes: number;
   initialArtistMinutes: number;
@@ -176,6 +177,7 @@ export function SettingsClient({
   initialPlaylistStyleDesktop: PlaylistStyle;
   initialTapHide: boolean;
   initialTapHidePlaylist: boolean;
+  initialPlaylistBottomNav: boolean;
 }) {
   const playlist = splitMinutes(initialPlaylistMinutes);
   const artist = splitMinutes(initialArtistMinutes);
@@ -191,6 +193,9 @@ export function SettingsClient({
   const [tapHide, setTapHide] = useState(initialTapHide);
   const [tapHidePlaylist, setTapHidePlaylist] = useState(
     initialTapHidePlaylist,
+  );
+  const [playlistBottomNav, setPlaylistBottomNav] = useState(
+    initialPlaylistBottomNav,
   );
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -213,6 +218,7 @@ export function SettingsClient({
         ["playlist_style_desktop", playlistStyleDesktop],
         ["tap_hide_enabled", tapHide ? "true" : "false"],
         ["tap_hide_playlist", tapHidePlaylist ? "true" : "false"],
+        ["playlist_bottom_nav", playlistBottomNav ? "true" : "false"],
       ];
       for (const [key, value] of entries) {
         const response = await fetch("/api/admin/settings", {
@@ -275,6 +281,19 @@ export function SettingsClient({
               title="Desktop"
               value={playlistStyleDesktop}
               onChange={setPlaylistStyleDesktop}
+            />
+          </div>
+          <div className="mt-4 flex items-center justify-between gap-4 border-t border-foreground/10 pt-4">
+            <div>
+              <p className="text-[13px]">Bottom navigation</p>
+              <p className="mt-0.5 text-[11px] leading-relaxed opacity-60">
+                Show the bottom menu on individual playlist pages.
+              </p>
+            </div>
+            <Switch
+              checked={playlistBottomNav}
+              onChange={() => setPlaylistBottomNav((current) => !current)}
+              label="Bottom navigation on individual playlist pages"
             />
           </div>
         </div>

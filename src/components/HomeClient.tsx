@@ -15,6 +15,7 @@ import { useUIStore } from "@/lib/store/ui";
 
 const COPIES = [0, 1, 2];
 const LOOP_THRESHOLD = 4;
+const LEAVE_DURATION_MS = 700;
 
 export default function HomeClient({
   artists,
@@ -28,6 +29,7 @@ export default function HomeClient({
   tapHideEnabled?: boolean;
 }) {
   const immersed = useUIStore((s) => s.immersed);
+  const setImmersed = useUIStore((s) => s.setImmersed);
   const toggleImmersed = useUIStore((s) => s.toggleImmersed);
   const hoveredSlug = useUIStore((s) => s.hoveredArtistSlug);
   const setHoveredArtist = useUIStore((s) => s.setHoveredArtist);
@@ -37,6 +39,32 @@ export default function HomeClient({
   const pathname = usePathname();
 
   const [synced, setSynced] = useState(false);
+  const [opening, setOpening] = useState<string | null>(null);
+  const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Closing the sheet restores the covers, logo and bottom nav.
+  // (A sheet can only open while not immersed, so this never clobbers a
+  // manual tap-to-hide.)
+  useEffect(() => {
+    if (!sheetSlug) setImmersed(false);
+  }, [sheetSlug, setImmersed]);
+
+  useEffect(() => {
+    return () => {
+      if (openTimer.current) clearTimeout(openTimer.current);
+    };
+  }, []);
+
+  const openArtist = (slug: string) => {
+    if (opening) return;
+    triggerHaptic();
+    setImmersed(true);
+    setOpening(slug);
+    openTimer.current = setTimeout(() => {
+      openSheet(slug);
+      setOpening(null);
+    }, LEAVE_DURATION_MS);
+  };
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setStoreArtists(artists));
@@ -166,10 +194,10 @@ export default function HomeClient({
   return (
     <main
       onClick={() => {
-        if (tapHideEnabled) toggleImmersed();
+        if (tapHideEnabled && !opening) toggleImmersed();
       }}
       className={`relative flex min-h-dvh flex-col overflow-hidden ${
-        tapHideEnabled ? "cursor-pointer" : ""
+        tapHideEnabled && !opening ? "cursor-pointer" : ""
       }`}
     >
       <h1 className="sr-only">
@@ -253,8 +281,7 @@ export default function HomeClient({
                 aria-label={`${name} — ${genre}`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  triggerHaptic();
-                  openSheet(slug);
+                  openArtist(slug);
                 }}
                 onMouseEnter={() => handleArtistEnter(slug)}
                 onMouseLeave={() => setHoveredArtist(null)}

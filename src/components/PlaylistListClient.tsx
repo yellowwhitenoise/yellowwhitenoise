@@ -1,15 +1,20 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { BackdropMedia } from "@/components/BackdropMedia";
+import { triggerHaptic } from "@/lib/haptics";
 import type { MediaRef, Playlist } from "@/lib/data";
 import { useUIStore } from "@/lib/store/ui";
+
+const LEAVE_DURATION_MS = 700;
 
 /**
  * Playlist overview strip. When tap-to-hide is enabled, tapping the page
  * fades out the playlist covers (plus the global brand logo and bottom
  * nav, which hide on `immersed`). Tap again to bring everything back.
- * Navigating to a playlist never triggers the hide.
+ * Opening a playlist fades everything out first, then navigates.
  */
 export function PlaylistListClient({
   playlists,
@@ -20,19 +25,41 @@ export function PlaylistListClient({
   backdrop?: MediaRef;
   tapHideEnabled?: boolean;
 }) {
+  const router = useRouter();
   const immersed = useUIStore((s) => s.immersed);
+  const setImmersed = useUIStore((s) => s.setImmersed);
   const toggleImmersed = useUIStore((s) => s.toggleImmersed);
+  const [leaving, setLeaving] = useState<string | null>(null);
+  const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const faded = immersed
     ? "pointer-events-none opacity-0"
     : "opacity-100";
 
+  useEffect(() => {
+    return () => {
+      if (leaveTimer.current) clearTimeout(leaveTimer.current);
+    };
+  }, []);
+
+  const openPlaylist = (event: React.MouseEvent, href: string, slug: string) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (leaving) return;
+    triggerHaptic();
+    setImmersed(true);
+    setLeaving(slug);
+    leaveTimer.current = setTimeout(() => {
+      router.push(href);
+    }, LEAVE_DURATION_MS);
+  };
+
   return (
     <main
       onClick={() => {
-        if (tapHideEnabled) toggleImmersed();
+        if (tapHideEnabled && !leaving) toggleImmersed();
       }}
       className={`relative min-h-dvh overflow-hidden bg-background ${
-        tapHideEnabled ? "cursor-pointer" : ""
+        tapHideEnabled && !leaving ? "cursor-pointer" : ""
       }`}
     >
       <h1 className="sr-only">Playlists — Yellow White Noise</h1>
@@ -72,6 +99,10 @@ export function PlaylistListClient({
             <Link
               key={playlist.slug}
               href={`/playlists/${playlist.slug}`}
+              onClick={(event) =>
+                openPlaylist(event, `/playlists/${playlist.slug}`, playlist.slug)
+              }
+              aria-busy={leaving === playlist.slug}
               className="group block w-40 md:w-[clamp(150px,16vw,240px)]"
             >
               <div

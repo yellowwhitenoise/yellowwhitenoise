@@ -10,6 +10,7 @@ import { PlaylistTopBar } from "@/components/PlaylistTopBar";
 import { platformLabels, type Artist, type Platform, type Playlist } from "@/lib/data";
 import { listArtists } from "@/lib/db";
 import {
+  getPlaylistBottomNavEnabled,
   getPlaylistStyleDesktop,
   getPlaylistStyleMobile,
   type PlaylistStyle,
@@ -61,6 +62,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
   let artists: Artist[] = [];
   let mobileStyle: PlaylistStyle = "full";
   let desktopStyle: PlaylistStyle = "full";
+  let showBottomNav = false;
   if (isBackendConfigured()) {
     const [playlistData, homeData] = await Promise.all([
       fetchBackendJson<
@@ -92,6 +94,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
     artists = listArtists();
     mobileStyle = getPlaylistStyleMobile();
     desktopStyle = getPlaylistStyleDesktop();
+    showBottomNav = getPlaylistBottomNavEnabled();
   }
   if (!playlist) notFound();
 
@@ -268,7 +271,13 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
           </div>
         </section>
 
-        <div className="flex justify-center px-5 pt-14 pb-[max(env(safe-area-inset-bottom),6rem)]">
+        <div
+          className={`flex justify-center px-5 pt-14 ${
+            showBottomNav
+              ? "pb-[max(env(safe-area-inset-bottom),6rem)]"
+              : "pb-[max(env(safe-area-inset-bottom),2.5rem)]"
+          }`}
+        >
           <Link
             href="/playlists"
             className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] underline underline-offset-8 opacity-80 transition-opacity hover:opacity-100"
@@ -287,7 +296,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
           </Link>
         </div>
       </main>
-      <BottomNav />
+      {showBottomNav && <BottomNav />}
     </>
   );
 }
