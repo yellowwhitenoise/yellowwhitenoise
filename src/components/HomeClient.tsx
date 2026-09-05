@@ -15,7 +15,9 @@ import { useUIStore } from "@/lib/store/ui";
 
 const COPIES = [0, 1, 2];
 const LOOP_THRESHOLD = 4;
-const LEAVE_DURATION_MS = 700;
+// Short beat before the sheet slides in: the fade keeps playing out
+// behind it, so the motion reads as one gesture.
+const LEAVE_DURATION_MS = 300;
 
 export default function HomeClient({
   artists,

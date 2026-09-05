@@ -9,7 +9,7 @@ import { triggerHaptic } from "@/lib/haptics";
 import type { MediaRef, Playlist } from "@/lib/data";
 import { useUIStore } from "@/lib/store/ui";
 
-const LEAVE_DURATION_MS = 700;
+const LEAVE_DURATION_MS = 300;
 
 /**
  * Playlist overview strip. When tap-to-hide is enabled, tapping the page
@@ -109,6 +109,8 @@ export function PlaylistListClient({
               onClick={(event) =>
                 openPlaylist(event, `/playlists/${playlist.slug}`, playlist.slug)
               }
+              onMouseEnter={() => router.prefetch(`/playlists/${playlist.slug}`)}
+              onTouchStart={() => router.prefetch(`/playlists/${playlist.slug}`)}
               aria-busy={leaving === playlist.slug}
               className="group block w-40 md:w-[clamp(150px,16vw,240px)]"
             >
