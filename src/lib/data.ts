@@ -108,6 +108,8 @@ export interface Playlist {
   coverUrl?: string;
   links: Record<Platform, string>;
   availableLinks?: Partial<Record<Platform, string>>;
+  /** Where per-track platform buttons point. Absent means "song". */
+  trackLinkMode?: "song" | "playlist";
   ogDescription?: string;
   ogImageUrl?: string;
   entries: PlaylistEntry[];

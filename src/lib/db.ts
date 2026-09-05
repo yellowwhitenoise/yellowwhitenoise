@@ -107,6 +107,7 @@ function getDb(): Database.Database {
       cover_palette_to TEXT NOT NULL DEFAULT '#101b23',
       links TEXT NOT NULL DEFAULT '{}',
       entries TEXT NOT NULL DEFAULT '[]',
+      track_link_mode TEXT NOT NULL DEFAULT 'song',
       source_platform TEXT NOT NULL DEFAULT '',
       source_id TEXT NOT NULL DEFAULT '',
       source_url TEXT NOT NULL DEFAULT '',
@@ -313,6 +314,7 @@ function migratePlaylistsTable(database: Database.Database) {
     ["last_synced_at", "TEXT"],
     ["last_sync_attempt_at", "TEXT"],
     ["sync_error", "TEXT NOT NULL DEFAULT ''"],
+    ["track_link_mode", "TEXT NOT NULL DEFAULT 'song'"],
   ];
   for (const [name, definition] of columns) {
     try {
@@ -1272,6 +1274,7 @@ export interface PlaylistRow {
   cover_palette_to: string;
   links: string;
   entries: string;
+  track_link_mode: string;
   source_platform: string;
   source_id: string;
   source_url: string;
@@ -1308,6 +1311,7 @@ export interface PlaylistUpdateInput {
   links?: Partial<Record<Platform, string>>;
   visible?: boolean;
   sortOrder?: number;
+  trackLinkMode?: "song" | "playlist";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -1363,6 +1367,7 @@ function playlistFromRow(row: PlaylistRow): Playlist {
     },
     links,
     availableLinks,
+    trackLinkMode: row.track_link_mode === "playlist" ? "playlist" : "song",
     entries: tracks.map((track) => ({ kind: "track", track })),
   };
 }
@@ -1479,6 +1484,7 @@ export function updatePlaylist(
     .prepare(
       `UPDATE playlists SET name = @name, tagline = @tagline, description = @description,
        cover_url = @cover_url, links = @links, visible = @visible, sort_order = @sort_order,
+       track_link_mode = @track_link_mode,
        updated_at = datetime('now') WHERE id = @id`,
     )
     .run({
@@ -1491,6 +1497,7 @@ export function updatePlaylist(
       links: JSON.stringify(links),
       visible: input.visible === undefined ? existing.visible : input.visible ? 1 : 0,
       sort_order: input.sortOrder ?? existing.sort_order,
+      track_link_mode: input.trackLinkMode ?? existing.track_link_mode ?? "song",
     });
   return getPlaylistRowById(id);
 }

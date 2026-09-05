@@ -109,6 +109,8 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
       playlist.links.amazonMusic ?? "https://music.amazon.com/",
     ...baseLinks,
   };
+  const trackLinkMode =
+    playlist.trackLinkMode === "playlist" ? "playlist" : "song";
   const renderHero = (heroStyle: PlaylistStyle) =>
     heroStyle === "compact" ? (
       <section className="mx-auto w-full max-w-2xl px-5 pt-8 md:px-10 md:pt-12">
@@ -203,10 +205,13 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
         artistName: entry.track.artistName,
         artistSlug: "imported",
         songSlug: `${songSlug}-${index + 1}`,
-        links: {
-          ...playlistLinks,
-          ...entry.track.links,
-        },
+        links:
+          trackLinkMode === "playlist"
+            ? { ...playlistLinks }
+            : {
+                ...playlistLinks,
+                ...entry.track.links,
+              },
         previewUrl: entry.track.previewUrl,
         coverUrl: entry.track.coverUrl,
         palette: playlist.coverPalette,
@@ -224,7 +229,8 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
             artistName: song.artistName,
             artistSlug: artist.slug,
             songSlug: song.slug,
-            links: song.links,
+            links:
+              trackLinkMode === "playlist" ? { ...playlistLinks } : song.links,
             previewUrl: song.previewUrl,
             coverUrl: song.coverUrl,
             palette: artist.palette,
@@ -250,12 +256,15 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
       artistName: entry.track.artistName,
       artistSlug: "outside",
       songSlug,
-      links: {
-        spotify: entry.track.spotifyUrl ?? playlistLinks.spotify,
-        appleMusic: playlistLinks.appleMusic,
-        amazonMusic: playlistLinks.amazonMusic,
-        youtubeMusic: playlistLinks.youtubeMusic,
-      },
+      links:
+        trackLinkMode === "playlist"
+          ? { ...playlistLinks }
+          : {
+              spotify: entry.track.spotifyUrl ?? playlistLinks.spotify,
+              appleMusic: playlistLinks.appleMusic,
+              amazonMusic: playlistLinks.amazonMusic,
+              youtubeMusic: playlistLinks.youtubeMusic,
+            },
       palette: playlist.coverPalette,
     };
   });
@@ -277,9 +286,9 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
           <h2 className="text-[11px] uppercase tracking-[0.28em] opacity-50">
             Track preview
           </h2>
-          <div className="mt-4">
-            <PlaylistTracks rows={rows} />
-          </div>
+        <div className="mt-4">
+          <PlaylistTracks rows={rows} trackLinkMode={trackLinkMode} />
+        </div>
         </section>
 
         <div

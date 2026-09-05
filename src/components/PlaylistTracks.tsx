@@ -29,7 +29,15 @@ export interface PlaylistRow {
   palette: { from: string; to: string };
 }
 
-export function PlaylistTracks({ rows }: { rows: PlaylistRow[] }) {
+export function PlaylistTracks({
+  rows,
+  trackLinkMode = "song",
+}: {
+  rows: PlaylistRow[];
+  /** "playlist" pins every track button to the playlist URLs, ignoring
+   *  per-track resolved links (previews/artwork still resolve). */
+  trackLinkMode?: "song" | "playlist";
+}) {
   const [pinnedKey, setPinnedKey] = useState<string | null>(null);
   const [hoverKey, setHoverKey] = useState<string | null>(null);
   const [canHover] = useState(
@@ -179,7 +187,10 @@ export function PlaylistTracks({ rows }: { rows: PlaylistRow[] }) {
               <div className="overflow-hidden">
                 <div className="flex flex-wrap gap-2 pl-9">
                   {platforms.map((platform) => {
-                    const href = resolved?.links[platform] ?? row.links[platform];
+                    const href =
+                      trackLinkMode === "playlist"
+                        ? row.links[platform]
+                        : (resolved?.links[platform] ?? row.links[platform]);
                     if (!href) return null;
                     return (
                       <a

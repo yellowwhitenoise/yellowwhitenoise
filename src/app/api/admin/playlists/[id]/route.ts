@@ -17,6 +17,7 @@ interface UpdateBody {
   links?: unknown;
   visible?: boolean;
   sortOrder?: number;
+  trackLinkMode?: string;
 }
 
 function parseLinks(value: unknown): Partial<Record<Platform, string>> {
@@ -50,6 +51,12 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     links: body.links === undefined ? undefined : parseLinks(body.links),
     visible: typeof body.visible === "boolean" ? body.visible : undefined,
     sortOrder,
+    trackLinkMode:
+      body.trackLinkMode === "playlist"
+        ? "playlist"
+        : body.trackLinkMode === "song"
+          ? "song"
+          : undefined,
   });
   if (!row) return NextResponse.json({ error: "not found" }, { status: 404 });
   invalidatePublicPlaylists();

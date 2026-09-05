@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ResponsiveMenu } from "@/components/ResponsiveMenu";
 import type { PlaylistRow } from "@/lib/db";
 import type { Platform } from "@/lib/data";
 
@@ -14,6 +15,7 @@ interface ManagedPlaylist {
   description: string;
   coverUrl: string;
   links: Partial<Record<Platform, string>>;
+  trackLinkMode: "song" | "playlist";
   sourcePlatform: string;
   sourceUrl: string;
   trackCount: number;
@@ -76,6 +78,7 @@ function toManaged(row: PlaylistRow): ManagedPlaylist {
     description: row.description,
     coverUrl: row.cover_url ?? "",
     links: parseLinks(row.links),
+    trackLinkMode: row.track_link_mode === "playlist" ? "playlist" : "song",
     sourcePlatform: row.source_platform,
     sourceUrl: row.source_url,
     trackCount: trackCount(row.entries),
@@ -228,6 +231,7 @@ export function PlaylistManagerClient({
         links: item.links,
         visible: item.visible,
         sortOrder: item.sortOrder,
+        trackLinkMode: item.trackLinkMode,
       }),
     });
     const data = (await response.json().catch(() => ({}))) as
@@ -820,6 +824,68 @@ export function PlaylistManagerClient({
                       />
                     </label>
                   ))}
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.2em] opacity-50">
+                    Track buttons open
+                  </p>
+                  <p className="mt-1 text-[11px] normal-case leading-relaxed opacity-40">
+                    Where each track&apos;s streaming buttons go — the song
+                    itself, or this playlist.
+                  </p>
+                  <div className="mt-2">
+                    <ResponsiveMenu
+                      label="Track buttons open"
+                      activeLabel={
+                        item.trackLinkMode === "playlist"
+                          ? "Open: Playlist"
+                          : "Open: Song"
+                      }
+                      buttonClassName="cursor-pointer rounded-xl border border-foreground/15 px-4 py-2.5 text-[10px] uppercase tracking-[0.18em] transition-colors hover:bg-foreground/10"
+                    >
+                      {(close) => (
+                        <>
+                          {(
+                            [
+                              {
+                                id: "song",
+                                label: "Song",
+                                hint: "Each button deep-links to that track.",
+                              },
+                              {
+                                id: "playlist",
+                                label: "Playlist",
+                                hint: "Every button opens this playlist instead.",
+                              },
+                            ] as const
+                          ).map((option) => (
+                            <button
+                              key={option.id}
+                              type="button"
+                              onClick={() => {
+                                updateLocal(item.id, {
+                                  trackLinkMode: option.id,
+                                });
+                                close();
+                              }}
+                              className={`block w-full cursor-pointer rounded-xl px-4 py-3 text-left transition-colors hover:bg-foreground/10 ${
+                                item.trackLinkMode === option.id
+                                  ? "text-yellow"
+                                  : ""
+                              }`}
+                            >
+                              <span className="block text-[13px] font-medium">
+                                {option.label}
+                              </span>
+                              <span className="mt-0.5 block text-[11px] leading-relaxed opacity-60">
+                                {option.hint}
+                              </span>
+                            </button>
+                          ))}
+                        </>
+                      )}
+                    </ResponsiveMenu>
+                  </div>
                 </div>
                 <label className="block max-w-32 text-[10px] uppercase tracking-[0.18em] opacity-50">
                   Display order
