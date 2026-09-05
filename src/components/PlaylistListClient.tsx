@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BackdropMedia } from "@/components/BackdropMedia";
-import { PlaylistAboutToggle } from "@/components/PlaylistAboutToggle";
 import { triggerHaptic } from "@/lib/haptics";
 import type { MediaRef, Playlist } from "@/lib/data";
 import { useUIStore } from "@/lib/store/ui";
@@ -90,12 +89,6 @@ export function PlaylistListClient({
         className="pointer-events-none fixed inset-y-0 right-0 z-30 hidden w-28 bg-gradient-to-l from-background to-transparent md:block"
       />
 
-      <div
-        onClick={(event) => event.stopPropagation()}
-        className={`transition-opacity duration-700 ${faded}`}
-      >
-        <PlaylistAboutToggle />
-      </div>
       <div
         data-scroll-strip
         className={`relative z-10 flex h-dvh flex-col overflow-y-auto overflow-x-hidden overscroll-contain transition-opacity duration-700 [overflow-anchor:none] md:flex-row md:items-center md:overflow-x-auto md:overflow-y-hidden ${faded}`}
