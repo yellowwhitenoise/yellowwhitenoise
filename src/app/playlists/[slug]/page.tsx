@@ -5,7 +5,6 @@ import { BottomNav } from "@/components/BottomNav";
 import { ChromeAutoHide } from "@/components/ChromeAutoHide";
 import { PlatformCta } from "@/components/PlatformCta";
 import { PlaylistCompactHero } from "@/components/PlaylistCompactHero";
-import { PlaylistImmersed } from "@/components/PlaylistImmersed";
 import { PlaylistTracks, type PlaylistRow } from "@/components/PlaylistTracks";
 import { PlaylistTopBar } from "@/components/PlaylistTopBar";
 import { platformLabels, type Artist, type Platform, type Playlist } from "@/lib/data";
@@ -13,7 +12,6 @@ import { listArtists } from "@/lib/db";
 import {
   getPlaylistStyleDesktop,
   getPlaylistStyleMobile,
-  getTapHidePlaylistEnabled,
   type PlaylistStyle,
 } from "@/lib/sync-settings";
 import { getCachedPublicPlaylist } from "@/lib/public-playlists";
@@ -63,7 +61,6 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
   let artists: Artist[] = [];
   let mobileStyle: PlaylistStyle = "full";
   let desktopStyle: PlaylistStyle = "full";
-  let tapHidePlaylist = true;
   if (isBackendConfigured()) {
     const [playlistData, homeData] = await Promise.all([
       fetchBackendJson<
@@ -95,7 +92,6 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
     artists = listArtists();
     mobileStyle = getPlaylistStyleMobile();
     desktopStyle = getPlaylistStyleDesktop();
-    tapHidePlaylist = getTapHidePlaylistEnabled();
   }
   if (!playlist) notFound();
 
@@ -253,16 +249,12 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
   return (
     <>
       <ChromeAutoHide />
-      <PlaylistImmersed
-        enabled={tapHidePlaylist}
-        topBar={
-          <PlaylistTopBar
-            playlistName={playlist.name}
-            playlistSlug={playlist.slug}
-          />
-        }
-        hero={hero}
-      >
+      <main className="min-h-dvh bg-background">
+        <PlaylistTopBar
+          playlistName={playlist.name}
+          playlistSlug={playlist.slug}
+        />
+        {hero}
         <section
           className={`mx-auto w-full max-w-5xl px-5 md:px-10 ${
             mobileStyle === "compact" ? "pt-8" : "pt-12"
@@ -294,7 +286,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
             </svg>
           </Link>
         </div>
-      </PlaylistImmersed>
+      </main>
       <BottomNav />
     </>
   );

@@ -298,11 +298,11 @@ export function SettingsClient({
               />
             </div>
             <div className="flex items-center justify-between gap-4">
-              <p className="text-[13px]">Individual playlist pages</p>
+              <p className="text-[13px]">Playlist page covers</p>
               <Switch
                 checked={tapHidePlaylist}
                 onChange={() => setTapHidePlaylist((current) => !current)}
-                label="Tap to hide on playlist pages"
+                label="Tap to hide on playlist page"
               />
             </div>
           </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { PlatformIcon } from "@/components/PlatformIcon";
 import { trackOutbound } from "@/lib/ads";
 import { platformLabels, type Platform } from "@/lib/data";
@@ -9,8 +10,8 @@ const platforms = Object.keys(platformLabels) as Platform[];
 
 /**
  * Compact individual-playlist hero ("Compact" style in Admin → Settings).
- * Thumbnail + title in one row, streaming icons in a single row, short
- * static description — so tracks and CTAs fit without scrolling.
+ * Thumbnail + title in one row, streaming icons in a single row, and the
+ * description behind a toggle — so tracks and CTAs fit without scrolling.
  */
 export function PlaylistCompactHero({
   name,
@@ -27,6 +28,8 @@ export function PlaylistCompactHero({
   coverUrl?: string;
   palette: { from: string; to: string };
 }) {
+  const [aboutOpen, setAboutOpen] = useState(false);
+
   return (
     <div>
       <div className="flex items-center gap-4">
@@ -83,9 +86,45 @@ export function PlaylistCompactHero({
         })}
       </div>
 
-      <p className="mt-5 line-clamp-3 border-t border-foreground/10 pt-4 text-[13px] leading-relaxed opacity-70">
-        {description}
-      </p>
+      <div className="mt-5 border-t border-foreground/10">
+        <button
+          type="button"
+          onClick={(event) => {
+            // Don't trigger tap-to-hide when expanding the description.
+            event.stopPropagation();
+            setAboutOpen((current) => !current);
+          }}
+          aria-expanded={aboutOpen}
+          className="flex w-full cursor-pointer items-center justify-between py-3 text-left"
+        >
+          <span className="text-[11px] uppercase tracking-[0.22em] opacity-60">
+            About this playlist
+          </span>
+          <svg
+            viewBox="0 0 24 24"
+            className={`h-4 w-4 opacity-60 transition-transform duration-300 ${
+              aboutOpen ? "rotate-180" : ""
+            }`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            aria-hidden
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+        <div
+          className={`grid transition-all duration-300 ease-out ${
+            aboutOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          }`}
+        >
+          <div className="overflow-hidden">
+            <p className="pb-4 text-[14px] leading-relaxed opacity-80">
+              {description}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
