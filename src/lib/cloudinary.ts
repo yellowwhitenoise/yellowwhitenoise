@@ -42,7 +42,10 @@ export function isCloudinaryConfigured(): boolean {
 export function cloudinaryPublicIdFromUrl(url: string): string | null {
   try {
     const parsed = new URL(url);
-    if (!parsed.hostname.includes("res.cloudinary.com")) return null;
+    const host = parsed.hostname.toLowerCase();
+    if (host !== "res.cloudinary.com" && !host.endsWith(".res.cloudinary.com")) {
+      return null;
+    }
     const parts = parsed.pathname.split("/").filter(Boolean);
     const uploadIndex = parts.indexOf("upload");
     if (uploadIndex === -1) return null;
@@ -85,14 +88,15 @@ export async function uploadToCloudinary(
   );
   if (!response.ok) {
     const detail = (await response.text().catch(() => "")).slice(0, 300);
-    // Lengths only — never log secret material. A signature mismatch with
-    // the correct string-to-sign means the server's API secret does not
-    // belong to the API key being sent.
-    const diag =
-      ` [cfg via=${process.env.CLOUDINARY_URL?.trim() ? "CLOUDINARY_URL" : "CLOUDINARY_*"} ` +
-      `cloud=${cfg.cloudName} keyLen=${cfg.apiKey.length} secretLen=${cfg.apiSecret.length}]`;
+    // Never surface credential material: log the lengths server-side only.
+    if (process.env.NODE_ENV !== "test") {
+      console.error(
+        `Cloudinary upload failed (${response.status}): ${detail} ` +
+          `[cloud=${cfg.cloudName} keyLen=${cfg.apiKey.length} secretLen=${cfg.apiSecret.length}]`,
+      );
+    }
     throw new Error(
-      `Cloudinary upload failed (${response.status}). ${detail}${diag}`,
+      `Cloudinary upload failed (${response.status}). ${detail}`,
     );
   }
   const data = (await response.json()) as {

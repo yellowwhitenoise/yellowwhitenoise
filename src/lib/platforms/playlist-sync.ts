@@ -74,13 +74,22 @@ function parsePlaylistTracks(raw: string): PlaylistTrack[] {
   }
 }
 
-function trackKey(track: PlaylistTrack, platform: string): string {
-  const sourceLink = track.links[platform as keyof typeof track.links];
-  return (
-    sourceLink || `${track.title}\u0000${track.artistName}`
-  )
+function normalizeKeyPart(value: string): string {
+  return value
+    .normalize("NFKC")
+    .replace(/[‐‑‒–—―]/g, "-")
+    .replace(/[^\p{L}\p{N}\s]/gu, "")
+    .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
+}
+
+function trackKey(track: PlaylistTrack, platform: string): string {
+  const sourceLink = track.links[platform as keyof typeof track.links];
+  if (sourceLink && sourceLink.trim() !== "") {
+    return `url:${sourceLink.trim().toLowerCase()}`;
+  }
+  return `meta:${normalizeKeyPart(track.title)}\u0000${normalizeKeyPart(track.artistName)}`;
 }
 
 async function syncRow(row: PlaylistRow): Promise<PlaylistSyncReport> {
@@ -127,7 +136,10 @@ async function syncRow(row: PlaylistRow): Promise<PlaylistSyncReport> {
         pendingEvents,
       );
       notificationSkipped = notification.skipped;
-      if (!notification.skipped && (notification.sent > 0 || notification.total === 0)) {
+      if (
+        !notification.skipped &&
+        notification.sent === notification.total
+      ) {
         notifiedTracks = pendingEvents.length;
       }
     }
@@ -178,6 +190,16 @@ export async function syncPlaylistById(
 ): Promise<PlaylistSyncReport | undefined> {
   const row = getPlaylistRowById(id);
   if (!row) return undefined;
+  // Never hand back another scope's report: a per-playlist sync requested
+  // while a bulk sync runs gets an explicit busy error instead.
+  if (activeSync) {
+    return {
+      id: row.id,
+      name: row.name,
+      ok: false,
+      error: "Sync already in progress. Try again shortly.",
+    };
+  }
   const reports = await runWithLock([row]);
   return reports[0];
 }

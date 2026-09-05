@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdmin } from "@/lib/auth";
-import { createArtist, listArtists } from "@/lib/db";
+import { createArtist, artistSlug, listArtists } from "@/lib/db";
 
 function slugify(name: string): string {
   return (
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     youtube: "https://www.youtube.com/",
   };
   const artist = createArtist({
-    slug: slugify(body.name),
+    slug: artistSlug(body.name),
     name: body.name,
     genre: body.genre ?? "",
     tagline: body.tagline ?? "",

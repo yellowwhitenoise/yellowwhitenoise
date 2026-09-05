@@ -8,6 +8,7 @@ import {
   setEmailTemplate,
 } from "@/lib/email-template-store";
 import { isAdmin } from "@/lib/auth";
+import { sanitizeRichHtml } from "@/lib/sanitize";
 
 function isNotifyType(value: string): value is NotifyType {
   return EMAIL_TEMPLATE_TYPES.includes(value as NotifyType);
@@ -48,7 +49,7 @@ export async function PUT(request: NextRequest) {
   }
   setEmailTemplate(body.type, {
     subject: body.subject,
-    html: body.html,
+    html: sanitizeRichHtml(body.html),
   });
   return NextResponse.json({ templates: getEmailTemplates() });
 }

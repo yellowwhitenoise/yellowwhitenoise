@@ -6,6 +6,7 @@ import {
   getPublicPostBySlug,
   getRelatedPosts,
   getSetting,
+  isPubliclyVisible,
   type BlogPostRow,
   type FaqItem,
   type SourceItem,
@@ -77,12 +78,8 @@ async function getPostDetail(slug: string): Promise<PostDetail | null> {
   const manualRelated = parseList(post.related_slugs)
     .map((relatedSlug) => getPostBySlug(relatedSlug))
     .filter(
-      (row): row is NonNullable<typeof row> =>
-        Boolean(row) &&
-        (row!.status === "published" ||
-          (row!.status === "scheduled" &&
-            Boolean(row!.published_at) &&
-            row!.published_at! <= new Date().toISOString().replace("T", " ").slice(0, 19))),
+      (row): row is BlogPostRow =>
+        row !== undefined && isPubliclyVisible(row),
     );
   const autoRelated = getRelatedPosts(post.slug, post.category, tags, entities);
   const related = [
@@ -129,10 +126,10 @@ export async function generateMetadata({
         toIso(post.materially_updated_at ?? post.updated_at) ?? undefined,
       authors: [post.author],
       tags: [...tags, ...parseList(post.entities)],
-      images:
-        post.featured_image || post.hero_image
-          ? [{ url: (post.featured_image || post.hero_image)! }]
-          : undefined,
+      images: (() => {
+        const imageUrl = post.featured_image || post.hero_image;
+        return imageUrl ? [{ url: imageUrl }] : undefined;
+      })(),
     },
   };
 }

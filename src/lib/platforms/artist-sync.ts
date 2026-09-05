@@ -128,7 +128,7 @@ function mergeSong(existing: Song, incoming: ImportedArtistSong): Song {
     album: incoming.album ?? existing.album,
     coverUrl: incoming.coverUrl ?? existing.coverUrl,
     previewUrl: incoming.previewUrl ?? existing.previewUrl,
-    isrc: existing.isrc ?? incoming.isrc,
+    isrc: incoming.isrc ?? existing.isrc,
     platformIds: { ...existing.platformIds, ...incoming.platformIds },
     links: { ...existing.links, ...incoming.links },
   };
@@ -171,7 +171,7 @@ function flattenCatalogs(
 
 function releaseKey(
   release: ImportedArtistSong | ImportedArtistAlbum,
-  type: "song" | "album",
+  type: "song" | "album" | "ep",
 ): string {
   if (release.isrc) return `${type}:isrc:${normalize(release.isrc)}`;
   const ids = Object.entries(release.platformIds ?? {})
@@ -245,18 +245,28 @@ async function syncRow(artist: Artist & { id: number }): Promise<ArtistSyncRepor
       artist.syncSources ?? {},
     );
     const merged = mergeCatalog(artist, imported.catalogs);
+    // Carry the admin-set release kind (album vs EP) into new-release
+    // events; freshly synced titles default to albums.
+    const knownKinds = new Map(
+      artist.albums.map((entry) => [normalize(entry.title), entry.kind]),
+    );
     const events = [
-      ...merged.newAlbums.map((album) => ({
-        artistSlug: artist.slug,
-        releaseKey: releaseKey(album, "album"),
-        releaseType: "album" as const,
-        title: album.title,
-        artistName: artist.name,
-        releaseUrl:
-          album.links.spotify ||
-          album.links.appleMusic ||
-          album.links.youtubeMusic,
-      })),
+      ...merged.newAlbums.map((album) => {
+        const kind: "album" | "ep" =
+          knownKinds.get(normalize(album.title)) === "ep" ? "ep" : "album";
+        return {
+          artistSlug: artist.slug,
+          releaseKey: releaseKey(album, kind),
+          releaseType: kind,
+          title: album.title,
+          artistName: artist.name,
+          releaseUrl:
+            album.links.spotify ||
+            album.links.appleMusic ||
+            album.links.amazonMusic ||
+            album.links.youtubeMusic,
+        };
+      }),
       ...merged.newSongs.map((song) => ({
         artistSlug: artist.slug,
         releaseKey: releaseKey(song, "song"),
@@ -287,7 +297,7 @@ async function syncRow(artist: Artist & { id: number }): Promise<ArtistSyncRepor
     for (const event of pending) {
       const result = await notifyArtistReleaseEvent(artist.slug, event);
       notificationSkipped = result.skipped;
-      if (!result.skipped && (result.sent > 0 || result.total === 0)) {
+      if (result.skipped || result.sent === result.total) {
         markArtistReleaseEventsNotified([event]);
         notifiedReleases += 1;
       }
@@ -345,6 +355,17 @@ export async function syncArtistById(
 ): Promise<ArtistSyncReport | undefined> {
   const artist = getArtistById(id);
   if (!artist) return undefined;
+  // Never hand back another scope's report: a per-artist sync requested
+  // while a bulk sync runs gets an explicit busy error instead.
+  if (activeSync) {
+    return {
+      id: artist.id,
+      slug: artist.slug,
+      name: artist.name,
+      ok: false,
+      error: "Sync already in progress. Try again shortly.",
+    };
+  }
   const reports = await runWithLock([artist]);
   return reports[0];
 }

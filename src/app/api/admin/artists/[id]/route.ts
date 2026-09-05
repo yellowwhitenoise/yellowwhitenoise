@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdmin } from "@/lib/auth";
 import { deleteArtist, getArtistById, updateArtist } from "@/lib/db";
+import { parseIdParam, invalidIdResponse } from "@/lib/route-params";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -11,7 +12,9 @@ export async function PUT(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const { id } = await params;
-  const existing = getArtistById(Number(id));
+  const artistId = parseIdParam(id);
+  if (artistId === null) return invalidIdResponse();
+  const existing = getArtistById(artistId);
   if (!existing) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
@@ -165,6 +168,8 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const { id } = await params;
-  deleteArtist(Number(id));
+  const artistId = parseIdParam(id);
+  if (artistId === null) return invalidIdResponse();
+  deleteArtist(artistId);
   return NextResponse.json({ ok: true });
 }

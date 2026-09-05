@@ -6,6 +6,19 @@ import { normalizeBlocks } from "@/lib/blocks";
 
 export const dynamic = "force-dynamic";
 
+/** Join a JSON-encoded string list; never throws on corrupt rows. */
+function joinList(raw: string, separator: string): string {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return raw.startsWith("[") ? "" : raw;
+    return parsed
+      .filter((entry): entry is string => typeof entry === "string")
+      .join(separator);
+  } catch {
+    return raw.startsWith("[") ? "" : raw;
+  }
+}
+
 export default async function EditBlogPostPage({
   params,
 }: {
@@ -36,56 +49,20 @@ export default async function EditBlogPostPage({
         status: post.status,
         excerpt: post.excerpt,
         category: post.category,
-        tags: (() => {
-          try {
-            return (JSON.parse(post.tags) as string[]).join(", ");
-          } catch {
-            return post.tags;
-          }
-        })(),
+        tags: joinList(post.tags, ", "),
         author: post.author,
         publishedAt: post.published_at ?? "",
         seoTitle: post.seo_title ?? "",
         seoDescription: post.seo_description ?? "",
         primaryKeyword: post.primary_keyword,
-        secondaryKeywords: (() => {
-          try {
-            return (JSON.parse(post.secondary_keywords) as string[]).join(", ");
-          } catch {
-            return "";
-          }
-        })(),
+        secondaryKeywords: joinList(post.secondary_keywords, ", "),
         searchIntent: post.search_intent,
         articleSummary: post.article_summary,
-        keyTakeaways: (() => {
-          try {
-            return (JSON.parse(post.key_takeaways) as string[]).join("\n");
-          } catch {
-            return "";
-          }
-        })(),
+        keyTakeaways: joinList(post.key_takeaways, "\n"),
         directAnswer: post.direct_answer,
-        keyFacts: (() => {
-          try {
-            return (JSON.parse(post.key_facts) as string[]).join("\n");
-          } catch {
-            return "";
-          }
-        })(),
-        entities: (() => {
-          try {
-            return (JSON.parse(post.entities) as string[]).join(", ");
-          } catch {
-            return "";
-          }
-        })(),
-        topics: (() => {
-          try {
-            return (JSON.parse(post.topics) as string[]).join(", ");
-          } catch {
-            return "";
-          }
-        })(),
+        keyFacts: joinList(post.key_facts, "\n"),
+        entities: joinList(post.entities, ", "),
+        topics: joinList(post.topics, ", "),
         editorialPerspective: post.editorial_perspective,
         faq: (() => {
           try {
@@ -127,13 +104,7 @@ export default async function EditBlogPostPage({
           }
         })(),
         imageAlt: post.image_alt,
-        relatedSlugs: (() => {
-          try {
-            return (JSON.parse(post.related_slugs) as string[]).join(", ");
-          } catch {
-            return "";
-          }
-        })(),
+        relatedSlugs: joinList(post.related_slugs, ", "),
         materiallyUpdatedAt: post.materially_updated_at ?? "",
         reviewedAt: post.reviewed_at ?? "",
       }}

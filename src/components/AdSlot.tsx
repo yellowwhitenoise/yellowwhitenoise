@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { sanitizeRichHtml } from "@/lib/sanitize";
 
 interface Creative {
   creativeType: "html" | "image";
@@ -65,22 +66,33 @@ export function AdSlot({
       {creative.creativeType === "html" && creative.creativeHtml ? (
         <div
           className="px-4 pb-4"
-          dangerouslySetInnerHTML={{ __html: creative.creativeHtml }}
+          dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(creative.creativeHtml) }}
         />
       ) : creative.imageUrl ? (
-        <a
-          href={creative.linkUrl || "#"}
-          target="_blank"
-          rel="noopener noreferrer sponsored"
-          className="block p-4"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={creative.imageUrl}
-            alt={creative.alt ?? "Advertisement"}
-            className="w-full rounded-xl object-cover"
-          />
-        </a>
+        creative.linkUrl ? (
+          <a
+            href={creative.linkUrl}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            className="block p-4"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={creative.imageUrl}
+              alt={creative.alt ?? "Advertisement"}
+              className="w-full rounded-xl object-cover"
+            />
+          </a>
+        ) : (
+          <div className="block p-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={creative.imageUrl}
+              alt={creative.alt ?? "Advertisement"}
+              className="w-full rounded-xl object-cover"
+            />
+          </div>
+        )
       ) : null}
     </div>
   );

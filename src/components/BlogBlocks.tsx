@@ -1,4 +1,5 @@
 import { AdSlot } from "@/components/AdSlot";
+import { sanitizeRichHtml } from "@/lib/sanitize";
 import {
   extractYouTubeId,
   insertAutomaticAds,
@@ -305,7 +306,7 @@ export function BlogBlocks({
             return <hr key={index} className="border-foreground/15" />;
           case "embed":
             return block.html ? (
-              <div key={index} className="min-w-0 max-w-full overflow-hidden [&_iframe]:max-w-full" dangerouslySetInnerHTML={{ __html: block.html }} />
+              <div key={index} className="min-w-0 max-w-full overflow-hidden [&_iframe]:max-w-full" dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(block.html) }} />
             ) : block.url ? (
               <p key={index} className="min-w-0 max-w-full">
                 <a

@@ -303,8 +303,8 @@ export default function HomeClient({
                     </span>
                   )}
                 </span>
-                <span className="flex flex-col items-center gap-1.5">
-                  <span className="font-display text-sm font-medium uppercase tracking-[0.32em] text-white/90">
+                <span className="flex min-w-0 max-w-[78vw] flex-col items-center gap-1.5 text-center">
+                  <span className="font-display text-sm font-medium uppercase tracking-[0.32em] text-white/90 [text-wrap:balance] break-words">
                     {name}
                   </span>
                   <span className="text-[10px] uppercase tracking-[0.28em] text-white/45">

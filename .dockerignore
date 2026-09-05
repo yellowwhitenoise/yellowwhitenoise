@@ -4,5 +4,7 @@
 node_modules
 coverage
 dev-*.log
-prod-test.log
+prod-*.log
 npm-debug.log
+.env*
+*.local

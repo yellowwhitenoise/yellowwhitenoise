@@ -114,7 +114,7 @@ export function ResponsiveMenu({
         <button
           type="button"
           onClick={() => setOpen((current) => !current)}
-          aria-label={label}
+          aria-label={activeLabel || label}
           aria-expanded={open}
           className={buttonClassName}
         >

@@ -66,6 +66,13 @@ export type BlogBlock =
   | { type: "divider" }
   | { type: "embed"; html?: string; url?: string };
 
+const MUSIC_PROVIDERS: MusicProvider[] = ["spotify", "appleMusic", "youtubeMusic"];
+const MUSIC_CONTENT_TYPES: MusicContentType[] = ["track", "album", "playlist"];
+
+function validAdSlot(value: unknown): value is AdSlotId {
+  return AD_SLOTS.some((entry) => entry.id === value);
+}
+
 export function extractYouTubeId(url: string): string | null {
   const match = url.match(
     /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,20})/,
@@ -157,8 +164,14 @@ export function normalizeBlocks(raw: unknown): BlogBlock[] {
       case "music":
         blocks.push({
           type: "music",
-          provider: (block.provider as MusicProvider) ?? "spotify",
-          contentType: (block.contentType as MusicContentType) ?? "track",
+          provider: MUSIC_PROVIDERS.includes(block.provider as MusicProvider)
+            ? (block.provider as MusicProvider)
+            : "spotify",
+          contentType: MUSIC_CONTENT_TYPES.includes(
+            block.contentType as MusicContentType,
+          )
+            ? (block.contentType as MusicContentType)
+            : "track",
           url: String(block.url ?? ""),
           providerId:
             block.providerId === undefined
@@ -226,7 +239,7 @@ export function normalizeBlocks(raw: unknown): BlogBlock[] {
       case "advertisement":
         blocks.push({
           type: "advertisement",
-          slot: (block.slot as AdSlotId) ?? "article_mid",
+          slot: validAdSlot(block.slot) ? block.slot : "article_mid",
         });
         break;
       case "divider":

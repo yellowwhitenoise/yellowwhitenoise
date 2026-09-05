@@ -35,7 +35,8 @@ export async function generateMetadata({
       },
     };
   }
-  await syncStaleArtists();
+  // Background refresh only — render serves the cache immediately.
+  void syncStaleArtists().catch(() => {});
   const { slug } = await params;
   const artist = getArtistBySlug(slug);
   if (!artist) return {};
@@ -88,7 +89,8 @@ export default async function ArtistRoutePage({
       </>
     );
   }
-  await syncStaleArtists();
+  // Background refresh only — render serves the cache immediately.
+  void syncStaleArtists().catch(() => {});
   const { slug } = await params;
   const artist = getArtistBySlug(slug);
   if (!artist) notFound();

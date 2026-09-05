@@ -5,6 +5,7 @@ import {
   type EmailTemplate,
   type NotifyType,
 } from "@/lib/email-templates";
+import { sanitizeRichHtml } from "@/lib/sanitize";
 import { getSetting, setSetting } from "@/lib/db";
 
 function validTemplate(value: unknown): value is EmailTemplate {
@@ -20,7 +21,14 @@ export function getEmailTemplates(): Record<NotifyType, EmailTemplate> {
     if (!raw) continue;
     try {
       const parsed = JSON.parse(raw) as unknown;
-      if (validTemplate(parsed)) templates[type] = parsed;
+      if (validTemplate(parsed)) {
+        templates[type] = {
+          subject: parsed.subject,
+          // Sanitize on read too: rows saved before sanitization existed
+          // must not reach inboxes raw.
+          html: sanitizeRichHtml(parsed.html),
+        };
+      }
     } catch {
       // Fall back to the built-in template.
     }

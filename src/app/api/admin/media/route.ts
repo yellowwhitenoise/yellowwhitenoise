@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdmin } from "@/lib/auth";
 import { deleteMedia, getMediaById, listMedia } from "@/lib/db";
+import { parseIdParam, invalidIdResponse } from "@/lib/route-params";
 
 export async function GET(request: NextRequest) {
   if (!(await isAdmin())) {
@@ -14,10 +15,8 @@ export async function DELETE(request: NextRequest) {
   if (!(await isAdmin())) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
-  const id = Number(request.nextUrl.searchParams.get("id"));
-  if (!id) {
-    return NextResponse.json({ error: "id is required" }, { status: 400 });
-  }
+  const id = parseIdParam(request.nextUrl.searchParams.get("id") ?? "");
+  if (id === null) return invalidIdResponse();
   const entry = getMediaById(id);
   deleteMedia(id);
   if (entry && entry.url.includes("res.cloudinary.com")) {

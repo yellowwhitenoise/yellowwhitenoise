@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BackdropMedia } from "@/components/BackdropMedia";
+import { PlaylistAboutToggle } from "@/components/PlaylistAboutToggle";
 import { triggerHaptic } from "@/lib/haptics";
 import type { MediaRef, Playlist } from "@/lib/data";
 import { useUIStore } from "@/lib/store/ui";
@@ -90,6 +91,12 @@ export function PlaylistListClient({
       />
 
       <div
+        onClick={(event) => event.stopPropagation()}
+        className={`transition-opacity duration-700 ${faded}`}
+      >
+        <PlaylistAboutToggle />
+      </div>
+      <div
         data-scroll-strip
         className={`relative z-10 flex h-dvh flex-col overflow-y-auto overflow-x-hidden overscroll-contain transition-opacity duration-700 [overflow-anchor:none] md:flex-row md:items-center md:overflow-x-auto md:overflow-y-hidden ${faded}`}
       >
@@ -121,7 +128,7 @@ export function PlaylistListClient({
                   {playlist.name[0]}
                 </span>
               </div>
-              <h2 className="mt-3 font-display text-sm font-medium uppercase tracking-[0.14em] transition-colors group-hover:text-yellow md:text-base">
+              <h2 className="mt-3 max-w-[70vw] font-display text-sm font-medium uppercase tracking-[0.14em] transition-colors [text-wrap:balance] break-words group-hover:text-yellow md:max-w-none md:text-base">
                 {playlist.name}
               </h2>
               <p className="mt-1 text-[10px] uppercase tracking-[0.18em] opacity-35">

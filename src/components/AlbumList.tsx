@@ -130,20 +130,24 @@ export function AlbumList({
               }`}
             >
               <div data-album-links className="scroll-mb-28 overflow-hidden">
-                {platforms.map((platform) => (
-                  <a
-                    key={platform}
-                    href={linkFor(album, platform)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() =>
-                      trackOutbound(platformLabels[platform], album.title)
-                    }
-                    className="block py-1.5 text-[10px] uppercase tracking-[0.16em] text-foreground/70 transition-colors hover:text-yellow"
-                  >
-                    {platformLabels[platform]}
-                  </a>
-                ))}
+                {platforms.map((platform) => {
+                  const href = linkFor(album, platform);
+                  if (!href) return null;
+                  return (
+                    <a
+                      key={platform}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() =>
+                        trackOutbound(platformLabels[platform], album.title)
+                      }
+                      className="block py-1.5 text-[10px] uppercase tracking-[0.16em] text-foreground/70 transition-colors hover:text-yellow"
+                    >
+                      {platformLabels[platform]}
+                    </a>
+                  );
+                })}
               </div>
             </div>
           </li>

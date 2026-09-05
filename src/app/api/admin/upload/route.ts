@@ -34,6 +34,35 @@ function resolveFile(file: File) {
   return ALLOWED[file.type] ?? EXT_LOOKUP[path.extname(file.name).toLowerCase()];
 }
 
+/** Sniff the container/codec from magic bytes so a renamed binary can't
+ *  enter the library as an image (or vice versa). Returns the detected
+ *  kind, or null when the bytes match nothing we serve. */
+function sniffKind(head: Uint8Array): "image" | "video" | null {
+  const ascii = (at: number, length: number) =>
+    String.fromCharCode(...head.slice(at, at + length));
+  if (head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff) return "image";
+  if (
+    head[0] === 0x89 &&
+    head[1] === 0x50 &&
+    head[2] === 0x4e &&
+    head[3] === 0x47
+  ) {
+    return "image";
+  }
+  if (ascii(0, 4) === "RIFF" && ascii(8, 4) === "WEBP") return "image";
+  if (ascii(0, 3) === "GIF") return "image";
+  if (ascii(4, 4) === "ftyp") {
+    const brand = ascii(8, 4);
+    if (brand === "avif") return "image";
+    return "video";
+  }
+  if (head[0] === 0x1a && head[1] === 0x45 && head[2] === 0xdf && head[3] === 0xa3) {
+    return "video";
+  }
+  if (head[0] === 0x47) return "video";
+  return null;
+}
+
 export async function POST(request: NextRequest) {
   if (!(await isAdmin())) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -60,6 +89,19 @@ export async function POST(request: NextRequest) {
       { status: 400 },
     );
   }
+  const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  const sniffed = sniffKind(head);
+  if (!sniffed || sniffed !== allowed.kind) {
+    return NextResponse.json(
+      { error: "File contents do not match its type. Re-export and retry." },
+      { status: 400 },
+    );
+  }
+  // Persist the verified MIME, not the client-claimed one.
+  const mime = ALLOWED[file.type]
+    ? file.type
+    : (EXT_LOOKUP[path.extname(file.name).toLowerCase()]?.mime ??
+      "application/octet-stream");
   const width = Number(form?.get("width")) || null;
   const height = Number(form?.get("height")) || null;
   const duration = Number(form?.get("duration")) || null;
@@ -81,7 +123,7 @@ export async function POST(request: NextRequest) {
         filename: uploaded.publicId,
         url: uploaded.url,
         kind: allowed.kind,
-        mime: file.type,
+        mime,
         size: uploaded.bytes,
         width,
         height,
@@ -113,7 +155,7 @@ export async function POST(request: NextRequest) {
     filename: name,
     url: `/api/uploads/${name}`,
     kind: allowed.kind,
-    mime: file.type,
+    mime,
     size: file.size,
     width,
     height,

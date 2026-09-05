@@ -31,11 +31,13 @@ export async function generateMetadata({
   params,
 }: PlaylistPageProps): Promise<Metadata> {
   const { slug } = await params;
+  // Background refresh only — metadata serves the cache immediately.
+  void syncStalePlaylists().catch(() => {});
   const playlist = isBackendConfigured()
     ? await fetchBackendJson<Playlist>(
         `/api/public/playlists/${encodeURIComponent(slug)}`,
       )
-    : (await syncStalePlaylists(), await getCachedPublicPlaylist(slug));
+    : await getCachedPublicPlaylist(slug);
   if (!playlist) return {};
   const description = playlist.ogDescription ?? playlist.tagline;
   return {
@@ -89,8 +91,9 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
         ? playlistData.playlistStyleDesktop
         : legacy;
   } else {
-    await syncStalePlaylists();
-    playlist = await getCachedPublicPlaylist(slug);
+  // Background refresh only — render serves the cache immediately.
+  void syncStalePlaylists().catch(() => {});
+  playlist = await getCachedPublicPlaylist(slug);
     artists = listArtists();
     mobileStyle = getPlaylistStyleMobile();
     desktopStyle = getPlaylistStyleDesktop();
@@ -143,9 +146,9 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
               <p className="text-[11px] uppercase tracking-[0.28em] opacity-50">
                 Yellow White Noise · Playlist
               </p>
-              <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-[0.08em] md:text-5xl">
-                {playlist.name}
-              </h1>
+                <h1 className="mt-2 font-display text-4xl font-semibold uppercase tracking-[0.08em] [text-wrap:balance] break-words md:text-5xl">
+                  {playlist.name}
+                </h1>
               <p className="mt-4 max-w-[48ch] text-[15px] leading-relaxed opacity-70">
                 {playlist.tagline}
               </p>

@@ -65,7 +65,8 @@ export function BottomNav() {
 
   return (
     <nav
-      className={`fixed inset-x-0 bottom-0 z-40 text-white transition-all duration-300 ${
+      inert={hidden}
+      className={`fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-black/70 via-black/30 to-transparent text-white transition-all duration-300 ${
         hidden ? "translate-y-full opacity-0" : "translate-y-0 opacity-100"
       }`}
     >

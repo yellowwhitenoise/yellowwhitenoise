@@ -95,6 +95,15 @@ export function ZoomableImage({
   return (
     <div
       ref={viewportRef}
+      tabIndex={0}
+      role="button"
+      aria-label={`${alt}. Activate to ${zoomed ? "reset zoom" : "zoom in"}.`}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          toggleZoom();
+        }
+      }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}

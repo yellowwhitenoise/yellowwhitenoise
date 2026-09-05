@@ -137,6 +137,7 @@ export function SongCard({
             <span
               key={platform}
               aria-disabled
+              title={`${platformLabels[platform]} link unavailable`}
               className="flex h-9 w-9 items-center justify-center rounded-full border border-foreground/10 opacity-30"
             >
               {icon}
@@ -160,6 +161,7 @@ export function SongCard({
                   key={platform}
                   type="button"
                   onClick={() => setActivePlatform(platform)}
+                  aria-pressed={activePlatform === platform}
                   className={`cursor-pointer rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] transition-colors ${
                     activePlatform === platform
                       ? "bg-foreground text-background"

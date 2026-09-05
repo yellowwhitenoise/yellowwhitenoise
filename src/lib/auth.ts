@@ -4,16 +4,31 @@ import { cookies } from "next/headers";
 const COOKIE_NAME = "ywn_admin";
 const SESSION_DAYS = 7;
 
+function requiredEnv(name: string): string {
+  const value = process.env[name];
+  if (value) return value;
+  // Fail closed in production: never run with publicly-known credentials.
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  const devFallbacks: Record<string, string> = {
+    AUTH_SECRET: "ywn-dev-secret-change-me",
+    ADMIN_EMAIL: "admin@yellowwhitenoise.com",
+    ADMIN_PASSWORD: "ywn-admin-2026",
+  };
+  return devFallbacks[name] ?? "";
+}
+
 function secret(): string {
-  return process.env.AUTH_SECRET || "ywn-dev-secret-change-me";
+  return requiredEnv("AUTH_SECRET");
 }
 
 function adminEmail(): string {
-  return process.env.ADMIN_EMAIL || "admin@yellowwhitenoise.com";
+  return requiredEnv("ADMIN_EMAIL");
 }
 
 function adminPassword(): string {
-  return process.env.ADMIN_PASSWORD || "ywn-admin-2026";
+  return requiredEnv("ADMIN_PASSWORD");
 }
 
 function sign(payload: string): string {

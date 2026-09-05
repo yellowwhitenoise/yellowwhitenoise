@@ -124,6 +124,7 @@ export function InfoSections({
       key={id}
       type="button"
       onClick={() => selectSection(id, path)}
+      aria-current={active === id ? "page" : undefined}
       className={`cursor-pointer whitespace-nowrap text-left text-[13px] transition-colors md:text-sm ${
         active === id
           ? "text-foreground"
@@ -161,7 +162,7 @@ export function InfoSections({
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[13px] text-foreground/60 transition-colors hover:text-yellow"
+                className="block max-w-full truncate text-[13px] text-foreground/60 transition-colors hover:text-yellow"
               >
                 {social.label || social.url}
               </a>
@@ -255,6 +256,8 @@ export function InfoSections({
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Search posts…"
+                  aria-label="Search posts"
+                  role="searchbox"
                   className="w-full rounded-full border border-foreground/15 bg-transparent px-4 py-2 text-[12px] outline-none focus:border-yellow sm:w-56"
                 />
               </div>
@@ -342,7 +345,7 @@ export function InfoSections({
             href={social.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[13px] text-foreground/60 transition-colors hover:text-yellow"
+            className="block max-w-full truncate px-4 text-center text-[13px] text-foreground/60 transition-colors hover:text-yellow"
           >
             {social.label || social.url}
           </a>

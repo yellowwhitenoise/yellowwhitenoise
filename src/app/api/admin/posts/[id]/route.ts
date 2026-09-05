@@ -7,6 +7,7 @@ import {
   updatePost,
   type PostApiBody,
 } from "@/lib/db";
+import { parseIdParam, invalidIdResponse } from "@/lib/route-params";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -17,7 +18,9 @@ export async function PUT(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const { id } = await params;
-  const existing = getPostById(Number(id));
+  const postId = parseIdParam(id);
+  if (postId === null) return invalidIdResponse();
+  const existing = getPostById(postId);
   if (!existing) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
@@ -32,6 +35,8 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const { id } = await params;
-  deletePost(Number(id));
+  const postId = parseIdParam(id);
+  if (postId === null) return invalidIdResponse();
+  deletePost(postId);
   return NextResponse.json({ ok: true });
 }

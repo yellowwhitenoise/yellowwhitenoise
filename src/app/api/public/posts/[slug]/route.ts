@@ -4,6 +4,8 @@ import {
   getPublicPostBySlug,
   getRelatedPosts,
   getSetting,
+  isPubliclyVisible,
+  type BlogPostRow,
 } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -29,13 +31,8 @@ export async function GET(
   const manualRelated = parseStringList(post.related_slugs)
     .map((relatedSlug) => getPostBySlug(relatedSlug))
     .filter(
-      (row): row is NonNullable<typeof row> =>
-        Boolean(row) &&
-        (row!.status === "published" ||
-          (row!.status === "scheduled" &&
-            Boolean(row!.published_at) &&
-            row!.published_at! <=
-              new Date().toISOString().replace("T", " ").slice(0, 19))),
+      (row): row is BlogPostRow =>
+        row !== undefined && isPubliclyVisible(row),
     );
   const autoRelated = getRelatedPosts(post.slug, post.category, tags, entities);
   const related = [

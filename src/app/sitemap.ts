@@ -68,6 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}/blog/${post.slug}`,
       changeFrequency: "monthly" as const,
       priority: 0.4,
+      lastModified: post.materially_updated_at ?? post.updated_at,
     })),
     ...artists.map((artist) => ({
       url: `${SITE_URL}/${artist.slug}`,

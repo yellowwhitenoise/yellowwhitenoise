@@ -31,7 +31,8 @@ export default async function PlaylistsPage() {
       />
     );
   }
-  await syncStalePlaylists();
+  // Background refresh only — render serves the cache immediately.
+  void syncStalePlaylists().catch(() => {});
   const playlists = await getCachedPublicPlaylists();
   let backdrop: MediaRef | undefined;
   const raw = getSetting("home_backdrop");

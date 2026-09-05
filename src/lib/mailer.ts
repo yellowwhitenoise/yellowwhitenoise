@@ -5,6 +5,7 @@ import {
   type NotifyType,
 } from "@/lib/email-templates";
 import { getEmailTemplates } from "@/lib/email-template-store";
+import { sanitizeLogoUrl } from "@/lib/sanitize";
 import {
   getNotificationsEnabled,
   listGlobalSubscribers,
@@ -106,8 +107,7 @@ function escapeHtml(value: string): string {
   );
 }
 
-function safeUrl(value?: string): string {
-  if (!value) return "https://www.yellowwhitenoise.com";
+function safeUrl(value?: string): string {  if (!value) return "https://www.yellowwhitenoise.com";
   try {
     const url = new URL(value);
     return url.protocol === "http:" || url.protocol === "https:"
@@ -176,7 +176,7 @@ function buildEmail(
     trackList: trackListHtml(payload.trackList),
     unsubscribe: escapeHtml(unsubscribeUrl),
   });
-  const logoUrl = process.env.EMAIL_LOGO_URL?.trim() || undefined;
+  const logoUrl = sanitizeLogoUrl(process.env.EMAIL_LOGO_URL);
   return {
     subject,
     html: emailLayout(escapeHtml(payload.title), body, logoUrl).replaceAll(
@@ -307,7 +307,9 @@ export async function notifyPlaylistSubscribers(
       // Push is best-effort; email result stands.
     }
   }
-  if (!result.skipped && (result.sent > 0 || result.total === 0)) {
+  // Mark notified on full success (sent === total covers the no-subscriber
+  // case) or on terminal skips. Partial failures stay pending for retry.
+  if (result.skipped || result.sent === result.total) {
     markPlaylistTrackEventsNotified(events);
   }
   return { ...result, pushSent };

@@ -27,11 +27,13 @@ export default async function HomePage() {
     <HomeClient
       artists={data?.artists ?? []}
       backdrop={data?.backdrop ?? undefined}
-      tapHideEnabled
+      tapHideEnabled={getTapHideEnabled()}
     />
   );
 }
-  await syncStaleArtists();
+  // Refresh catalogs in the background: page render never waits on
+  // upstream APIs, and failures must not break the homepage.
+  void syncStaleArtists().catch(() => {});
   const artists = listArtists();
   let backdrop: MediaRef | undefined;
   const raw = getSetting("home_backdrop");

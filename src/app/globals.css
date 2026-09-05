@@ -37,6 +37,13 @@
   display: none;
 }
 
+/* Scrollbars are hidden by design (carousels/stripes); keep a visible
+   keyboard focus ring so keyboard users never lose their place. */
+*:focus-visible {
+  outline: 2px solid #f0b429;
+  outline-offset: 2px;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

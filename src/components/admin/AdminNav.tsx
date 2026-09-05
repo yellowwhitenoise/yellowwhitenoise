@@ -158,9 +158,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         {/* Drawer: slides in from the left */}
         <aside
           aria-label="Admin navigation"
-          aria-hidden={!open}
+          inert={!open}
           className={`fixed top-0 bottom-0 left-0 z-50 flex w-[50vw] min-w-[220px] max-w-[280px] flex-col border-r border-foreground/10 bg-background transition-transform duration-300 ease-out md:w-[280px] md:max-w-[280px] ${
-            open ? "translate-x-0" : "-translate-x-full"
+            open ? "translate-x-0" : "invisible -translate-x-full"
           }`}
         >
           <div className="flex items-center justify-end px-5 pt-4 pb-2">

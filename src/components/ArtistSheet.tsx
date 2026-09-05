@@ -107,7 +107,7 @@ export function ArtistSheet() {
           <button
             type="button"
             onClick={closeSheet}
-            aria-label="Close"
+            aria-label={`Close ${artist.name} details`}
             className="absolute top-4 right-4 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-foreground/15 transition-colors hover:bg-foreground/10 md:top-6 md:right-8"
           >
             <svg
@@ -144,39 +144,45 @@ export function ArtistSheet() {
                 <p className="mt-1 text-[10px] uppercase tracking-[0.28em] opacity-45">
                   {artist.genre}
                 </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (artist.pageImage) setPortraitExpanded(true);
-                  }}
-                  aria-label={
-                    artist.pageImage
-                      ? `Expand ${artist.name} profile image`
-                      : `${artist.name} profile image`
-                  }
-                  className="relative mt-8 aspect-[4/5] w-full max-w-[210px] cursor-pointer overflow-hidden border-0 bg-transparent p-0 text-left md:mt-14"
-                  style={{
-                    backgroundImage: `linear-gradient(160deg, ${artist.palette.from}, ${artist.palette.to})`,
-                  }}
-                >
-                  {artist.pageImage && (
-                    // eslint-disable-next-line @next/next/no-img-element
+                {artist.pageImage ? (
+                  <button
+                    type="button"
+                    onClick={() => setPortraitExpanded(true)}
+                    aria-label={`Expand ${artist.name} profile image`}
+                    className="relative mt-8 aspect-[4/5] w-full max-w-[210px] cursor-pointer overflow-hidden border-0 bg-transparent p-0 text-left md:mt-14"
+                    style={{
+                      backgroundImage: `linear-gradient(160deg, ${artist.palette.from}, ${artist.palette.to})`,
+                    }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={artist.pageImage}
                       alt={`${artist.name} profile`}
                       className="absolute inset-0 h-full w-full object-cover"
                     />
-                  )}
+                    <div
+                      aria-hidden
+                      className="grain absolute inset-0 opacity-25 mix-blend-overlay"
+                    />
+                  </button>
+                ) : (
                   <div
-                    aria-hidden
-                    className="grain absolute inset-0 opacity-25 mix-blend-overlay"
-                  />
-                  {!artist.pageImage && (
+                    aria-label={`${artist.name} profile image`}
+                    role="img"
+                    className="relative mt-8 aspect-[4/5] w-full max-w-[210px] overflow-hidden bg-transparent md:mt-14"
+                    style={{
+                      backgroundImage: `linear-gradient(160deg, ${artist.palette.from}, ${artist.palette.to})`,
+                    }}
+                  >
+                    <div
+                      aria-hidden
+                      className="grain absolute inset-0 opacity-25 mix-blend-overlay"
+                    />
                     <span className="absolute inset-0 flex items-center justify-center font-display text-7xl text-white/20">
                       {artist.name[0]}
                     </span>
-                  )}
-                </button>
+                  </div>
+                )}
               </div>
 
               <div className="mt-8 max-w-[52ch] md:mt-0">
@@ -201,22 +207,24 @@ export function ArtistSheet() {
                       />
                     </a>
                   ))}
-                  <a
-                    href={artist.profileLinks.youtube ?? "https://www.youtube.com/"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`YouTube — ${artist.name}`}
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-foreground/15 transition-colors hover:border-yellow"
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="h-4.5 w-4.5 text-foreground"
-                      fill="currentColor"
-                      aria-hidden
+                  {artist.profileLinks.youtube && (
+                    <a
+                      href={artist.profileLinks.youtube}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`YouTube — ${artist.name}`}
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-foreground/15 transition-colors hover:border-yellow"
                     >
-                      <path d="M23 12s0-3.85-.46-5.58a2.9 2.9 0 0 0-2-2C18.75 4 12 4 12 4s-6.75 0-8.54.42a2.9 2.9 0 0 0-2 2C1 8.15 1 12 1 12s0 3.85.46 5.58a2.9 2.9 0 0 0 2 2c1.79.42 8.54.42 8.54.42s6.75 0 8.54-.42a2.9 2.9 0 0 0 2-2C23 15.85 23 12 23 12Zm-13.2 3.27V8.73L15.5 12l-5.7 3.27Z" />
-                    </svg>
-                  </a>
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-4.5 w-4.5 text-foreground"
+                        fill="currentColor"
+                        aria-hidden
+                      >
+                        <path d="M23 12s0-3.85-.46-5.58a2.9 2.9 0 0 0-2-2C18.75 4 12 4 12 4s-6.75 0-8.54.42a2.9 2.9 0 0 0-2 2C1 8.15 1 12 1 12s0 3.85.46 5.58a2.9 2.9 0 0 0 2 2c1.79.42 8.54.42 8.54.42s6.75 0 8.54-.42a2.9 2.9 0 0 0 2-2C23 15.85 23 12 23 12Zm-13.2 3.27V8.73L15.5 12l-5.7 3.27Z" />
+                      </svg>
+                    </a>
+                  )}
                   <span className="flex-1" />
                   <ShareMenu
                     entityName={artist.name}

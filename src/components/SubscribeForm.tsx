@@ -43,14 +43,18 @@ export function SubscribeForm({
 
   if (done) {
     return (
-      <p className="text-[12px] leading-relaxed text-yellow">{message}</p>
+      <p role="status" className="text-[12px] leading-relaxed text-yellow">{message}</p>
     );
   }
 
   return (
     <form onSubmit={submit} className="w-full">
       <div className="flex gap-2">
+        <label htmlFor={`subscribe-email-${playlistSlug ?? "global"}`} className="sr-only">
+          Email address
+        </label>
         <input
+          id={`subscribe-email-${playlistSlug ?? "global"}`}
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -63,7 +67,7 @@ export function SubscribeForm({
           disabled={busy}
           className="shrink-0 cursor-pointer rounded-full bg-foreground px-5 py-2.5 text-[10px] uppercase tracking-[0.2em] text-background transition-opacity hover:opacity-85 disabled:opacity-50"
         >
-          {busy ? "…" : "Subscribe"}
+          {busy ? "Sending…" : "Subscribe"}
         </button>
       </div>
       {playlistSlug && (
@@ -78,7 +82,7 @@ export function SubscribeForm({
         </label>
       )}
       {message && (
-        <p className="mt-2 text-[11px] text-red-400">{message}</p>
+        <p role="status" className="mt-2 text-[11px] text-red-400">{message}</p>
       )}
     </form>
   );

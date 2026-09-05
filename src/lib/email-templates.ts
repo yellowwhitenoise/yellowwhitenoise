@@ -1,3 +1,5 @@
+import { sanitizeLogoUrl } from "@/lib/sanitize";
+
 export const EMAIL_TEMPLATE_TYPES = [
   "song",
   "album",
@@ -119,7 +121,7 @@ export function previewEmailHtml(
 ): string {
   const body = replaceEmailTokens(template.html, PREVIEW_TOKENS);
   return replaceEmailTokens(
-    emailLayout("Example Release", body, logoUrl),
+    emailLayout("Example Release", body, sanitizeLogoUrl(logoUrl)),
     PREVIEW_TOKENS,
   );
 }

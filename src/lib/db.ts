@@ -739,7 +739,7 @@ export function markArtistSyncError(id: number, message: string) {
 export interface ArtistReleaseEventInput {
   artistSlug: string;
   releaseKey: string;
-  releaseType: "song" | "album";
+  releaseType: "song" | "album" | "ep";
   title: string;
   artistName: string;
   albumName?: string;
@@ -749,7 +749,7 @@ export interface ArtistReleaseEventInput {
 export interface ArtistReleaseEventRow {
   artist_slug: string;
   release_key: string;
-  release_type: "song" | "album";
+  release_type: "song" | "album" | "ep";
   title: string;
   artist_name: string;
   album_name: string;
@@ -1406,13 +1406,32 @@ function playlistSlug(name: string, sourcePlatform: Platform, sourceId: string) 
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "") || "playlist";
-  const existing = getDb()
-    .prepare("SELECT slug FROM playlists WHERE slug = ? OR slug = ?")
-    .all(base, `${base}-${sourcePlatform}`) as { slug: string }[];
-  if (!existing.some((row) => row.slug === base)) return base;
+  const taken = (slug: string) =>
+    Boolean(
+      getDb().prepare("SELECT 1 FROM playlists WHERE slug = ?").get(slug),
+    );
+  if (!taken(base)) return base;
   const platformSlug = `${base}-${sourcePlatform}`;
-  if (!existing.some((row) => row.slug === platformSlug)) return platformSlug;
-  return `${platformSlug}-${sourceId.slice(-6).toLowerCase()}`;
+  if (!taken(platformSlug)) return platformSlug;
+  const suffix = sourceId.replace(/[^a-z0-9]/gi, "").toLowerCase().slice(-6);
+  if (suffix && !taken(`${platformSlug}-${suffix}`)) {
+    return `${platformSlug}-${suffix}`;
+  }
+  let counter = 2;
+  while (taken(`${platformSlug}-${counter}`)) counter += 1;
+  return `${platformSlug}-${counter}`;
+}
+
+export function artistSlug(name: string): string {
+  const base =
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") || "artist";
+  if (!getArtistBySlug(base)) return base;
+  let counter = 2;
+  while (getArtistBySlug(`${base}-${counter}`)) counter += 1;
+  return `${base}-${counter}`;
 }
 
 export function createPlaylist(input: PlaylistInput): PlaylistRow {
@@ -1585,10 +1604,12 @@ export function addSubscriber(
     | { id: number; status: string; global_updates: number }
     | undefined;
   if (existing?.status === "active") {
-    if (existing.global_updates !== (globalUpdates ? 1 : 0)) {
+    // Never downgrade global updates: joining one playlist must not
+    // silently unsubscribe someone from everything else.
+    if (globalUpdates && !existing.global_updates) {
       database
-        .prepare("UPDATE subscribers SET global_updates = ? WHERE id = ?")
-        .run(globalUpdates ? 1 : 0, existing.id);
+        .prepare("UPDATE subscribers SET global_updates = 1 WHERE id = ?")
+        .run(existing.id);
     }
     return { added: false };
   }
@@ -1598,7 +1619,7 @@ export function addSubscriber(
         `UPDATE subscribers SET status = 'active', global_updates = ?,
          unsubscribed_at = NULL WHERE id = ?`,
       )
-      .run(globalUpdates ? 1 : 0, existing.id);
+      .run(existing.global_updates || globalUpdates ? 1 : 0, existing.id);
     return { added: true };
   }
   const info = database
@@ -2090,7 +2111,7 @@ export function matchCampaign(
     if (
       targeting.tags?.length &&
       context.tags?.length &&
-      !context.tags.some((tag) => targeting.tags!.includes(tag))
+      !context.tags.some((tag) => targeting.tags?.includes(tag) ?? false)
     )
       return false;
     return true;

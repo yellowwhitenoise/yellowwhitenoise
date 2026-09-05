@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { isAdmin } from "@/lib/auth";
 import { deletePlaylist, updatePlaylist } from "@/lib/db";
 import { invalidatePublicPlaylists } from "@/lib/public-playlists";
+import { parseIdParam, invalidIdResponse } from "@/lib/route-params";
 import type { Platform } from "@/lib/data";
 
 interface Params {
@@ -34,12 +35,14 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const { id } = await params;
+  const playlistId = parseIdParam(id);
+  if (playlistId === null) return invalidIdResponse();
   const body = (await request.json().catch(() => ({}))) as UpdateBody;
   const sortOrder =
     typeof body.sortOrder === "number" && Number.isFinite(body.sortOrder)
       ? body.sortOrder
       : undefined;
-  const row = updatePlaylist(Number(id), {
+  const row = updatePlaylist(playlistId, {
     name: body.name,
     tagline: body.tagline,
     description: body.description,
@@ -58,7 +61,9 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const { id } = await params;
-  deletePlaylist(Number(id));
+  const playlistId = parseIdParam(id);
+  if (playlistId === null) return invalidIdResponse();
+  deletePlaylist(playlistId);
   invalidatePublicPlaylists();
   return NextResponse.json({ ok: true });
 }

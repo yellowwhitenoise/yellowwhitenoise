@@ -112,7 +112,18 @@ export function TrackGrid({
           const expanded = pinnedSlug === song.slug || isActive;
           const artwork = artworkFor(song, index);
           return (
-            <li key={song.slug} className="flex-none snap-start">
+            <li
+              key={song.slug}
+              className="flex-none snap-start"
+              onFocus={() => activate(song)}
+              onBlur={(event) => {
+                if (
+                  !event.currentTarget.contains(event.relatedTarget as Node)
+                ) {
+                  deactivate();
+                }
+              }}
+            >
               <div
                 className={`grid transition-all duration-300 ease-out ${
                   expanded
@@ -121,20 +132,24 @@ export function TrackGrid({
                 }`}
               >
                 <div className="overflow-hidden">
-                  {platforms.map((platform) => (
-                    <a
-                      key={platform}
-                      href={linkFor(song, platform)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() =>
-                        trackOutbound(platformLabels[platform], song.title)
-                      }
-                      className="block px-0.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] whitespace-nowrap text-white/85 transition-colors hover:text-yellow"
-                    >
-                      {platformLabels[platform]}
-                    </a>
-                  ))}
+                  {platforms.map((platform) => {
+                    const href = linkFor(song, platform);
+                    if (!href) return null;
+                    return (
+                      <a
+                        key={platform}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() =>
+                          trackOutbound(platformLabels[platform], song.title)
+                        }
+                        className="block px-0.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] whitespace-nowrap text-white/85 transition-colors hover:text-yellow"
+                      >
+                        {platformLabels[platform]}
+                      </a>
+                    );
+                  })}
                 </div>
               </div>
               <div
