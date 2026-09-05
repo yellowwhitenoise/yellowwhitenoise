@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AlbumList } from "@/components/AlbumList";
+import { BackdropMedia } from "@/components/BackdropMedia";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { PlatformIcon } from "@/components/PlatformIcon";
 import { ShareMenu } from "@/components/ShareMenu";
@@ -121,7 +122,20 @@ export function ArtistSheet() {
             </svg>
           </button>
 
-          <div className="w-full scroll-smooth px-5 pt-4 pb-12 md:px-10 md:py-6">
+          {artist.backdrop && (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 overflow-hidden"
+            >
+              <BackdropMedia
+                media={artist.backdrop}
+                className="absolute inset-0 opacity-35"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/75 to-background" />
+            </div>
+          )}
+
+          <div className="relative w-full scroll-smooth px-5 pt-4 pb-12 md:px-10 md:py-6">
             <div className="md:grid md:grid-cols-[190px_minmax(0,1fr)_200px] md:items-center md:gap-10">
               <div className="flex flex-col">
                 <h2 className="font-display text-xl font-semibold uppercase tracking-[0.1em]">
@@ -207,6 +221,7 @@ export function ArtistSheet() {
                   <ShareMenu
                     entityName={artist.name}
                     align="right"
+                    placement="above"
                     buttonClassName="cursor-pointer text-[10px] uppercase tracking-[0.22em] opacity-60 transition-opacity hover:opacity-100"
                   />
                 </div>

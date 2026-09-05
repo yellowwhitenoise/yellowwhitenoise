@@ -11,6 +11,7 @@ export function ResponsiveMenu({
   buttonClassName,
   menuClassName,
   align = "left",
+  placement = "below",
   children,
 }: {
   label: string;
@@ -20,6 +21,9 @@ export function ResponsiveMenu({
   buttonClassName?: string;
   menuClassName?: string;
   align?: "left" | "right";
+  /** Desktop dropdown direction. Use "above" when the trigger sits near
+   *  the bottom of a scroll container (e.g. above a footer strip). */
+  placement?: "below" | "above";
   children: (close: () => void) => ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -122,7 +126,9 @@ export function ResponsiveMenu({
             <>
               <div className="fixed inset-0 z-20" onClick={close} />
               <div
-                className={`absolute z-30 mt-2 w-64 rounded-2xl border border-foreground/15 bg-background p-2 shadow-2xl ${
+                className={`absolute z-30 w-64 rounded-2xl border border-foreground/15 bg-background p-2 shadow-2xl ${
+                  placement === "above" ? "bottom-full mb-2" : "mt-2"
+                } ${
                   align === "right" ? "right-0" : "left-0"
                 } ${menuClassName ?? ""}`}
               >

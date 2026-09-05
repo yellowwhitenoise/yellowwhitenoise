@@ -132,6 +132,7 @@ export function ShareMenu({
   align = "right",
   buttonClassName,
   menuClassName = "w-[min(90vw,24rem)]",
+  placement = "below",
 }: {
   entityName: string;
   text?: string;
@@ -139,6 +140,7 @@ export function ShareMenu({
   align?: "left" | "right";
   buttonClassName?: string;
   menuClassName?: string;
+  placement?: "below" | "above";
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -176,6 +178,7 @@ export function ShareMenu({
       buttonClassName={buttonClassName}
       align={align}
       menuClassName={menuClassName}
+      placement={placement}
     >
       {(close) => (
         <div className="overflow-hidden py-2">
