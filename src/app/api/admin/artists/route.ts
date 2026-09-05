@@ -74,6 +74,7 @@ export async function POST(request: NextRequest) {
     profileLinks?: {
       spotify?: string;
       appleMusic?: string;
+      amazonMusic?: string;
       youtubeMusic?: string;
       youtube?: string;
     };

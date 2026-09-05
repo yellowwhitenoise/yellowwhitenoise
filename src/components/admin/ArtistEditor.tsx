@@ -82,6 +82,7 @@ export function ArtistEditor({
     backdrop: MediaRef | null;
     hoverMedia: MediaRef | null;
     profileLinks?: {
+      amazonMusic?: string;
       youtube?: string;
     };
     syncSources: {
@@ -113,6 +114,9 @@ export function ArtistEditor({
   );
   const [youtubeUrl, setYoutubeUrl] = useState(
     artist.profileLinks?.youtube ?? "",
+  );
+  const [amazonMusicUrl, setAmazonMusicUrl] = useState(
+    artist.profileLinks?.amazonMusic ?? "",
   );
   const [syncSources, setSyncSources] = useState(artist.syncSources);
   const [syncEnabled, setSyncEnabled] = useState(artist.syncEnabled);
@@ -218,7 +222,7 @@ export function ArtistEditor({
           platformIds: song.platformIds,
           links: song.links,
         })),
-      profileLinks: { youtube: youtubeUrl },
+      profileLinks: { amazonMusic: amazonMusicUrl, youtube: youtubeUrl },
       homeImage: homeImage || null,
       pageImage: pageImage || null,
       backdrop,
@@ -484,6 +488,15 @@ export function ArtistEditor({
               value={youtubeUrl}
               onChange={(event) => setYoutubeUrl(event.target.value)}
               placeholder="https://www.youtube.com/@..."
+              className={`mt-2 ${inputClass}`}
+            />
+          </label>
+          <label className="block min-w-0 max-w-full text-[10px] uppercase tracking-[0.18em] opacity-50">
+            Amazon Music artist profile URL
+            <input
+              value={amazonMusicUrl}
+              onChange={(event) => setAmazonMusicUrl(event.target.value)}
+              placeholder="https://music.amazon.com/artists/..."
               className={`mt-2 ${inputClass}`}
             />
           </label>

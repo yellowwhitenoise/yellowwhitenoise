@@ -571,7 +571,7 @@ export function rowToArtist(row: ArtistRow): Artist & { id: number } {
     profileLinks: {
       spotify: profileLinks.spotify ?? "https://open.spotify.com/",
       appleMusic: profileLinks.appleMusic ?? "https://music.apple.com/",
-      amazonMusic: profileLinks.amazonMusic ?? "https://music.amazon.com/",
+      amazonMusic: profileLinks.amazonMusic || "https://music.amazon.com/",
       youtubeMusic: profileLinks.youtubeMusic ?? "https://music.youtube.com/",
       youtube: profileLinks.youtube || "https://www.youtube.com/",
     },

@@ -67,6 +67,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     profileLinks?: {
       spotify?: string;
       appleMusic?: string;
+      amazonMusic?: string;
       youtubeMusic?: string;
       youtube?: string;
     };

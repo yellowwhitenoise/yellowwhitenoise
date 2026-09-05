@@ -98,7 +98,14 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
   }
   if (!playlist) notFound();
 
-  const playlistLinks = playlist.availableLinks ?? playlist.links;
+  const baseLinks = playlist.availableLinks ?? playlist.links;
+  // Playlists stored before Amazon Music existed have no URL for it —
+  // backfill the homepage default instead of hiding the button.
+  const playlistLinks = {
+    amazonMusic:
+      playlist.links.amazonMusic ?? "https://music.amazon.com/",
+    ...baseLinks,
+  };
   const renderHero = (heroStyle: PlaylistStyle) =>
     heroStyle === "compact" ? (
       <section className="mx-auto w-full max-w-2xl px-5 pt-8 md:px-10 md:pt-12">
@@ -142,7 +149,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
               <p className="mt-4 max-w-[48ch] text-[15px] leading-relaxed opacity-70">
                 {playlist.tagline}
               </p>
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {platforms.map((platform) => {
                   const href = playlistLinks[platform];
                   if (!href) return null;

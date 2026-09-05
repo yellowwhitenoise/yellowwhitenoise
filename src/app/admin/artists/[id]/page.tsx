@@ -42,7 +42,10 @@ export default async function EditArtistPage({
         pageImage: artist.pageImage ?? "",
         backdrop: artist.backdrop ?? null,
         hoverMedia: artist.hoverMedia ?? null,
-        profileLinks: { youtube: artist.profileLinks.youtube ?? "" },
+        profileLinks: {
+          amazonMusic: artist.profileLinks.amazonMusic ?? "",
+          youtube: artist.profileLinks.youtube ?? "",
+        },
         syncSources: artist.syncSources ?? {},
         syncEnabled: artist.syncEnabled ?? false,
         lastSyncedAt: artist.lastSyncedAt ?? null,
