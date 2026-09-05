@@ -236,6 +236,9 @@ export function DashboardClient({
             <option value="album" className="bg-background text-foreground">
               New album
             </option>
+            <option value="ep" className="bg-background text-foreground">
+              New EP
+            </option>
             <option value="song" className="bg-background text-foreground">
               New song
             </option>

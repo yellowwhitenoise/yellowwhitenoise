@@ -16,6 +16,7 @@ const inputClass =
 const typeLabels: Record<NotifyType, string> = {
   song: "New track",
   album: "New album",
+  ep: "New EP",
   playlist: "New playlist",
   playlistTrack: "Track added to playlist",
 };

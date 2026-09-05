@@ -22,7 +22,7 @@ function parseLinks(value: unknown): Partial<Record<Platform, string>> {
   if (typeof value !== "object" || value === null) return {};
   const source = value as Record<string, unknown>;
   const links: Partial<Record<Platform, string>> = {};
-  for (const platform of ["spotify", "appleMusic", "youtubeMusic"] as Platform[]) {
+  for (const platform of ["spotify", "appleMusic", "amazonMusic", "youtubeMusic"] as Platform[]) {
     const link = source[platform];
     if (typeof link === "string") links[platform] = link;
   }

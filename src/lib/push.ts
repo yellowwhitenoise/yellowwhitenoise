@@ -88,7 +88,13 @@ export function pushPayloadForRelease(
     };
   }
   const kind =
-    type === "playlist" ? "playlist" : type === "album" ? "album" : "track";
+    type === "playlist"
+      ? "playlist"
+      : type === "album"
+        ? "album"
+        : type === "ep"
+          ? "EP"
+          : "track";
   return {
     title: `New ${kind}: ${title}`,
     body: artist ?? "Yellow White Noise",

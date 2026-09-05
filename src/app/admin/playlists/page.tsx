@@ -21,6 +21,7 @@ export default async function AdminPlaylistsPage({
         spotify: getSetting("spotify_account_url") ?? "",
         youtube: getSetting("youtube_account_url") ?? "",
         apple: getSetting("apple_account_url") ?? "",
+        amazon: getSetting("amazon_account_url") ?? "",
       }}
       spotifyStatus={
         connection.connected

@@ -29,7 +29,7 @@ interface SongDraft {
   };
 }
 
-interface AlbumDraft {
+interface ReleaseDraft {
   title: string;
   kind: "album" | "ep";
   spotify: string;
@@ -48,6 +48,101 @@ const inputClass =
   "w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-transparent px-3 py-2.5 text-[13px] outline-none focus:border-yellow";
 
 const labelClass = "block min-w-0 max-w-full text-[10px] uppercase tracking-[0.22em] opacity-50";
+
+function ReleaseCard({
+  heading,
+  hint,
+  itemLabel,
+  addLabel,
+  items,
+  onAdd,
+  onPatch,
+  onRemove,
+}: {
+  heading: string;
+  hint: string;
+  itemLabel: string;
+  addLabel: string;
+  items: { release: ReleaseDraft; index: number }[];
+  onAdd: () => void;
+  onPatch: (index: number, patch: Partial<ReleaseDraft>) => void;
+  onRemove: (index: number) => void;
+}) {
+  return (
+    <div className="mt-8 min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 p-5">
+      <p className="text-[10px] uppercase tracking-[0.22em] opacity-50">
+        {heading}
+      </p>
+      <p className="mt-1 text-[11px] leading-relaxed opacity-50">{hint}</p>
+      <div className="mt-3 flex min-w-0 max-w-full flex-col gap-3">
+        {items.map(({ release, index }, position) => (
+          <div
+            key={index}
+            className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 p-4"
+          >
+            <div className="flex min-w-0 items-center justify-between gap-2">
+              <p className="min-w-0 flex-1 truncate text-[9px] uppercase tracking-[0.2em] opacity-40">
+                {itemLabel} {position + 1}
+              </p>
+              <button
+                type="button"
+                onClick={() => onRemove(index)}
+                className="shrink-0 cursor-pointer rounded-md border border-red-400/30 px-2 py-0.5 text-[10px] text-red-400/80 hover:bg-red-400/10"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="mt-3 grid min-w-0 max-w-full gap-2">
+              <input
+                value={release.title}
+                onChange={(e) => onPatch(index, { title: e.target.value })}
+                placeholder={`${itemLabel} title`}
+                className={inputClass}
+              />
+              <input
+                value={release.spotify}
+                onChange={(e) => onPatch(index, { spotify: e.target.value })}
+                placeholder={`Spotify ${itemLabel.toLowerCase()} link`}
+                className={inputClass}
+              />
+              <input
+                value={release.appleMusic}
+                onChange={(e) =>
+                  onPatch(index, { appleMusic: e.target.value })
+                }
+                placeholder={`Apple Music ${itemLabel.toLowerCase()} link`}
+                className={inputClass}
+              />
+              <input
+                value={release.amazonMusic}
+                onChange={(e) =>
+                  onPatch(index, { amazonMusic: e.target.value })
+                }
+                placeholder={`Amazon Music ${itemLabel.toLowerCase()} link`}
+                className={inputClass}
+              />
+              <input
+                value={release.youtubeMusic}
+                onChange={(e) =>
+                  onPatch(index, { youtubeMusic: e.target.value })
+                }
+                placeholder={`YouTube Music ${itemLabel.toLowerCase()} link`}
+                className={inputClass}
+              />
+            </div>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={onAdd}
+          className="cursor-pointer self-start rounded-full border border-foreground/15 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground/10"
+        >
+          {addLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function ArtistEditor({
   artist,
@@ -122,7 +217,7 @@ export function ArtistEditor({
   const [syncEnabled, setSyncEnabled] = useState(artist.syncEnabled);
   const [syncBusy, setSyncBusy] = useState(false);
   const [syncStatus, setSyncStatus] = useState(artist.syncError);
-  const [albums, setAlbums] = useState<AlbumDraft[]>(
+  const [releases, setReleases] = useState<ReleaseDraft[]>(
       artist.albums.map((album) => ({
         title: album.title,
         kind: album.kind === "ep" ? "ep" : "album",
@@ -138,12 +233,12 @@ export function ArtistEditor({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const addAlbum = () => {
-    setAlbums((current) => [
+  const addRelease = (kind: "album" | "ep") => {
+    setReleases((current) => [
       ...current,
       {
         title: "",
-        kind: "album",
+        kind,
         spotify: "",
         appleMusic: "",
         amazonMusic: "",
@@ -152,17 +247,24 @@ export function ArtistEditor({
     ]);
   };
 
-  const updateAlbum = (index: number, patch: Partial<AlbumDraft>) => {
-    setAlbums((current) =>
-      current.map((album, i) =>
-        i === index ? { ...album, ...patch } : album,
+  const updateRelease = (index: number, patch: Partial<ReleaseDraft>) => {
+    setReleases((current) =>
+      current.map((release, i) =>
+        i === index ? { ...release, ...patch } : release,
       ),
     );
   };
 
-  const removeAlbum = (index: number) => {
-    setAlbums((current) => current.filter((_, i) => i !== index));
+  const removeRelease = (index: number) => {
+    setReleases((current) => current.filter((_, i) => i !== index));
   };
+
+  const albumItems = releases
+    .map((release, index) => ({ release, index }))
+    .filter(({ release }) => release.kind !== "ep");
+  const epItems = releases
+    .map((release, index) => ({ release, index }))
+    .filter(({ release }) => release.kind === "ep");
 
   const addSong = () => {
     setSongs((current) => [
@@ -192,19 +294,19 @@ export function ArtistEditor({
       tagline,
       shortBio,
       longBio,
-    albums: albums
-      .filter((album) => album.title.trim())
-      .map((album) => ({
-        title: album.title,
-        kind: album.kind,
+    albums: releases
+      .filter((release) => release.title.trim())
+      .map((release) => ({
+        title: release.title,
+        kind: release.kind,
         links: {
-          spotify: album.spotify || platformHomeUrls.spotify,
-          appleMusic: album.appleMusic || platformHomeUrls.appleMusic,
-          amazonMusic: album.amazonMusic || platformHomeUrls.amazonMusic,
-          youtubeMusic: album.youtubeMusic || platformHomeUrls.youtubeMusic,
+          spotify: release.spotify || platformHomeUrls.spotify,
+          appleMusic: release.appleMusic || platformHomeUrls.appleMusic,
+          amazonMusic: release.amazonMusic || platformHomeUrls.amazonMusic,
+          youtubeMusic: release.youtubeMusic || platformHomeUrls.youtubeMusic,
         },
-        isrc: album.isrc,
-        platformIds: album.platformIds,
+        isrc: release.isrc,
+        platformIds: release.platformIds,
       })),
       palette: { from: paletteFrom, to: paletteTo },
       songs: songs
@@ -299,7 +401,7 @@ export function ArtistEditor({
       const normalize = (value: string) =>
         value.trim().toLowerCase().replace(/\s+/g, " ");
       const syncedAlbums = data.report.row.albums;
-      setAlbums((current) =>
+      setReleases((current) =>
         syncedAlbums.map((album) => {
           const kept = current.find(
             (entry) => normalize(entry.title) === normalize(album.title),
@@ -551,108 +653,27 @@ export function ArtistEditor({
         </div>
       </div>
 
-      <div className="mt-8 min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 p-5">
-        <p className="text-[10px] uppercase tracking-[0.22em] opacity-50">
-          Albums
-        </p>
-        <div className="mt-3 flex min-w-0 max-w-full flex-col gap-3">
-          {albums.map((album, index) => (
-            <div
-              key={index}
-              className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 p-4"
-            >
-              <div className="flex min-w-0 items-center justify-between gap-2">
-                <p className="min-w-0 flex-1 truncate text-[9px] uppercase tracking-[0.2em] opacity-40">
-                  {album.kind === "ep" ? "EP" : "Album"} {index + 1}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => removeAlbum(index)}
-                  className="shrink-0 cursor-pointer rounded-md border border-red-400/30 px-2 py-0.5 text-[10px] text-red-400/80 hover:bg-red-400/10"
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="mt-3 grid min-w-0 max-w-full gap-2">
-                <div className="grid min-w-0 max-w-full gap-2 sm:grid-cols-[minmax(0,1fr)_130px]">
-                  <input
-                    value={album.title}
-                    onChange={(e) =>
-                      updateAlbum(index, { title: e.target.value })
-                    }
-                    placeholder="Album title"
-                    className={inputClass}
-                  />
-                  <select
-                    value={album.kind}
-                    onChange={(e) =>
-                      updateAlbum(index, {
-                        kind: e.target.value as "album" | "ep",
-                      })
-                    }
-                    aria-label="Release type"
-                    className="w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow"
-                  >
-                    <option value="album" className="bg-background text-foreground">
-                      Album
-                    </option>
-                    <option value="ep" className="bg-background text-foreground">
-                      EP
-                    </option>
-                  </select>
-                </div>
-                <input
-                  value={album.spotify}
-                  onChange={(e) =>
-                    updateAlbum(index, { spotify: e.target.value })
-                  }
-                  placeholder="Spotify album link"
-                  className={inputClass}
-                />
-                <input
-                  value={album.appleMusic}
-                  onChange={(e) =>
-                    updateAlbum(index, { appleMusic: e.target.value })
-                  }
-                  placeholder="Apple Music album link"
-                  className={inputClass}
-                />
-                <input
-                  value={album.amazonMusic}
-                  onChange={(e) =>
-                    updateAlbum(index, { amazonMusic: e.target.value })
-                  }
-                  placeholder="Amazon Music album link"
-                  className={inputClass}
-                />
-                <input
-                  value={album.amazonMusic}
-                  onChange={(e) =>
-                    updateAlbum(index, { amazonMusic: e.target.value })
-                  }
-                  placeholder="Amazon Music album link"
-                  className={inputClass}
-                />
-                <input
-                  value={album.youtubeMusic}
-                  onChange={(e) =>
-                    updateAlbum(index, { youtubeMusic: e.target.value })
-                  }
-                  placeholder="YouTube Music album link"
-                  className={inputClass}
-                />
-              </div>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={addAlbum}
-            className="cursor-pointer self-start rounded-full border border-foreground/15 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground/10"
-          >
-            + Album
-          </button>
-        </div>
-      </div>
+      <ReleaseCard
+        heading="Albums"
+        hint="Full-length releases. Tapping one on the artist page shows its tracks on the strip."
+        itemLabel="Album"
+        addLabel="+ Album"
+        items={albumItems}
+        onAdd={() => addRelease("album")}
+        onPatch={updateRelease}
+        onRemove={removeRelease}
+      />
+
+      <ReleaseCard
+        heading="EPs"
+        hint="Shorter releases, listed beside Albums on phones and below them on desktop."
+        itemLabel="EP"
+        addLabel="+ EP"
+        items={epItems}
+        onAdd={() => addRelease("ep")}
+        onPatch={updateRelease}
+        onRemove={removeRelease}
+      />
 
       <div className="mt-8 min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 p-5">
         <p className="text-[10px] uppercase tracking-[0.22em] opacity-50">
@@ -724,7 +745,7 @@ export function ArtistEditor({
                   onChange={(e) =>
                     updateSong(index, { album: e.target.value })
                   }
-                  placeholder="Album (if applicable)"
+                  placeholder="Album or EP (if applicable)"
                   className={inputClass}
                 />
               </div>

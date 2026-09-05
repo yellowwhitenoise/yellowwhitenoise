@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "type (song|album|playlist|playlistTrack) and title are required",
+          "type (song|album|ep|playlist|playlistTrack) and title are required",
       },
       { status: 400 },
     );

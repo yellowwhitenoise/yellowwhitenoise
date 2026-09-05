@@ -55,6 +55,12 @@ function parsePlaylistUrl(rawUrl: string): ParsedPlaylistUrl {
     if (id) return { platform: "youtubeMusic", id };
   }
 
+  if (isHost(url.hostname, "music.amazon.com", "www.amazon.com", "amazon.com")) {
+    throw new Error(
+      "Amazon Music offers no playlist import API. Import the playlist from Spotify, Apple Music, or YouTube Music instead, then paste its Amazon Music URL into that playlist's streaming destinations.",
+    );
+  }
+
   throw new Error("That is not a supported playlist share URL.");
 }
 

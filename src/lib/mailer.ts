@@ -122,6 +122,7 @@ function typeLabel(type: NotifyType): string {
   if (type === "playlist") return "playlist";
   if (type === "playlistTrack") return "track added to a playlist";
   if (type === "album") return "album";
+  if (type === "ep") return "EP";
   return "track";
 }
 

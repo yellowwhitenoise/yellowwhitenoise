@@ -1,6 +1,7 @@
 export const EMAIL_TEMPLATE_TYPES = [
   "song",
   "album",
+  "ep",
   "playlist",
   "playlistTrack",
 ] as const;
@@ -26,6 +27,13 @@ export const DEFAULT_EMAIL_TEMPLATES: Record<NotifyType, EmailTemplate> = {
 <p>Hear the full release wherever you listen.</p>
 <p><a href="{{url}}" style="display:inline-block;margin-top:12px;background:#f0b429;color:#14120d;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:14px 28px;border-radius:999px;">Listen now</a></p>`,
   },
+  ep: {
+    subject: "New EP: {{title}} — Yellow White Noise",
+    html: `<p>{{intro}}</p>
+<p><strong>{{title}}</strong>{{artistLine}}</p>
+<p>Hear the full EP wherever you listen.</p>
+<p><a href="{{url}}" style="display:inline-block;margin-top:12px;background:#f0b429;color:#14120d;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:14px 28px;border-radius:999px;">Listen now</a></p>`,
+  },
   playlist: {
     subject: "New playlist: {{title}} — Yellow White Noise",
     html: `<p>{{intro}}</p>
@@ -45,6 +53,7 @@ export const DEFAULT_EMAIL_TEMPLATES: Record<NotifyType, EmailTemplate> = {
 export const EMAIL_TEMPLATE_KEYS: Record<NotifyType, string> = {
   song: "email_template_song",
   album: "email_template_album",
+  ep: "email_template_ep",
   playlist: "email_template_playlist",
   playlistTrack: "email_template_playlist_track",
 };

@@ -35,6 +35,7 @@ interface SyncReport {
 const platforms: { key: Platform; label: string }[] = [
   { key: "spotify", label: "Spotify" },
   { key: "appleMusic", label: "Apple Music" },
+  { key: "amazonMusic", label: "Amazon Music" },
   { key: "youtubeMusic", label: "YouTube Music" },
 ];
 
@@ -119,7 +120,12 @@ export function PlaylistManagerClient({
   spotifyNotice,
 }: {
   initial: PlaylistRow[];
-  initialAccounts?: { spotify: string; youtube: string; apple: string };
+  initialAccounts?: {
+    spotify: string;
+    youtube: string;
+    apple: string;
+    amazon: string;
+  };
   spotifyStatus?: { userName: string | null; userId: string | null } | null;
   spotifyNotice?: string | null;
 }) {
@@ -137,6 +143,7 @@ export function PlaylistManagerClient({
     spotify: initialAccounts?.spotify ?? "",
     youtube: initialAccounts?.youtube ?? "",
     apple: initialAccounts?.apple ?? "",
+    amazon: initialAccounts?.amazon ?? "",
   });
   const [savingAccount, setSavingAccount] = useState<string | null>(null);
   const [spotify, setSpotify] = useState(initialSpotifyStatus ?? null);
@@ -294,7 +301,9 @@ export function PlaylistManagerClient({
     router.refresh();
   };
 
-  const saveAccount = async (platform: "spotify" | "youtube" | "apple") => {
+  const saveAccount = async (
+    platform: "spotify" | "youtube" | "apple" | "amazon",
+  ) => {
     setSavingAccount(platform);
     setError(null);
     setNotice(null);
@@ -444,7 +453,10 @@ export function PlaylistManagerClient({
         <p className="mt-2 max-w-[70ch] text-[12px] leading-relaxed opacity-60">
           Paste a public playlist share link from Spotify, Apple Music, or
           YouTube Music. The server imports the playlist and tracks; nothing
-          is published until you turn on “Show publicly”.
+          is published until you turn on “Show publicly”. For Amazon Music
+          (no import API), import from one of the supported platforms, then
+          add the Amazon playlist URL in that playlist&apos;s streaming
+          destinations below.
         </p>
         <form onSubmit={importPlaylist} className="mt-4 flex flex-col gap-3 sm:flex-row">
           <input
@@ -662,6 +674,40 @@ export function PlaylistManagerClient({
               through the free iTunes catalog.
             </p>
           </div>
+          <div>
+            <label className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+              Amazon Music profile URL
+              <span className="mt-2 flex flex-col gap-2 sm:flex-row">
+                <input
+                  value={accounts.amazon}
+                  onChange={(event) =>
+                    setAccounts((current) => ({
+                      ...current,
+                      amazon: event.target.value,
+                    }))
+                  }
+                  placeholder="https://music.amazon.com/…"
+                  className={`${inputClass} flex-1`}
+                />
+                <button
+                  type="button"
+                  onClick={() => void saveAccount("amazon")}
+                  disabled={savingAccount === "amazon"}
+                  className="cursor-pointer rounded-full border border-foreground/15 px-4 py-2 text-[10px] uppercase tracking-[0.18em] transition-colors hover:bg-foreground/10 disabled:opacity-50"
+                >
+                  {savingAccount === "amazon" ? "Saving…" : "Save"}
+                </button>
+              </span>
+            </label>
+            <p className="mt-2 text-[11px] leading-relaxed opacity-40">
+              Amazon Music offers no playlist API, so account discovery
+              isn&apos;t available. Import the playlist from
+              Spotify/YouTube/Apple with a share link above, then paste the
+              matching Amazon playlist URL into that playlist&apos;s
+              streaming destinations below — tracks keep syncing from the
+              source while Amazon stays as the fan link.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -752,7 +798,7 @@ export function PlaylistManagerClient({
                     stay hidden on the public playlist page.
                   </p>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {platforms.map((platform) => (
                     <label
                       key={platform.key}
@@ -769,7 +815,7 @@ export function PlaylistManagerClient({
                             },
                           })
                         }
-                        placeholder={`https://${platform.key === "spotify" ? "open.spotify.com" : platform.key === "appleMusic" ? "music.apple.com" : "music.youtube.com"}/…`}
+                        placeholder={`https://${platform.key === "spotify" ? "open.spotify.com" : platform.key === "appleMusic" ? "music.apple.com" : platform.key === "amazonMusic" ? "music.amazon.com" : "music.youtube.com"}/…`}
                         className={`mt-2 ${inputClass}`}
                       />
                     </label>
