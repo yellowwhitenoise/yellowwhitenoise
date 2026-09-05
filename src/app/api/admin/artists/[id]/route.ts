@@ -23,9 +23,11 @@ export async function PUT(request: NextRequest, { params }: Params) {
     longBio?: string;
     albums?: {
       title: string;
+      kind?: string;
       links?: {
         spotify?: string;
         appleMusic?: string;
+        amazonMusic?: string;
         youtubeMusic?: string;
       };
       isrc?: string;
@@ -48,6 +50,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
       links?: {
         spotify?: string;
         appleMusic?: string;
+        amazonMusic?: string;
         youtubeMusic?: string;
       };
       platformIds?: {
@@ -78,6 +81,8 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const platformHomeUrls = {
     spotify: existing.profileLinks.spotify,
     appleMusic: existing.profileLinks.appleMusic,
+    amazonMusic:
+      existing.profileLinks.amazonMusic ?? "https://music.amazon.com/",
     youtubeMusic: existing.profileLinks.youtubeMusic,
   };
 
@@ -90,9 +95,11 @@ export async function PUT(request: NextRequest, { params }: Params) {
     longBio: body.longBio ?? existing.longBio,
     albums: (body.albums ?? existing.albums).map((album) => ({
       title: album.title,
+      kind: album.kind === "ep" ? "ep" : "album",
       links: {
         spotify: album.links?.spotify || platformHomeUrls.spotify,
         appleMusic: album.links?.appleMusic || platformHomeUrls.appleMusic,
+        amazonMusic: album.links?.amazonMusic || platformHomeUrls.amazonMusic,
         youtubeMusic: album.links?.youtubeMusic || platformHomeUrls.youtubeMusic,
       },
       isrc: album.isrc,
@@ -126,6 +133,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
       links: {
         spotify: song.links?.spotify || platformHomeUrls.spotify,
         appleMusic: song.links?.appleMusic || platformHomeUrls.appleMusic,
+        amazonMusic: song.links?.amazonMusic || platformHomeUrls.amazonMusic,
         youtubeMusic: song.links?.youtubeMusic || platformHomeUrls.youtubeMusic,
       },
     })),

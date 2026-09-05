@@ -107,6 +107,8 @@ function asSong(incoming: ImportedArtistSong, existing: Song[]): Song {
     links: {
       spotify: incoming.links.spotify ?? "https://open.spotify.com/",
       appleMusic: incoming.links.appleMusic ?? "https://music.apple.com/",
+      amazonMusic:
+        incoming.links.amazonMusic ?? "https://music.amazon.com/",
       youtubeMusic:
         incoming.links.youtubeMusic ?? "https://music.youtube.com/",
     },
@@ -138,6 +140,8 @@ function asAlbum(incoming: ImportedArtistAlbum): Album {
     links: {
       spotify: incoming.links.spotify ?? "https://open.spotify.com/",
       appleMusic: incoming.links.appleMusic ?? "https://music.apple.com/",
+      amazonMusic:
+        incoming.links.amazonMusic ?? "https://music.amazon.com/",
       youtubeMusic:
         incoming.links.youtubeMusic ?? "https://music.youtube.com/",
     },

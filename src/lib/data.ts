@@ -1,14 +1,20 @@
-export type Platform = "spotify" | "appleMusic" | "youtubeMusic";
+export type Platform =
+  | "spotify"
+  | "appleMusic"
+  | "amazonMusic"
+  | "youtubeMusic";
 
 export const platformLabels: Record<Platform, string> = {
   spotify: "Spotify",
   appleMusic: "Apple Music",
+  amazonMusic: "Amazon Music",
   youtubeMusic: "YouTube Music",
 };
 
 export const platformHomeUrls: Record<Platform, string> = {
   spotify: "https://open.spotify.com/",
   appleMusic: "https://music.apple.com/",
+  amazonMusic: "https://music.amazon.com/",
   youtubeMusic: "https://music.youtube.com/",
 };
 
@@ -44,6 +50,8 @@ export interface Album {
   links: Record<Platform, string>;
   isrc?: string;
   platformIds?: Partial<Record<Platform, string>>;
+  /** Release kind. Absent means "album" (all existing records). */
+  kind?: "album" | "ep";
 }
 
 export interface Artist {

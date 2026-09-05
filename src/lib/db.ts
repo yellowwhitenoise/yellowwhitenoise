@@ -420,14 +420,14 @@ const seedArtistData: {
       "Amapiano for the hours after the party — patient, sub-heavy instrumentals built for headphones as much as dance floors.",
     longBio:
       "Muddledsea operates in the quiet stretch of the night — the after-after, the empty road, the hour when the log drum stops being a sound and becomes a pulse. Working almost entirely in instrumental form, the project treats Amapiano not as a template but as a weather system: slow-moving, humid, impossible to rush. Each record is built the way the genre's best moments always have been — one hypnotic figure, space left deliberately open, bass that arrives less like a drop and more like a tide.\n\nThe name is the mission statement. Muddledsea's records sit on purpose between clarity and blur — shakers crisp, keys half-remembered, low end felt before it is heard. It is music made for late-night headphone sessions and long drives, tuned with enough patience and weight to hold a floor of its own when given the chance.",
-    albums: [{ title: "Tide Tables", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", youtubeMusic: "https://music.youtube.com/" } }],
+    albums: [{ title: "Tide Tables", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", amazonMusic: "https://music.amazon.com/", youtubeMusic: "https://music.youtube.com/" } }],
     palette: { from: "#2a3f4d", to: "#101b23" },
     songs: [
-      { slug: "low-tide-gospel", title: "Low Tide Gospel", artistName: "Muddledsea", releaseYear: "2026", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", youtubeMusic: "https://music.youtube.com/" } },
-      { slug: "log-drum-lullaby", title: "Log Drum Lullaby", artistName: "Muddledsea", releaseYear: "2026", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", youtubeMusic: "https://music.youtube.com/" } },
-      { slug: "3am-shaker", title: "3AM Shaker", artistName: "Muddledsea", releaseYear: "2025", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", youtubeMusic: "https://music.youtube.com/" } },
-      { slug: "fog-in-the-keys", title: "Fog in the Keys", artistName: "Muddledsea", releaseYear: "2025", type: "album-track", album: "Tide Tables", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", youtubeMusic: "https://music.youtube.com/" } },
-      { slug: "patient-ghost", title: "Patient Ghost", artistName: "Muddledsea", releaseYear: "2025", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", youtubeMusic: "https://music.youtube.com/" } },
+      { slug: "low-tide-gospel", title: "Low Tide Gospel", artistName: "Muddledsea", releaseYear: "2026", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", amazonMusic: "https://music.amazon.com/", youtubeMusic: "https://music.youtube.com/" } },
+      { slug: "log-drum-lullaby", title: "Log Drum Lullaby", artistName: "Muddledsea", releaseYear: "2026", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", amazonMusic: "https://music.amazon.com/", youtubeMusic: "https://music.youtube.com/" } },
+      { slug: "3am-shaker", title: "3AM Shaker", artistName: "Muddledsea", releaseYear: "2025", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", amazonMusic: "https://music.amazon.com/", youtubeMusic: "https://music.youtube.com/" } },
+      { slug: "fog-in-the-keys", title: "Fog in the Keys", artistName: "Muddledsea", releaseYear: "2025", type: "album-track", album: "Tide Tables", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", amazonMusic: "https://music.amazon.com/", youtubeMusic: "https://music.youtube.com/" } },
+      { slug: "patient-ghost", title: "Patient Ghost", artistName: "Muddledsea", releaseYear: "2025", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", amazonMusic: "https://music.amazon.com/", youtubeMusic: "https://music.youtube.com/" } },
     ],
   },
   {
@@ -439,14 +439,14 @@ const seedArtistData: {
       "Afrobeats engineered for movement — syncopated, sweat-slick rhythm stacks tuned to keep a crowd in motion.",
     longBio:
       "Coaltonic makes instrumental Afrobeats with the engine of a live band and the finish of a club system. The records run on rhythm stacks — log-toned percussion, bata patterns cut with electronic ticks, basslines that move like they are dodging something — arranged so every eight bars hands the energy to someone new on the dancefloor. Nothing sits still; even the breakdowns are written like a run-up.\n\nUnder the pace sits a producer's patience. Coaltonic builds tracks in layers, giving each percussion element its own pocket and tuning the mix so a phone speaker sounds full and a club system sounds dangerous. The crowd is treated as the final instrument — music that never asks for movement, only makes standing still the harder option.",
-    albums: [{ title: "Night Market", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", youtubeMusic: "https://music.youtube.com/" } }],
+    albums: [{ title: "Night Market", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", amazonMusic: "https://music.amazon.com/", youtubeMusic: "https://music.youtube.com/" } }],
     palette: { from: "#5a3a14", to: "#20140a" },
     songs: [
-      { slug: "static-gbedu", title: "Static Gbedu", artistName: "Coaltonic", releaseYear: "2026", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", youtubeMusic: "https://music.youtube.com/" } },
-      { slug: "crowd-theory", title: "Crowd Theory", artistName: "Coaltonic", releaseYear: "2026", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", youtubeMusic: "https://music.youtube.com/" } },
-      { slug: "pace-setter", title: "Pace Setter", artistName: "Coaltonic", releaseYear: "2025", type: "album-track", album: "Night Market", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", youtubeMusic: "https://music.youtube.com/" } },
-      { slug: "bata-bounce", title: "Bata Bounce", artistName: "Coaltonic", releaseYear: "2025", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", youtubeMusic: "https://music.youtube.com/" } },
-      { slug: "sweet-menace", title: "Sweet Menace", artistName: "Coaltonic", releaseYear: "2025", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", youtubeMusic: "https://music.youtube.com/" } },
+      { slug: "static-gbedu", title: "Static Gbedu", artistName: "Coaltonic", releaseYear: "2026", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", amazonMusic: "https://music.amazon.com/", youtubeMusic: "https://music.youtube.com/" } },
+      { slug: "crowd-theory", title: "Crowd Theory", artistName: "Coaltonic", releaseYear: "2026", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", amazonMusic: "https://music.amazon.com/", youtubeMusic: "https://music.youtube.com/" } },
+      { slug: "pace-setter", title: "Pace Setter", artistName: "Coaltonic", releaseYear: "2025", type: "album-track", album: "Night Market", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", amazonMusic: "https://music.amazon.com/", youtubeMusic: "https://music.youtube.com/" } },
+      { slug: "bata-bounce", title: "Bata Bounce", artistName: "Coaltonic", releaseYear: "2025", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", amazonMusic: "https://music.amazon.com/", youtubeMusic: "https://music.youtube.com/" } },
+      { slug: "sweet-menace", title: "Sweet Menace", artistName: "Coaltonic", releaseYear: "2025", type: "single", links: { spotify: "https://open.spotify.com/", appleMusic: "https://music.apple.com/", amazonMusic: "https://music.amazon.com/", youtubeMusic: "https://music.youtube.com/" } },
     ],
   },
 ];
@@ -524,6 +524,18 @@ export function rowToArtist(row: ArtistRow): Artist & { id: number } {
   } catch {
     songs = [];
   }
+  // Older rows predate Amazon Music — backfill so every links object is complete.
+  const withAmazon = <T extends { links?: Partial<Record<string, string>> }>(
+    entry: T,
+  ): T => ({
+    ...entry,
+    links: {
+      amazonMusic: "https://music.amazon.com/",
+      ...entry.links,
+    },
+  });
+  albums = albums.map(withAmazon);
+  songs = songs.map(withAmazon);
   try {
     profileLinks = JSON.parse(row.profile_links) as Record<string, string>;
   } catch {
@@ -559,6 +571,7 @@ export function rowToArtist(row: ArtistRow): Artist & { id: number } {
     profileLinks: {
       spotify: profileLinks.spotify ?? "https://open.spotify.com/",
       appleMusic: profileLinks.appleMusic ?? "https://music.apple.com/",
+      amazonMusic: profileLinks.amazonMusic ?? "https://music.amazon.com/",
       youtubeMusic: profileLinks.youtubeMusic ?? "https://music.youtube.com/",
       youtube: profileLinks.youtube || "https://www.youtube.com/",
     },

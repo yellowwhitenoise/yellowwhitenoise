@@ -5,7 +5,12 @@ import { trackOutbound } from "@/lib/ads";
 import { albumKey, useCatalogStore } from "@/lib/store/catalog";
 import { platformLabels, type Album, type Platform } from "@/lib/data";
 
-const platforms: Platform[] = ["appleMusic", "spotify", "youtubeMusic"];
+const platforms: Platform[] = [
+  "appleMusic",
+  "spotify",
+  "amazonMusic",
+  "youtubeMusic",
+];
 
 export function AlbumList({
   albums,
@@ -57,7 +62,16 @@ export function AlbumList({
 
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
-      if (listRef.current && !listRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      // Taps on the track strip must not collapse the pin — otherwise
+      // playing a filtered album track would snap back to All Tracks.
+      if (
+        target instanceof HTMLElement &&
+        target.closest("[data-track-strip]")
+      ) {
+        return;
+      }
+      if (listRef.current && !listRef.current.contains(target)) {
         onPinChange(null);
       }
     };

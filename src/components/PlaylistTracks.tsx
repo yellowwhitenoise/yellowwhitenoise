@@ -10,7 +10,12 @@ import {
 import { trackKey, useCatalogStore } from "@/lib/store/catalog";
 import { platformLabels, type Platform } from "@/lib/data";
 
-const platforms: Platform[] = ["appleMusic", "spotify", "youtubeMusic"];
+const platforms: Platform[] = [
+  "appleMusic",
+  "spotify",
+  "amazonMusic",
+  "youtubeMusic",
+];
 
 export interface PlaylistRow {
   key: string;

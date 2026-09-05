@@ -243,6 +243,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
       links: {
         spotify: entry.track.spotifyUrl ?? playlistLinks.spotify,
         appleMusic: playlistLinks.appleMusic,
+        amazonMusic: playlistLinks.amazonMusic,
         youtubeMusic: playlistLinks.youtubeMusic,
       },
       palette: playlist.coverPalette,

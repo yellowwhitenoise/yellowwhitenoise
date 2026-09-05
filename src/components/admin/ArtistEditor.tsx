@@ -16,7 +16,12 @@ interface SongDraft {
   coverUrl?: string;
   previewUrl?: string;
   isrc?: string;
-  links?: { spotify?: string; appleMusic?: string; youtubeMusic?: string };
+  links?: {
+    spotify?: string;
+    appleMusic?: string;
+    amazonMusic?: string;
+    youtubeMusic?: string;
+  };
   platformIds?: {
     spotify?: string;
     appleMusic?: string;
@@ -26,8 +31,10 @@ interface SongDraft {
 
 interface AlbumDraft {
   title: string;
+  kind: "album" | "ep";
   spotify: string;
   appleMusic: string;
+  amazonMusic: string;
   youtubeMusic: string;
   isrc?: string;
   platformIds?: {
@@ -55,7 +62,13 @@ export function ArtistEditor({
     palette: { from: string; to: string };
     albums: {
       title: string;
-      links: { spotify: string; appleMusic: string; youtubeMusic: string };
+      kind?: "album" | "ep";
+      links: {
+        spotify: string;
+        appleMusic: string;
+        amazonMusic?: string;
+        youtubeMusic: string;
+      };
       isrc?: string;
       platformIds?: {
         spotify?: string;
@@ -108,8 +121,10 @@ export function ArtistEditor({
   const [albums, setAlbums] = useState<AlbumDraft[]>(
       artist.albums.map((album) => ({
         title: album.title,
+        kind: album.kind === "ep" ? "ep" : "album",
         spotify: album.links.spotify ?? "",
         appleMusic: album.links.appleMusic ?? "",
+        amazonMusic: album.links.amazonMusic ?? "",
         youtubeMusic: album.links.youtubeMusic ?? "",
         isrc: album.isrc,
         platformIds: album.platformIds,
@@ -122,7 +137,14 @@ export function ArtistEditor({
   const addAlbum = () => {
     setAlbums((current) => [
       ...current,
-      { title: "", spotify: "", appleMusic: "", youtubeMusic: "" },
+      {
+        title: "",
+        kind: "album",
+        spotify: "",
+        appleMusic: "",
+        amazonMusic: "",
+        youtubeMusic: "",
+      },
     ]);
   };
 
@@ -170,9 +192,11 @@ export function ArtistEditor({
       .filter((album) => album.title.trim())
       .map((album) => ({
         title: album.title,
+        kind: album.kind,
         links: {
           spotify: album.spotify || platformHomeUrls.spotify,
           appleMusic: album.appleMusic || platformHomeUrls.appleMusic,
+          amazonMusic: album.amazonMusic || platformHomeUrls.amazonMusic,
           youtubeMusic: album.youtubeMusic || platformHomeUrls.youtubeMusic,
         },
         isrc: album.isrc,
@@ -245,6 +269,7 @@ export function ArtistEditor({
             links?: {
               spotify?: string;
               appleMusic?: string;
+              amazonMusic?: string;
               youtubeMusic?: string;
             };
             isrc?: string;
@@ -267,15 +292,25 @@ export function ArtistEditor({
       ? ` Partial failure: ${data.report.failedPlatforms.join(", ")}.`
       : "";
     if (data.report.row) {
-      setAlbums(
-        data.report.row.albums.map((album) => ({
-          title: album.title,
-          spotify: album.links?.spotify ?? "",
-          appleMusic: album.links?.appleMusic ?? "",
-          youtubeMusic: album.links?.youtubeMusic ?? "",
-          isrc: album.isrc,
-          platformIds: album.platformIds,
-        })),
+      const normalize = (value: string) =>
+        value.trim().toLowerCase().replace(/\s+/g, " ");
+      const syncedAlbums = data.report.row.albums;
+      setAlbums((current) =>
+        syncedAlbums.map((album) => {
+          const kept = current.find(
+            (entry) => normalize(entry.title) === normalize(album.title),
+          );
+          return {
+            title: album.title,
+            kind: kept?.kind ?? "album",
+            spotify: album.links?.spotify ?? "",
+            appleMusic: album.links?.appleMusic ?? "",
+            amazonMusic: album.links?.amazonMusic ?? "",
+            youtubeMusic: album.links?.youtubeMusic ?? "",
+            isrc: album.isrc,
+            platformIds: album.platformIds,
+          };
+        }),
       );
       setSongs(data.report.row.songs);
     }
@@ -515,7 +550,7 @@ export function ArtistEditor({
             >
               <div className="flex min-w-0 items-center justify-between gap-2">
                 <p className="min-w-0 flex-1 truncate text-[9px] uppercase tracking-[0.2em] opacity-40">
-                  Album {index + 1}
+                  {album.kind === "ep" ? "EP" : "Album"} {index + 1}
                 </p>
                 <button
                   type="button"
@@ -526,14 +561,33 @@ export function ArtistEditor({
                 </button>
               </div>
               <div className="mt-3 grid min-w-0 max-w-full gap-2">
-                <input
-                  value={album.title}
-                  onChange={(e) =>
-                    updateAlbum(index, { title: e.target.value })
-                  }
-                  placeholder="Album title"
-                  className={inputClass}
-                />
+                <div className="grid min-w-0 max-w-full gap-2 sm:grid-cols-[minmax(0,1fr)_130px]">
+                  <input
+                    value={album.title}
+                    onChange={(e) =>
+                      updateAlbum(index, { title: e.target.value })
+                    }
+                    placeholder="Album title"
+                    className={inputClass}
+                  />
+                  <select
+                    value={album.kind}
+                    onChange={(e) =>
+                      updateAlbum(index, {
+                        kind: e.target.value as "album" | "ep",
+                      })
+                    }
+                    aria-label="Release type"
+                    className="w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow"
+                  >
+                    <option value="album" className="bg-background text-foreground">
+                      Album
+                    </option>
+                    <option value="ep" className="bg-background text-foreground">
+                      EP
+                    </option>
+                  </select>
+                </div>
                 <input
                   value={album.spotify}
                   onChange={(e) =>
@@ -548,6 +602,22 @@ export function ArtistEditor({
                     updateAlbum(index, { appleMusic: e.target.value })
                   }
                   placeholder="Apple Music album link"
+                  className={inputClass}
+                />
+                <input
+                  value={album.amazonMusic}
+                  onChange={(e) =>
+                    updateAlbum(index, { amazonMusic: e.target.value })
+                  }
+                  placeholder="Amazon Music album link"
+                  className={inputClass}
+                />
+                <input
+                  value={album.amazonMusic}
+                  onChange={(e) =>
+                    updateAlbum(index, { amazonMusic: e.target.value })
+                  }
+                  placeholder="Amazon Music album link"
                   className={inputClass}
                 />
                 <input

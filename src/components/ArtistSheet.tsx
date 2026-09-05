@@ -77,6 +77,8 @@ export function ArtistSheet() {
           normalizeTitle(song.album) === normalizeTitle(pinnedTitle),
       ) ?? [])
     : (artist?.songs ?? []);
+  const albums = artist?.albums.filter((album) => album.kind !== "ep") ?? [];
+  const eps = artist?.albums.filter((album) => album.kind === "ep") ?? [];
 
   if (!mounted || !artist) return null;
 
@@ -210,25 +212,48 @@ export function ArtistSheet() {
                 </div>
               </div>
 
-              <div className="mt-4 md:mt-0">
-                <p className="text-[10px] uppercase tracking-[0.22em] opacity-50 md:text-[11px]">
-                  Albums
-                </p>
-                <div className="mt-1.5 md:mt-2">
-                  <AlbumList
-                    albums={artist.albums}
-                    artistSlug={artist.slug}
-                    artistName={artist.name}
-                    pinnedTitle={pinnedTitle}
-                    onPinChange={handleAlbumPin}
-                  />
+              <div
+                className={`mt-4 grid items-start gap-6 md:mt-0 md:grid-cols-1 ${
+                  eps.length > 0 ? "grid-cols-2" : "grid-cols-1"
+                }`}
+              >
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase tracking-[0.22em] opacity-50 md:text-[11px]">
+                    Albums
+                  </p>
+                  <div className="mt-1.5 md:mt-2">
+                    <AlbumList
+                      albums={albums}
+                      artistSlug={artist.slug}
+                      artistName={artist.name}
+                      pinnedTitle={pinnedTitle}
+                      onPinChange={handleAlbumPin}
+                    />
+                  </div>
                 </div>
+                {eps.length > 0 && (
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase tracking-[0.22em] opacity-50 md:text-[11px]">
+                      EPs
+                    </p>
+                    <div className="mt-1.5 md:mt-2">
+                      <AlbumList
+                        albums={eps}
+                        artistSlug={artist.slug}
+                        artistName={artist.name}
+                        pinnedTitle={pinnedTitle}
+                        onPinChange={handleAlbumPin}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
 
         <div
+          data-track-strip
           className="relative z-10 shrink-0 border-t border-foreground/10 bg-background/95 backdrop-blur"
           onClick={(e) => e.stopPropagation()}
         >
@@ -238,11 +263,7 @@ export function ArtistSheet() {
             aria-live="polite"
             className="flex w-full cursor-pointer items-baseline justify-between gap-3 px-3 pt-2.5 text-left"
           >
-            <span
-              className={`min-w-0 flex-1 truncate text-[10px] tracking-[0.2em] transition-colors ${
-                pinnedTitle ? "text-yellow" : "opacity-60"
-              }`}
-            >
+            <span className="min-w-0 flex-1 truncate text-[10px] tracking-[0.2em] opacity-60">
               {pinnedTitle ?? "All Tracks"}
             </span>
             <span className="shrink-0 text-[10px] tracking-[0.2em] opacity-40">

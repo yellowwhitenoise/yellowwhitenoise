@@ -18,11 +18,13 @@ interface ImportBody {
 const palettes: Record<Platform, { from: string; to: string }> = {
   spotify: { from: "#2a3f4d", to: "#101b23" },
   appleMusic: { from: "#6c2131", to: "#241016" },
+  amazonMusic: { from: "#3d2c12", to: "#171006" },
   youtubeMusic: { from: "#5a241c", to: "#1d0c09" },
 };
 
 function platformLabel(platform: Platform): string {
   if (platform === "appleMusic") return "Apple Music";
+  if (platform === "amazonMusic") return "Amazon Music";
   if (platform === "youtubeMusic") return "YouTube Music";
   return "Spotify";
 }

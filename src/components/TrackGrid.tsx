@@ -19,7 +19,12 @@ import {
   type Song,
 } from "@/lib/data";
 
-const platforms: Platform[] = ["appleMusic", "spotify", "youtubeMusic"];
+const platforms: Platform[] = [
+  "appleMusic",
+  "spotify",
+  "amazonMusic",
+  "youtubeMusic",
+];
 
 export function TrackGrid({
   songs,
