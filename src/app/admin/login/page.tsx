@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Wordmark } from "@/components/Wordmark";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -37,10 +39,12 @@ export default function AdminLoginPage() {
         onSubmit={submit}
         className="w-full max-w-sm rounded-3xl border border-foreground/10 p-8"
       >
-        <p className="text-center text-[10px] uppercase tracking-[0.28em] opacity-50">
-          Yellow White Noise
-        </p>
-        <h1 className="mt-2 text-center font-display text-2xl font-semibold uppercase tracking-[0.1em]">
+        <div className="flex justify-center">
+          <Link href="/" aria-label="Yellow White Noise — Home">
+            <Wordmark className="h-14 w-auto max-w-[110px] object-contain" />
+          </Link>
+        </div>
+        <h1 className="mt-4 text-center font-display text-2xl font-semibold uppercase tracking-[0.1em]">
           Admin
         </h1>
 

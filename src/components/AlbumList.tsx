@@ -11,12 +11,17 @@ export function AlbumList({
   albums,
   artistSlug,
   artistName,
+  pinnedTitle,
+  onPinChange,
 }: {
   albums: Album[];
   artistSlug: string;
   artistName: string;
+  /** Controlled pin: which album's platform links are expanded. */
+  pinnedTitle: string | null;
+  /** Fires on tap-pin changes and outside-tap collapse (never on hover). */
+  onPinChange: (title: string | null) => void;
 }) {
-  const [pinnedTitle, setPinnedTitle] = useState<string | null>(null);
   const [hoverTitle, setHoverTitle] = useState<string | null>(null);
   const [canHover] = useState(
     () =>
@@ -53,12 +58,12 @@ export function AlbumList({
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
       if (listRef.current && !listRef.current.contains(event.target as Node)) {
-        setPinnedTitle(null);
+        onPinChange(null);
       }
     };
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, []);
+  }, [onPinChange]);
 
   const openTitle = pinnedTitle ?? hoverTitle;
 
@@ -96,9 +101,7 @@ export function AlbumList({
               type="button"
               onClick={() => {
                 void resolveAlbumAction(artistSlug, album.title, artistName);
-                setPinnedTitle((current) =>
-                  current === album.title ? null : album.title,
-                );
+                onPinChange(pinnedTitle === album.title ? null : album.title);
               }}
               aria-expanded={open}
               className="cursor-pointer py-1 text-left text-[12px] transition-colors hover:text-yellow md:text-sm"

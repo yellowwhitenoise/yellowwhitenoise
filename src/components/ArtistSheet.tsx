@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AlbumList } from "@/components/AlbumList";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { PlatformIcon } from "@/components/PlatformIcon";
@@ -25,6 +25,12 @@ export function ArtistSheet() {
 
   const [mounted, setMounted] = useState(false);
   const [portraitExpanded, setPortraitExpanded] = useState(false);
+  // Which album the track strip is filtered to. Carries the artist slug so
+  // switching artists never shows a stale filter.
+  const [albumPin, setAlbumPin] = useState<{
+    slug: string;
+    title: string;
+  } | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -51,6 +57,24 @@ export function ArtistSheet() {
   }, [open, closeSheet]);
 
   const artist = artists.find((entry) => entry.slug === sheetSlug);
+
+  const normalizeTitle = (value: string) =>
+    value.trim().toLowerCase().replace(/\s+/g, " ");
+  const pinnedTitle =
+    albumPin && albumPin.slug === artist?.slug ? albumPin.title : null;
+  const handleAlbumPin = useCallback(
+    (title: string | null) => {
+      setAlbumPin(title && artist ? { slug: artist.slug, title } : null);
+    },
+    [artist],
+  );
+  const visibleSongs = pinnedTitle
+    ? (artist?.songs.filter(
+        (song) =>
+          song.album &&
+          normalizeTitle(song.album) === normalizeTitle(pinnedTitle),
+      ) ?? [])
+    : (artist?.songs ?? []);
 
   if (!mounted || !artist) return null;
 
@@ -193,6 +217,8 @@ export function ArtistSheet() {
                     albums={artist.albums}
                     artistSlug={artist.slug}
                     artistName={artist.name}
+                    pinnedTitle={pinnedTitle}
+                    onPinChange={handleAlbumPin}
                   />
                 </div>
               </div>
@@ -204,11 +230,49 @@ export function ArtistSheet() {
           className="relative z-10 shrink-0 border-t border-foreground/10 bg-background/95 backdrop-blur"
           onClick={(e) => e.stopPropagation()}
         >
-          <TrackGrid
-            songs={artist.songs}
-            palette={artist.palette}
-            artistSlug={artist.slug}
-          />
+          <div className="flex items-center gap-2 px-3 pt-2.5">
+            <button
+              type="button"
+              onClick={() => handleAlbumPin(null)}
+              aria-pressed={!pinnedTitle}
+              className={`cursor-pointer rounded-full px-3 py-1 text-[9px] uppercase tracking-[0.2em] transition-colors ${
+                pinnedTitle
+                  ? "border border-foreground/15 opacity-60 hover:opacity-100"
+                  : "bg-foreground text-background"
+              }`}
+            >
+              All tracks
+            </button>
+            {pinnedTitle && (
+              <p className="min-w-0 flex-1 truncate text-[9px] uppercase tracking-[0.2em] text-yellow">
+                {pinnedTitle}
+              </p>
+            )}
+            <p className="shrink-0 text-[9px] uppercase tracking-[0.2em] opacity-40">
+              {visibleSongs.length} track{visibleSongs.length === 1 ? "" : "s"}
+            </p>
+          </div>
+          {visibleSongs.length > 0 ? (
+            <TrackGrid
+              key={pinnedTitle ? `album:${normalizeTitle(pinnedTitle)}` : "all"}
+              songs={visibleSongs}
+              palette={artist.palette}
+              artistSlug={artist.slug}
+            />
+          ) : (
+            <div className="flex min-h-[15dvh] flex-col items-center justify-center gap-2 px-4 py-4 text-center">
+              <p className="text-[10px] uppercase tracking-[0.2em] opacity-50">
+                No tracks tagged to {pinnedTitle} yet
+              </p>
+              <button
+                type="button"
+                onClick={() => handleAlbumPin(null)}
+                className="cursor-pointer text-[10px] uppercase tracking-[0.2em] text-yellow underline underline-offset-4"
+              >
+                Show all tracks
+              </button>
+            </div>
+          )}
         </div>
       </div>
       {portraitExpanded && artist.pageImage && (
