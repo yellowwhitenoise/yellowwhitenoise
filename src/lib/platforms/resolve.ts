@@ -1,3 +1,4 @@
+import { amazonMusicMatch } from "./amazon";
 import { appleAlbum, appleTrack } from "./apple";
 import { spotifyAlbum, spotifyPlaylist, spotifyTrack } from "./spotify";
 import { youtubePlaylist, youtubeTrack } from "./youtube";
@@ -82,13 +83,20 @@ export function resolveTrack(
   title: string,
   artist: string,
 ): Promise<ResolvedCatalogEntry> {
-  return cached(`track:${artist}:${title}`.toLowerCase(), async () => {
+  // v2 key: v1 entries predate Amazon Music resolution.
+  return cached(`track:v2:${artist}:${title}`.toLowerCase(), async () => {
     const [spotify, apple, youtube] = await Promise.all([
       spotifyTrack(title, artist),
       appleTrack(title, artist),
       youtubeTrack(title, artist),
     ]);
-    return merge(spotify, apple, youtube);
+    const base = merge(spotify, apple, youtube);
+    const amazon = await amazonMusicMatch(
+      spotify?.links.spotify ??
+        apple?.links.appleMusic ??
+        youtube?.links.youtubeMusic,
+    );
+    return merge(base, amazon);
   });
 }
 
@@ -96,12 +104,17 @@ export function resolveAlbum(
   title: string,
   artist: string,
 ): Promise<ResolvedCatalogEntry> {
-  return cached(`album:${artist}:${title}`.toLowerCase(), async () => {
+  // v2 key: v1 entries predate Amazon Music resolution.
+  return cached(`album:v2:${artist}:${title}`.toLowerCase(), async () => {
     const [spotify, apple] = await Promise.all([
       spotifyAlbum(title, artist),
       appleAlbum(title, artist),
     ]);
-    return merge(spotify, apple);
+    const base = merge(spotify, apple);
+    const amazon = await amazonMusicMatch(
+      spotify?.links.spotify ?? apple?.links.appleMusic,
+    );
+    return merge(base, amazon);
   });
 }
 
