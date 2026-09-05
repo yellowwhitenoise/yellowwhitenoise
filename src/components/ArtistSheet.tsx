@@ -221,6 +221,29 @@ export function ArtistSheet() {
                     onPinChange={handleAlbumPin}
                   />
                 </div>
+                <div className="mt-6">
+                  <p className="text-[10px] uppercase tracking-[0.22em] opacity-50 md:text-[11px]">
+                    Tracks
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => handleAlbumPin(null)}
+                    aria-live="polite"
+                    className="mt-1.5 flex w-full cursor-pointer items-baseline justify-between gap-3 text-left"
+                  >
+                    <span
+                      className={`min-w-0 flex-1 truncate text-[12px] font-medium uppercase tracking-[0.14em] transition-colors ${
+                        pinnedTitle ? "text-yellow" : ""
+                      }`}
+                    >
+                      {pinnedTitle ?? "All Tracks"}
+                    </span>
+                    <span className="shrink-0 text-[10px] uppercase tracking-[0.18em] opacity-40">
+                      {visibleSongs.length} track
+                      {visibleSongs.length === 1 ? "" : "s"}
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -230,28 +253,6 @@ export function ArtistSheet() {
           className="relative z-10 shrink-0 border-t border-foreground/10 bg-background/95 backdrop-blur"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center gap-2 px-3 pt-2.5">
-            <button
-              type="button"
-              onClick={() => handleAlbumPin(null)}
-              aria-pressed={!pinnedTitle}
-              className={`cursor-pointer rounded-full px-3 py-1 text-[9px] uppercase tracking-[0.2em] transition-colors ${
-                pinnedTitle
-                  ? "border border-foreground/15 opacity-60 hover:opacity-100"
-                  : "bg-foreground text-background"
-              }`}
-            >
-              All tracks
-            </button>
-            {pinnedTitle && (
-              <p className="min-w-0 flex-1 truncate text-[9px] uppercase tracking-[0.2em] text-yellow">
-                {pinnedTitle}
-              </p>
-            )}
-            <p className="shrink-0 text-[9px] uppercase tracking-[0.2em] opacity-40">
-              {visibleSongs.length} track{visibleSongs.length === 1 ? "" : "s"}
-            </p>
-          </div>
           {visibleSongs.length > 0 ? (
             <TrackGrid
               key={pinnedTitle ? `album:${normalizeTitle(pinnedTitle)}` : "all"}
