@@ -13,6 +13,7 @@ export function AlbumList({
   artistName,
   pinnedTitle,
   onPinChange,
+  trackCountFor,
 }: {
   albums: Album[];
   artistSlug: string;
@@ -21,6 +22,8 @@ export function AlbumList({
   pinnedTitle: string | null;
   /** Fires on tap-pin changes and outside-tap collapse (never on hover). */
   onPinChange: (title: string | null) => void;
+  /** Optional per-album track count shown beside each title. */
+  trackCountFor?: (albumTitle: string) => number;
 }) {
   const [hoverTitle, setHoverTitle] = useState<string | null>(null);
   const [canHover] = useState(
@@ -75,6 +78,7 @@ export function AlbumList({
     <ul ref={listRef} className="space-y-1 md:space-y-1">
       {albums.map((album) => {
         const open = openTitle === album.title;
+        const trackCount = trackCountFor?.(album.title);
         return (
           <li
             key={album.title}
@@ -104,9 +108,14 @@ export function AlbumList({
                 onPinChange(pinnedTitle === album.title ? null : album.title);
               }}
               aria-expanded={open}
-              className="cursor-pointer py-1 text-left text-[12px] transition-colors hover:text-yellow md:text-sm"
+              className="flex w-full cursor-pointer items-baseline justify-between gap-3 py-1 text-left text-[12px] transition-colors hover:text-yellow md:text-sm"
             >
-              {album.title}
+              <span className="min-w-0 flex-1 truncate">{album.title}</span>
+              {trackCount !== undefined && (
+                <span className="shrink-0 text-[10px] tracking-[0.14em] opacity-40">
+                  {trackCount} track{trackCount === 1 ? "" : "s"}
+                </span>
+              )}
             </button>
             <div
               className={`grid transition-all duration-300 ease-out ${

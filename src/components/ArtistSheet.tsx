@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AlbumList } from "@/components/AlbumList";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { PlatformIcon } from "@/components/PlatformIcon";
@@ -11,6 +11,10 @@ import { useArtistsStore } from "@/lib/store/artists";
 import { useUIStore } from "@/lib/store/ui";
 
 const platforms = Object.keys(platformLabels) as Platform[];
+
+function normalizeTitle(value: string): string {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
 
 export function ArtistSheet() {
   const sheetSlug = useUIStore((s) => s.sheetArtistSlug);
@@ -58,8 +62,6 @@ export function ArtistSheet() {
 
   const artist = artists.find((entry) => entry.slug === sheetSlug);
 
-  const normalizeTitle = (value: string) =>
-    value.trim().toLowerCase().replace(/\s+/g, " ");
   const pinnedTitle =
     albumPin && albumPin.slug === artist?.slug ? albumPin.title : null;
   const handleAlbumPin = useCallback(
@@ -75,6 +77,19 @@ export function ArtistSheet() {
           normalizeTitle(song.album) === normalizeTitle(pinnedTitle),
       ) ?? [])
     : (artist?.songs ?? []);
+  const albumTrackCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const song of artist?.songs ?? []) {
+      if (!song.album) continue;
+      const key = normalizeTitle(song.album);
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return counts;
+  }, [artist]);
+  const trackCountFor = useCallback(
+    (title: string) => albumTrackCounts[normalizeTitle(title)] ?? 0,
+    [albumTrackCounts],
+  );
 
   if (!mounted || !artist) return null;
 
@@ -219,10 +234,11 @@ export function ArtistSheet() {
                     artistName={artist.name}
                     pinnedTitle={pinnedTitle}
                     onPinChange={handleAlbumPin}
+                    trackCountFor={trackCountFor}
                   />
                 </div>
                 <div className="mt-6">
-                  <p className="text-[10px] uppercase tracking-[0.22em] opacity-50 md:text-[11px]">
+                  <p className="text-[10px] tracking-[0.22em] opacity-50 md:text-[11px]">
                     Tracks
                   </p>
                   <button
@@ -232,13 +248,13 @@ export function ArtistSheet() {
                     className="mt-1.5 flex w-full cursor-pointer items-baseline justify-between gap-3 text-left"
                   >
                     <span
-                      className={`min-w-0 flex-1 truncate text-[12px] font-medium uppercase tracking-[0.14em] transition-colors ${
+                      className={`min-w-0 flex-1 truncate text-[12px] font-medium tracking-[0.14em] transition-colors ${
                         pinnedTitle ? "text-yellow" : ""
                       }`}
                     >
                       {pinnedTitle ?? "All Tracks"}
                     </span>
-                    <span className="shrink-0 text-[10px] uppercase tracking-[0.18em] opacity-40">
+                    <span className="shrink-0 text-[10px] tracking-[0.18em] opacity-40">
                       {visibleSongs.length} track
                       {visibleSongs.length === 1 ? "" : "s"}
                     </span>
