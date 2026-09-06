@@ -40,8 +40,6 @@ interface NotifyPayload {
   coverUrl?: string;
   /** Per-platform listen links; rendered as CTA buttons for the ones set. */
   platformLinks?: Partial<Record<Platform, string>>;
-  /** Release kind for coming-soon announcements. */
-  releaseKind?: "track" | "album" | "ep";
 }
 
 const FROM =
@@ -181,16 +179,20 @@ function buildEmail(
   unsubscribeUrl: string,
 ) {
   const label =
-    type === "comingSoon"
-      ? (payload.releaseKind === "ep"
+    type === "comingSoonTrack"
+      ? "track"
+      : type === "comingSoonAlbum"
+        ? "album"
+        : type === "comingSoonEp"
           ? "EP"
-          : (payload.releaseKind ?? "release"))
-      : typeLabel(type);
+          : typeLabel(type);
   const playlistName = payload.playlistName ?? "Yellow White Noise";
   const intro =
     type === "playlistTrack"
       ? `New music was added to ${playlistName}.`
-      : type === "comingSoon"
+      : type === "comingSoonTrack" ||
+          type === "comingSoonAlbum" ||
+          type === "comingSoonEp"
         ? `A new ${label} is on its way to Yellow White Noise.`
         : `A new ${label} just landed on the label.`;
   const templates = getEmailTemplates();

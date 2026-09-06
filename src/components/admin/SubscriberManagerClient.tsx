@@ -18,7 +18,9 @@ const typeLabels: Record<NotifyType, string> = {
   song: "New track",
   album: "New album",
   ep: "New EP",
-  comingSoon: "Coming soon",
+  comingSoonTrack: "Soon: track",
+  comingSoonAlbum: "Soon: album",
+  comingSoonEp: "Soon: EP",
   playlist: "New playlist",
   playlistTrack: "Track added to playlist",
 };

@@ -36,8 +36,10 @@ function removeCloser(closer: SheetCloser) {
  */
 export function useSystemBack(open: boolean, onClose: () => void): () => void {
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
   const dismissedRef = useRef(false);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
   const stableClose = useCallback(() => {
     onCloseRef.current();
   }, []);

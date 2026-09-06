@@ -4,7 +4,9 @@ export const EMAIL_TEMPLATE_TYPES = [
   "song",
   "album",
   "ep",
-  "comingSoon",
+  "comingSoonTrack",
+  "comingSoonAlbum",
+  "comingSoonEp",
   "playlist",
   "playlistTrack",
 ] as const;
@@ -52,12 +54,28 @@ export const DEFAULT_EMAIL_TEMPLATES: Record<NotifyType, EmailTemplate> = {
 {{platformButtons}}
 <p><a href="{{url}}" style="display:inline-block;margin-top:12px;background:#f0b429;color:#14120d;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:14px 28px;border-radius:999px;">Open playlist</a></p>`,
   },
-  comingSoon: {
+  comingSoonTrack: {
     subject: "Coming soon: {{title}} — Yellow White Noise",
     html: `<p>{{intro}}</p>
 {{coverImage}}
 <p><strong>{{title}}</strong>{{artistLine}}</p>
-<p>From the forthcoming {{typeLabel}} — watch this space.</p>
+<p>From the forthcoming track — watch this space.</p>
+{{platformButtons}}`,
+  },
+  comingSoonAlbum: {
+    subject: "Coming soon: {{title}} — Yellow White Noise",
+    html: `<p>{{intro}}</p>
+{{coverImage}}
+<p><strong>{{title}}</strong>{{artistLine}}</p>
+<p>From the forthcoming album — watch this space.</p>
+{{platformButtons}}`,
+  },
+  comingSoonEp: {
+    subject: "Coming soon: {{title}} — Yellow White Noise",
+    html: `<p>{{intro}}</p>
+{{coverImage}}
+<p><strong>{{title}}</strong>{{artistLine}}</p>
+<p>From the forthcoming EP — watch this space.</p>
 {{platformButtons}}`,
   },
   playlistTrack: {
@@ -73,7 +91,9 @@ export const EMAIL_TEMPLATE_KEYS: Record<NotifyType, string> = {
   song: "email_template_song",
   album: "email_template_album",
   ep: "email_template_ep",
-  comingSoon: "email_template_coming_soon",
+  comingSoonTrack: "email_template_coming_soon_track",
+  comingSoonAlbum: "email_template_coming_soon_album",
+  comingSoonEp: "email_template_coming_soon_ep",
   playlist: "email_template_playlist",
   playlistTrack: "email_template_playlist_track",
 };
@@ -128,6 +148,8 @@ const PREVIEW_TOKENS = {
   playlistName: "Yellow Hours",
   intro: "A new track just landed on the label.",
   url: "https://www.yellowwhitenoise.com",
+  coverImage: "",
+  platformButtons: "",
   trackList:
     '<ul style="margin:16px 0;padding-left:20px;text-align:left;"><li><strong>Example Track</strong> by Example Artist</li></ul>',
   unsubscribe: "#unsubscribe",

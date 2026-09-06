@@ -239,8 +239,14 @@ export function DashboardClient({
             <option value="ep" className="bg-background text-foreground">
               New EP
             </option>
-            <option value="comingSoon" className="bg-background text-foreground">
-              Coming soon
+            <option value="comingSoonTrack" className="bg-background text-foreground">
+              Coming soon: track
+            </option>
+            <option value="comingSoonAlbum" className="bg-background text-foreground">
+              Coming soon: album
+            </option>
+            <option value="comingSoonEp" className="bg-background text-foreground">
+              Coming soon: EP
             </option>
             <option value="song" className="bg-background text-foreground">
               New song

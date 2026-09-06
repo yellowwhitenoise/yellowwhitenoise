@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   DEFAULT_EMAIL_TEMPLATES,
-  EMAIL_TEMPLATE_TYPES,
   previewEmailHtml,
   type EmailTemplate,
   type NotifyType,
 } from "@/lib/email-templates";
+import { ResponsiveMenu } from "@/components/ResponsiveMenu";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 
 const inputClass =
   "w-full rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-[13px] text-foreground outline-none focus:border-yellow";
@@ -17,10 +18,20 @@ const typeLabels: Record<NotifyType, string> = {
   song: "New track",
   album: "New album",
   ep: "New EP",
-  comingSoon: "Coming soon",
+  comingSoonTrack: "Soon: track",
+  comingSoonAlbum: "Soon: album",
+  comingSoonEp: "Soon: EP",
   playlist: "New playlist",
   playlistTrack: "Track added to playlist",
 };
+
+const NEW_TYPES: NotifyType[] = ["song", "album", "ep", "playlist", "playlistTrack"];
+
+const COMING_SOON_TYPES: NotifyType[] = [
+  "comingSoonTrack",
+  "comingSoonAlbum",
+  "comingSoonEp",
+];
 
 export function EmailTemplatesClient({
   initial,
@@ -35,6 +46,90 @@ export function EmailTemplatesClient({
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const template = templates[activeType];
+  const isComingSoon =
+    activeType === "comingSoonTrack" ||
+    activeType === "comingSoonAlbum" ||
+    activeType === "comingSoonEp";
+  const comingSoonKind =
+    activeType === "comingSoonTrack"
+      ? "track"
+      : activeType === "comingSoonAlbum"
+        ? "album"
+        : "EP";
+
+  // Coming-soon announcement composer (send-from-here).
+  const [artists, setArtists] = useState<string[]>([]);
+  const [announceTitle, setAnnounceTitle] = useState("");
+  const [announceArtist, setAnnounceArtist] = useState("");
+  const [announceCover, setAnnounceCover] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sendResult, setSendResult] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/admin/artists")
+      .then((response) => (response.ok ? response.json() : []))
+      .then((data: unknown) => {
+        if (cancelled || !Array.isArray(data)) return;
+        const names = data
+          .map((entry) =>
+            typeof entry === "object" && entry !== null
+              ? String((entry as Record<string, unknown>).name ?? "")
+              : "",
+          )
+          .map((name) => name.trim())
+          .filter(Boolean);
+        setArtists([...new Set(names)]);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const pickType = (type: NotifyType) => {
+    setActiveType(type);
+    setNotice(null);
+    setError(null);
+    setSendResult(null);
+  };
+
+  const sendAnnouncement = async () => {
+    if (!announceTitle.trim() || !announceArtist) {
+      setSendResult("Add a title and pick an artist first.");
+      return;
+    }
+    setSending(true);
+    setSendResult(null);
+    const response = await fetch("/api/admin/broadcast", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: activeType,
+        title: announceTitle.trim(),
+        artist: announceArtist,
+        coverUrl: announceCover.trim() || undefined,
+      }),
+    });
+    const data = (await response.json().catch(() => ({}))) as {
+      sent?: number;
+      total?: number;
+      skipped?: string;
+      error?: string;
+    };
+    setSending(false);
+    if (!response.ok || data.error) {
+      setSendResult(data.error ?? "Could not send.");
+      return;
+    }
+    if (data.skipped === "smtp-not-configured") {
+      setSendResult("SMTP is not configured — nothing was sent.");
+    } else if (data.skipped === "notifications-disabled") {
+      setSendResult("Email notifications are turned off.");
+    } else {
+      setSendResult(`Sent to ${data.sent ?? 0}/${data.total ?? 0} subscriber(s).`);
+    }
+  };
 
   const updateTemplate = (patch: Partial<EmailTemplate>) => {
     setTemplates((current) => ({
@@ -100,24 +195,72 @@ export function EmailTemplatesClient({
       </p>
 
       <div className="mt-8 flex flex-wrap gap-2">
-        {EMAIL_TEMPLATE_TYPES.map((type) => (
-          <button
-            key={type}
-            type="button"
-            onClick={() => {
-              setActiveType(type);
-              setNotice(null);
-              setError(null);
-            }}
-            className={`cursor-pointer rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.18em] transition-colors ${
-              activeType === type
-                ? "border-yellow/50 text-yellow"
-                : "border-foreground/15 opacity-60 hover:bg-foreground/10"
-            }`}
-          >
-            {typeLabels[type]}
-          </button>
-        ))}
+        <ResponsiveMenu
+          label="New release templates"
+          activeLabel={
+            (NEW_TYPES as NotifyType[]).includes(activeType)
+              ? typeLabels[activeType]
+              : undefined
+          }
+          buttonClassName={`cursor-pointer rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.18em] transition-colors ${
+            (NEW_TYPES as NotifyType[]).includes(activeType)
+              ? "border-yellow/50 text-yellow"
+              : "border-foreground/15 opacity-60 hover:bg-foreground/10"
+          }`}
+        >
+          {(close) => (
+            <>
+              {NEW_TYPES.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => {
+                    pickType(type);
+                    close();
+                  }}
+                  className={`block w-full cursor-pointer rounded-xl px-4 py-3 text-left text-[13px] transition-colors hover:bg-foreground/10 md:px-3 md:py-2 md:text-[12px] ${
+                    activeType === type ? "text-yellow" : ""
+                  }`}
+                >
+                  {typeLabels[type]}
+                </button>
+              ))}
+            </>
+          )}
+        </ResponsiveMenu>
+        <ResponsiveMenu
+          label="Coming soon templates"
+          activeLabel={
+            (COMING_SOON_TYPES as NotifyType[]).includes(activeType)
+              ? typeLabels[activeType]
+              : undefined
+          }
+          buttonClassName={`cursor-pointer rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.18em] transition-colors ${
+            (COMING_SOON_TYPES as NotifyType[]).includes(activeType)
+              ? "border-yellow/50 text-yellow"
+              : "border-foreground/15 opacity-60 hover:bg-foreground/10"
+          }`}
+        >
+          {(close) => (
+            <>
+              {COMING_SOON_TYPES.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => {
+                    pickType(type);
+                    close();
+                  }}
+                  className={`block w-full cursor-pointer rounded-xl px-4 py-3 text-left text-[13px] transition-colors hover:bg-foreground/10 md:px-3 md:py-2 md:text-[12px] ${
+                    activeType === type ? "text-yellow" : ""
+                  }`}
+                >
+                  {typeLabels[type]}
+                </button>
+              ))}
+            </>
+          )}
+        </ResponsiveMenu>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -147,6 +290,8 @@ export function EmailTemplatesClient({
             <code>{"{{title}}"}</code> <code>{"{{artist}}"}</code>{" "}
             <code>{"{{artistLine}}"}</code> <code>{"{{typeLabel}}"}</code>{" "}
             <code>{"{{intro}}"}</code> <code>{"{{url}}"}</code>{" "}
+            <code>{"{{coverImage}}"}</code>{" "}
+            <code>{"{{platformButtons}}"}</code>{" "}
             <code>{"{{unsubscribe}}"}</code>
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -184,6 +329,92 @@ export function EmailTemplatesClient({
           />
         </section>
       </div>
+
+      {isComingSoon && (
+        <section className="mt-6 rounded-2xl border border-yellow/25 p-5">
+          <p className="font-display text-base font-semibold uppercase tracking-[0.08em]">
+            Announce this {comingSoonKind}
+          </p>
+          <p className="mt-1 text-[11px] leading-relaxed opacity-70">
+            Sends the template above to all subscribers with this cover,
+            artist, and title.
+          </p>
+          <div className="mt-4 grid gap-4">
+            <label className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+              {comingSoonKind === "EP" ? "EP" : comingSoonKind === "album" ? "Album" : "Track"} title
+              <input
+                value={announceTitle}
+                onChange={(event) => setAnnounceTitle(event.target.value)}
+                placeholder={
+                  comingSoonKind === "EP"
+                    ? "Midnight Riddims EP"
+                    : comingSoonKind === "album"
+                      ? "Yellow Hours"
+                      : "Low Tide Gospel"
+                }
+                className={`mt-2 ${inputClass}`}
+              />
+            </label>
+            <div className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+              Artist
+              <div className="mt-2">
+                {artists.length > 0 ? (
+                  <ResponsiveMenu
+                    label="Select artist"
+                    activeLabel={announceArtist || undefined}
+                    buttonClassName="w-full cursor-pointer rounded-xl border border-foreground/15 bg-background px-3 py-2.5 text-left text-[13px] text-foreground outline-none transition-colors hover:bg-foreground/10"
+                  >
+                    {(close) => (
+                      <>
+                        {artists.map((name) => (
+                          <button
+                            key={name}
+                            type="button"
+                            onClick={() => {
+                              setAnnounceArtist(name);
+                              close();
+                            }}
+                            className={`block w-full cursor-pointer rounded-xl px-4 py-3 text-left text-[13px] transition-colors hover:bg-foreground/10 md:px-3 md:py-2 md:text-[12px] ${
+                              announceArtist === name ? "text-yellow" : ""
+                            }`}
+                          >
+                            {name}
+                          </button>
+                        ))}
+                      </>
+                    )}
+                  </ResponsiveMenu>
+                ) : (
+                  <p className="text-[11px] normal-case tracking-normal opacity-50">
+                    No artists yet — add one first.
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+              Cover art
+              <div className="mt-2">
+                <ImageUploadField
+                  value={announceCover}
+                  onChange={setAnnounceCover}
+                  placeholder="https://… or upload from device or media"
+                />
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => void sendAnnouncement()}
+            disabled={sending}
+            className="mt-5 cursor-pointer rounded-full bg-foreground px-5 py-2.5 text-[10px] uppercase tracking-[0.18em] text-background transition-opacity hover:opacity-85 disabled:opacity-50"
+          >
+            {sending ? "Sending…" : `Announce ${comingSoonKind}`}
+          </button>
+          {sendResult && (
+            <p className="mt-3 text-[12px] text-yellow">{sendResult}</p>
+          )}
+        </section>
+      )}
 
       {error && <p className="mt-5 text-[12px] text-red-400">{error}</p>}
       {notice && <p className="mt-5 text-[12px] text-yellow">{notice}</p>}

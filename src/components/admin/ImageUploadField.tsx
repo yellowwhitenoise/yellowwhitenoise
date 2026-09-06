@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { MediaPickerDialog } from "./MediaPickerDialog";
 
 export function ImageUploadField({
   value,
@@ -14,6 +15,7 @@ export function ImageUploadField({
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const upload = async (file: File) => {
     setUploading(true);
@@ -44,7 +46,7 @@ export function ImageUploadField({
         placeholder={placeholder ?? "https://… or upload from device"}
         className="w-full min-w-0 max-w-full rounded-xl border border-foreground/15 bg-transparent px-3 py-2.5 text-[13px] outline-none focus:border-yellow"
       />
-      <div className="flex min-w-0 max-w-full items-center gap-3">
+      <div className="flex min-w-0 max-w-full flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
@@ -52,6 +54,14 @@ export function ImageUploadField({
           className="shrink-0 cursor-pointer rounded-full border border-foreground/15 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground/10 disabled:opacity-50"
         >
           {uploading ? "Uploading…" : "Upload from device"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setPickerOpen(true)}
+          disabled={uploading}
+          className="shrink-0 cursor-pointer rounded-full border border-foreground/15 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground/10 disabled:opacity-50"
+        >
+          Choose from media
         </button>
         {value && (
           <span className="min-w-0 flex-1 truncate text-[10px] uppercase tracking-[0.14em] opacity-40">
@@ -69,6 +79,17 @@ export function ImageUploadField({
           const file = e.target.files?.[0];
           if (file) void upload(file);
           e.target.value = "";
+        }}
+      />
+      <MediaPickerDialog
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(media) => {
+          if (media.type !== "image") {
+            setError("Please choose an image, not a video.");
+            return;
+          }
+          onChange(media.src);
         }}
       />
     </div>

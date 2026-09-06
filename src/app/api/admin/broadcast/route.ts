@@ -50,7 +50,6 @@ export async function POST(request: NextRequest) {
     url?: string;
     coverUrl?: string;
     platformLinks?: unknown;
-    releaseKind?: string;
     subscriberIds?: unknown;
   };
   const type = body.type as NotifyType;
@@ -58,7 +57,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "type (song|album|ep|playlist|playlistTrack) and title are required",
+          "type (song|album|ep|comingSoonTrack|comingSoonAlbum|comingSoonEp|playlist|playlistTrack) and title are required",
       },
       { status: 400 },
     );
@@ -79,12 +78,6 @@ export async function POST(request: NextRequest) {
     url: body.url,
     coverUrl: parseHttpUrl(body.coverUrl),
     platformLinks: parsePlatformLinks(body.platformLinks),
-    releaseKind:
-      body.releaseKind === "track" ||
-      body.releaseKind === "album" ||
-      body.releaseKind === "ep"
-        ? body.releaseKind
-        : undefined,
   }, selectedIds);
   return NextResponse.json(result);
 }
