@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type TouchEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type TouchEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useSystemBack } from "@/lib/sheet-history";
 
 export function ResponsiveMenu({
   label,
@@ -30,19 +31,21 @@ export function ResponsiveMenu({
   const [pullY, setPullY] = useState(0);
   const startY = useRef<number | null>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
-  const close = () => {
+  const close = useCallback(() => {
     setOpen(false);
     setPullY(0);
-  };
+  }, []);
+  // System back button closes the menu instead of leaving the page.
+  const dismiss = useSystemBack(open, close);
 
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
+      if (event.key === "Escape") dismiss();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
+  }, [open, dismiss]);
 
   const onTouchStart = (event: TouchEvent) => {
     startY.current = event.touches[0].clientY;
@@ -68,7 +71,7 @@ export function ResponsiveMenu({
   };
 
   const onTouchEnd = () => {
-    if (pullY > 90) close();
+    if (pullY > 90) dismiss();
     else setPullY(0);
     startY.current = null;
   };
@@ -77,7 +80,7 @@ export function ResponsiveMenu({
     open && typeof document !== "undefined"
       ? createPortal(
           <div className="fixed inset-0 z-[80] md:hidden">
-            <div className="absolute inset-0 bg-black/60" onClick={close} />
+            <div className="absolute inset-0 bg-black/60" onClick={dismiss} />
             <div
               ref={sheetRef}
               onTouchStart={onTouchStart}
@@ -101,7 +104,7 @@ export function ResponsiveMenu({
               {mobilePresentation === "sheet" && (
                 <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-foreground/20" />
               )}
-              {children(close)}
+              {children(dismiss)}
             </div>
           </div>,
           document.body,
@@ -113,7 +116,7 @@ export function ResponsiveMenu({
       <div className="relative inline-block">
         <button
           type="button"
-          onClick={() => setOpen((current) => !current)}
+          onClick={() => (open ? dismiss() : setOpen(true))}
           aria-label={activeLabel || label}
           aria-expanded={open}
           className={buttonClassName}
@@ -124,7 +127,7 @@ export function ResponsiveMenu({
         <div className="hidden md:block">
           {open && (
             <>
-              <div className="fixed inset-0 z-20" onClick={close} />
+              <div className="fixed inset-0 z-20" onClick={dismiss} />
               <div
                 className={`absolute z-30 w-64 rounded-2xl border border-foreground/15 bg-background p-2 shadow-2xl ${
                   placement === "above" ? "bottom-full mb-2" : "mt-2"
@@ -132,7 +135,7 @@ export function ResponsiveMenu({
                   align === "right" ? "right-0" : "left-0"
                 } ${menuClassName ?? ""}`}
               >
-                {children(close)}
+                {children(dismiss)}
               </div>
             </>
           )}

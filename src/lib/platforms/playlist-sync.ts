@@ -119,10 +119,8 @@ async function syncRow(row: PlaylistRow): Promise<PlaylistSyncReport> {
         trackUrl: track.links[imported.platform],
       })),
     );
-    const updated = refreshImportedPlaylist(
-      row.id,
-      playlistInputFromImport(imported, row),
-    );
+    const input = playlistInputFromImport(imported, row);
+    const updated = refreshImportedPlaylist(row.id, input);
     if (!updated) {
       return { id: row.id, name: row.name, ok: false, error: "Playlist not found." };
     }
@@ -134,6 +132,10 @@ async function syncRow(row: PlaylistRow): Promise<PlaylistSyncReport> {
         row.slug,
         updated.name,
         pendingEvents,
+        {
+          coverUrl: input.coverUrl ?? undefined,
+          platformLinks: input.links,
+        },
       );
       notificationSkipped = notification.skipped;
       if (

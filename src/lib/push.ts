@@ -95,6 +95,13 @@ export function pushPayloadForRelease(
         : type === "ep"
           ? "EP"
           : "track";
+  if (type === "comingSoon") {
+    return {
+      title: `Coming soon: ${title}`,
+      body: artist ?? "Yellow White Noise",
+      url,
+    };
+  }
   return {
     title: `New ${kind}: ${title}`,
     body: artist ?? "Yellow White Noise",

@@ -15,6 +15,7 @@ import {
   type ArtistReleaseEventRow,
   type PlaylistTrackEventRow,
 } from "@/lib/db";
+import type { Platform } from "@/lib/data";
 import {
   pushPayloadForRelease,
   pushToAllSubscribers,
@@ -35,6 +36,12 @@ interface NotifyPayload {
   url?: string;
   playlistName?: string;
   trackList?: NotifyTrack[];
+  /** Artwork image URL shown above the title when provided. */
+  coverUrl?: string;
+  /** Per-platform listen links; rendered as CTA buttons for the ones set. */
+  platformLinks?: Partial<Record<Platform, string>>;
+  /** Release kind for coming-soon announcements. */
+  releaseKind?: "track" | "album" | "ep";
 }
 
 const FROM =
@@ -126,8 +133,35 @@ function typeLabel(type: NotifyType): string {
   return "track";
 }
 
-function trackListHtml(tracks: NotifyTrack[] | undefined): string {
-  if (!tracks?.length) return "";
+const PLATFORM_CTA_ORDER: { platform: Platform; label: string }[] = [
+  { platform: "spotify", label: "Spotify" },
+  { platform: "appleMusic", label: "Apple Music" },
+  { platform: "amazonMusic", label: "Amazon Music" },
+  { platform: "youtubeMusic", label: "YouTube Music" },
+];
+
+function coverImageHtml(coverUrl?: string): string {
+  const safe = coverUrl ? safeUrl(coverUrl) : "";
+  if (!safe || safe === "https://www.yellowwhitenoise.com") return "";
+  return `<p style="margin:0 0 20px;"><img src="${escapeHtml(safe)}" alt="" width="320" style="display:block;width:100%;max-width:320px;height:auto;margin:0 auto;border:0;border-radius:16px;outline:none;" /></p>`;
+}
+
+function platformButtonsHtml(
+  links?: Partial<Record<Platform, string>>,
+): string {
+  if (!links) return "";
+  const buttons = PLATFORM_CTA_ORDER.filter(
+    ({ platform }) => typeof links[platform] === "string" && links[platform],
+  )
+    .map(
+      ({ platform, label }) =>
+        `<a href="${escapeHtml(safeUrl(links[platform]))}" style="display:inline-block;margin:6px 6px 0;background:transparent;color:#f5f1e8;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:12px 20px;border:1px solid rgba(240,180,41,0.5);border-radius:999px;">${label}</a>`,
+    )
+    .join("");
+  return buttons ? `<p style="margin:20px 0 0;">${buttons}</p>` : "";
+}
+
+function trackListHtml(tracks: NotifyTrack[] | undefined): string {  if (!tracks?.length) return "";
   const items = tracks
     .map((track) => {
       const title = escapeHtml(track.title);
@@ -146,12 +180,19 @@ function buildEmail(
   payload: NotifyPayload,
   unsubscribeUrl: string,
 ) {
-  const label = typeLabel(type);
+  const label =
+    type === "comingSoon"
+      ? (payload.releaseKind === "ep"
+          ? "EP"
+          : (payload.releaseKind ?? "release"))
+      : typeLabel(type);
   const playlistName = payload.playlistName ?? "Yellow White Noise";
   const intro =
     type === "playlistTrack"
       ? `New music was added to ${playlistName}.`
-      : `A new ${label} just landed on the label.`;
+      : type === "comingSoon"
+        ? `A new ${label} is on its way to Yellow White Noise.`
+        : `A new ${label} just landed on the label.`;
   const templates = getEmailTemplates();
   const template = templates[type];
   const subject = replaceEmailTokens(template.subject, {
@@ -174,6 +215,8 @@ function buildEmail(
     intro: escapeHtml(intro),
     url: escapeHtml(safeUrl(payload.url)),
     trackList: trackListHtml(payload.trackList),
+    coverImage: coverImageHtml(payload.coverUrl),
+    platformButtons: platformButtonsHtml(payload.platformLinks),
     unsubscribe: escapeHtml(unsubscribeUrl),
   });
   const logoUrl = sanitizeLogoUrl(process.env.EMAIL_LOGO_URL);
@@ -269,6 +312,10 @@ export async function notifyPlaylistSubscribers(
   playlistSlug: string,
   playlistName: string,
   events: PlaylistTrackEventRow[],
+  extra?: {
+    coverUrl?: string;
+    platformLinks?: Partial<Record<Platform, string>>;
+  },
 ): Promise<{ sent: number; total: number; skipped?: string; pushSent?: number }> {
   const subscribers = listPlaylistSubscribers(playlistSlug);
   const playlistUrl = `https://www.yellowwhitenoise.com/playlists/${encodeURIComponent(playlistSlug)}`;
@@ -284,6 +331,8 @@ export async function notifyPlaylistSubscribers(
         artistName: event.artist_name,
         trackUrl: event.track_url || undefined,
       })),
+      coverUrl: extra?.coverUrl,
+      platformLinks: extra?.platformLinks,
     },
     subscribers,
   );
@@ -318,6 +367,10 @@ export async function notifyPlaylistSubscribers(
 export async function notifyArtistReleaseEvent(
   artistSlug: string,
   event: ArtistReleaseEventRow,
+  extra?: {
+    coverUrl?: string;
+    platformLinks?: Partial<Record<Platform, string>>;
+  },
 ): Promise<{ sent: number; total: number; skipped?: string }> {
   return notifySubscribers(
     event.release_type,
@@ -327,6 +380,8 @@ export async function notifyArtistReleaseEvent(
       url:
         event.release_url ||
         `https://www.yellowwhitenoise.com/${encodeURIComponent(artistSlug)}`,
+      coverUrl: extra?.coverUrl,
+      platformLinks: extra?.platformLinks,
     },
   );
 }

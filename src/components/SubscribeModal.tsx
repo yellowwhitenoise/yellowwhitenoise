@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { SubscribeForm } from "@/components/SubscribeForm";
+import { useSystemBack } from "@/lib/sheet-history";
 
 const PROMPT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 const PROMPT_TIMESTAMP_KEY = "ywn-sub-prompt-at";
@@ -36,11 +37,13 @@ export function SubscribeModal() {
     );
     setVisible(false);
   };
+  // System back button dismisses the prompt instead of leaving the page.
+  const dismissWithHistory = useSystemBack(visible, dismiss);
 
   const onSuccess = () => {
     localStorage.setItem("ywn-subscribed", "1");
     setDone(true);
-    setTimeout(() => setVisible(false), 2500);
+    setTimeout(() => dismissWithHistory(), 2500);
   };
 
   if (isAdminRoute || !visible) return null;
@@ -63,7 +66,7 @@ export function SubscribeModal() {
           </div>
           <button
             type="button"
-            onClick={dismiss}
+            onClick={dismissWithHistory}
             aria-label="Dismiss"
             className="cursor-pointer text-[18px] leading-none opacity-40 transition-opacity hover:opacity-100"
           >

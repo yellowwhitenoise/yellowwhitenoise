@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useSystemBack } from "@/lib/sheet-history";
 import type { MediaRef } from "@/lib/data";
 import type { MediaRow } from "@/lib/db";
 
@@ -17,6 +18,8 @@ export function MediaPickerDialog({
   const [items, setItems] = useState<MediaRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "image" | "video">("all");
+  // System back button closes the dialog instead of leaving the page.
+  const dismiss = useSystemBack(open, onClose);
 
   useEffect(() => {
     if (!open) return;
@@ -45,7 +48,7 @@ export function MediaPickerDialog({
       <div
         className="absolute inset-0"
         style={{ backgroundColor: "rgba(0,0,0,0.88)" }}
-        onClick={onClose}
+        onClick={dismiss}
       />
       <div
         className="relative mx-4 flex max-h-[80dvh] w-full max-w-2xl flex-col rounded-2xl shadow-2xl"
@@ -57,8 +60,8 @@ export function MediaPickerDialog({
           </h2>
           <button
             type="button"
-            onClick={onClose}
-            className="shrink-0 cursor-pointer text-[11px] uppercase tracking-[0.16em] opacity-50 transition-opacity hover:opacity-100"
+            onClick={dismiss}
+            className="cursor-pointer text-[11px] uppercase tracking-[0.16em] opacity-50 transition-opacity hover:opacity-100"
           >
             Close
           </button>
@@ -101,7 +104,7 @@ export function MediaPickerDialog({
                         type: item.kind === "video" ? "video" : "image",
                         src: item.url,
                       });
-                      onClose();
+                      dismiss();
                     }}
                     className="group w-full cursor-pointer overflow-hidden rounded-xl border border-white/10 transition-colors hover:border-yellow/60"
                   >

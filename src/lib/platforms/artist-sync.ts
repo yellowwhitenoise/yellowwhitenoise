@@ -292,10 +292,38 @@ async function syncRow(artist: Artist & { id: number }): Promise<ArtistSyncRepor
       };
     }
     const pending = listPendingArtistReleaseEvents(artist.slug);
+    const releaseExtras = (event: {
+      release_type: string;
+      title: string;
+    }):
+      | {
+          coverUrl?: string;
+          platformLinks?: Partial<Record<Platform, string>>;
+        }
+      | undefined => {
+      if (event.release_type === "song") {
+        const song = merged.songs.find((entry) => entry.title === event.title);
+        if (!song) return undefined;
+        return { coverUrl: song.coverUrl, platformLinks: song.links };
+      }
+      const album = merged.albums.find((entry) => entry.title === event.title);
+      if (!album) return undefined;
+      const albumSong = merged.songs.find(
+        (entry) => entry.album === album.title && entry.coverUrl,
+      );
+      return {
+        coverUrl: artist.pageImage ?? albumSong?.coverUrl,
+        platformLinks: album.links,
+      };
+    };
     let notifiedReleases = 0;
     let notificationSkipped: string | undefined;
     for (const event of pending) {
-      const result = await notifyArtistReleaseEvent(artist.slug, event);
+      const result = await notifyArtistReleaseEvent(
+        artist.slug,
+        event,
+        releaseExtras(event),
+      );
       notificationSkipped = result.skipped;
       if (result.skipped || result.sent === result.total) {
         markArtistReleaseEventsNotified([event]);

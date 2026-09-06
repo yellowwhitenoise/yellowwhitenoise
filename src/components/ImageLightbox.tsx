@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { ZoomableImage } from "@/components/ZoomableImage";
+import { useSystemBack } from "@/lib/sheet-history";
 
 export function ImageLightbox({
   src,
@@ -13,13 +14,15 @@ export function ImageLightbox({
   alt: string;
   onClose: () => void;
 }) {
+  // Mounted means open: system back closes instead of leaving the page.
+  const dismiss = useSystemBack(true, onClose);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") dismiss();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [onClose, dismiss]);
 
   if (typeof document === "undefined") return null;
   return createPortal(
@@ -31,11 +34,11 @@ export function ImageLightbox({
     >
       <div
         className="absolute inset-0 z-0 bg-black/85"
-        onClick={onClose}
+        onClick={dismiss}
       />
       <button
         type="button"
-        onClick={onClose}
+        onClick={dismiss}
         autoFocus
         className="absolute right-4 top-4 z-20 cursor-pointer text-[10px] uppercase tracking-[0.18em] text-white/75 transition-colors hover:text-white"
       >

@@ -10,6 +10,7 @@ import { TrackGrid } from "@/components/TrackGrid";
 import { platformLabels, type Platform } from "@/lib/data";
 import { useArtistsStore } from "@/lib/store/artists";
 import { useUIStore } from "@/lib/store/ui";
+import { useSystemBack } from "@/lib/sheet-history";
 
 const platforms = Object.keys(platformLabels) as Platform[];
 
@@ -21,6 +22,8 @@ export function ArtistSheet() {
   const sheetSlug = useUIStore((s) => s.sheetArtistSlug);
   const closeSheet = useUIStore((s) => s.closeSheet);
   const open = sheetSlug !== null;
+  // System back button closes the sheet instead of leaving the page.
+  const dismiss = useSystemBack(open, closeSheet);
   const artists = useArtistsStore((s) => s.artists);
   const ensureLoaded = useArtistsStore((s) => s.ensureLoaded);
 
@@ -51,7 +54,7 @@ export function ArtistSheet() {
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeSheet();
+      if (event.key === "Escape") dismiss();
     };
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
@@ -59,7 +62,7 @@ export function ArtistSheet() {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [open, closeSheet]);
+  }, [open, dismiss]);
 
   const artist = artists.find((entry) => entry.slug === sheetSlug);
 
@@ -92,12 +95,12 @@ export function ArtistSheet() {
       onClick={(event) => event.stopPropagation()}
     >
       <div
-        onClick={closeSheet}
+        onClick={dismiss}
         className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
           open ? "opacity-100" : "opacity-0"
         }`}
       />
-      <div className="absolute inset-0 flex h-dvh flex-col" onClick={closeSheet}>
+      <div className="absolute inset-0 flex h-dvh flex-col" onClick={dismiss}>
         <div
           onClick={(event) => event.stopPropagation()}
           className={`relative flex min-h-0 flex-1 flex-col justify-start overflow-y-auto bg-background shadow-2xl transition-[translate] duration-300 ease-out md:justify-center ${
@@ -106,7 +109,7 @@ export function ArtistSheet() {
         >
           <button
             type="button"
-            onClick={closeSheet}
+            onClick={dismiss}
             aria-label={`Close ${artist.name} details`}
             className="absolute top-4 right-4 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-foreground/15 transition-colors hover:bg-foreground/10 md:top-6 md:right-8"
           >
