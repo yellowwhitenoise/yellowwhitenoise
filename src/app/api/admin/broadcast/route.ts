@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
     url?: string;
     coverUrl?: string;
     platformLinks?: unknown;
+    message?: string;
     subscriberIds?: unknown;
   };
   const type = body.type as NotifyType;
@@ -78,6 +79,10 @@ export async function POST(request: NextRequest) {
     url: body.url,
     coverUrl: parseHttpUrl(body.coverUrl),
     platformLinks: parsePlatformLinks(body.platformLinks),
+    message:
+      typeof body.message === "string" && body.message.trim()
+        ? body.message.trim().slice(0, 500)
+        : undefined,
   }, selectedIds);
   return NextResponse.json(result);
 }

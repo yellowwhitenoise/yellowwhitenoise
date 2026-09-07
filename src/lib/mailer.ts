@@ -2,6 +2,8 @@ import nodemailer from "nodemailer";
 import {
   emailLayout,
   replaceEmailTokens,
+  defaultComingSoonMessage,
+  type ComingSoonKind,
   type NotifyType,
 } from "@/lib/email-templates";
 import { getEmailTemplates } from "@/lib/email-template-store";
@@ -40,6 +42,8 @@ interface NotifyPayload {
   coverUrl?: string;
   /** Per-platform listen links; rendered as CTA buttons for the ones set. */
   platformLinks?: Partial<Record<Platform, string>>;
+  /** Custom message line (coming-soon); falls back to the default line. */
+  message?: string;
 }
 
 const FROM =
@@ -208,6 +212,17 @@ function buildEmail(
   const artistLine = payload.artist
     ? ` by <strong style="color:#f0b429;">${escapeHtml(payload.artist)}</strong>`
     : "";
+  const comingSoonKind: ComingSoonKind | null =
+    type === "comingSoonTrack"
+      ? "track"
+      : type === "comingSoonAlbum"
+        ? "album"
+        : type === "comingSoonEp"
+          ? "EP"
+          : null;
+  const message =
+    payload.message?.trim() ||
+    (comingSoonKind ? defaultComingSoonMessage(comingSoonKind) : "");
   const body = replaceEmailTokens(template.html, {
     title: escapeHtml(payload.title),
     artist: escapeHtml(payload.artist ?? ""),
@@ -219,6 +234,7 @@ function buildEmail(
     trackList: trackListHtml(payload.trackList),
     coverImage: coverImageHtml(payload.coverUrl),
     platformButtons: platformButtonsHtml(payload.platformLinks),
+    message: escapeHtml(message),
     unsubscribe: escapeHtml(unsubscribeUrl),
   });
   const logoUrl = sanitizeLogoUrl(process.env.EMAIL_LOGO_URL);

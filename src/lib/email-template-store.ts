@@ -2,6 +2,7 @@ import {
   DEFAULT_EMAIL_TEMPLATES,
   EMAIL_TEMPLATE_KEYS,
   EMAIL_TEMPLATE_TYPES,
+  migrateLegacyMessageToken,
   type EmailTemplate,
   type NotifyType,
 } from "@/lib/email-templates";
@@ -25,8 +26,9 @@ export function getEmailTemplates(): Record<NotifyType, EmailTemplate> {
         templates[type] = {
           subject: parsed.subject,
           // Sanitize on read too: rows saved before sanitization existed
-          // must not reach inboxes raw.
-          html: sanitizeRichHtml(parsed.html),
+          // must not reach inboxes raw. Legacy coming-soon sentences become
+          // the editable {{message}} token with identical output.
+          html: migrateLegacyMessageToken(sanitizeRichHtml(parsed.html)),
         };
       }
     } catch {

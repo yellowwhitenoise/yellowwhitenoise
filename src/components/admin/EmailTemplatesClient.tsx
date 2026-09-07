@@ -4,9 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   DEFAULT_EMAIL_TEMPLATES,
+  defaultComingSoonMessage,
   emailLayout,
   previewEmailHtml,
   replaceEmailTokens,
+  type ComingSoonKind,
   type EmailTemplate,
   type NotifyType,
 } from "@/lib/email-templates";
@@ -91,6 +93,7 @@ export function EmailTemplatesClient({
   const [announceTitle, setAnnounceTitle] = useState("");
   const [announceArtist, setAnnounceArtist] = useState("");
   const [announceCover, setAnnounceCover] = useState("");
+  const [announceMessage, setAnnounceMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<string | null>(null);
 
@@ -138,6 +141,7 @@ export function EmailTemplatesClient({
         title: announceTitle.trim(),
         artist: announceArtist,
         coverUrl: announceCover.trim() || undefined,
+        message: announceMessage.trim() || undefined,
       }),
     });
     const data = (await response.json().catch(() => ({}))) as {
@@ -199,15 +203,17 @@ export function EmailTemplatesClient({
   };
 
   // Coming-soon preview renders the live composer values (title, artist,
-  // cover) inside the current template. Everything else keeps the sample
-  // preview.
+  // cover, message) inside the current template. Everything else keeps the
+  // sample preview.
   const previewSrcDoc = useMemo(() => {
     if (!isComingSoon) return previewEmailHtml(template, logoUrl);
     const title = announceTitle.trim() || "Example title";
     const artist = announceArtist.trim();
     const cover = announceCover.trim();
-    const kindLabel = comingSoonKind === "EP" ? "EP" : comingSoonKind;
-    const intro = `A new ${kindLabel} is on its way to Yellow White Noise.`;
+    const kind: ComingSoonKind =
+      comingSoonKind === "EP" ? "EP" : comingSoonKind;
+    const intro = `A new ${kind} is on its way to Yellow White Noise.`;
+    const message = announceMessage.trim() || defaultComingSoonMessage(kind);
     const coverHtml =
       cover && isPreviewableUrl(cover)
         ? `<p style="margin:0 0 20px;"><img src="${escapePreviewAttr(cover)}" alt="" width="320" style="display:block;width:100%;max-width:320px;height:auto;margin:0 auto;border:0;border-radius:16px;outline:none;" /></p>`
@@ -218,12 +224,13 @@ export function EmailTemplatesClient({
       artistLine: artist
         ? ` by <strong style="color:#f0b429;">${escapePreviewText(artist)}</strong>`
         : "",
-      typeLabel: kindLabel,
+      typeLabel: kind,
       intro: escapePreviewText(intro),
       url: "https://www.yellowwhitenoise.com",
       trackList: "",
       coverImage: coverHtml,
       platformButtons: "",
+      message: escapePreviewText(message),
       playlistName: "Yellow White Noise",
       unsubscribe: "#unsubscribe",
     });
@@ -238,6 +245,7 @@ export function EmailTemplatesClient({
     announceTitle,
     announceArtist,
     announceCover,
+    announceMessage,
     comingSoonKind,
   ]);
 
@@ -364,6 +372,7 @@ export function EmailTemplatesClient({
             <code>{"{{intro}}"}</code> <code>{"{{url}}"}</code>{" "}
             <code>{"{{coverImage}}"}</code>{" "}
             <code>{"{{platformButtons}}"}</code>{" "}
+            <code>{"{{message}}"}</code>{" "}
             <code>{"{{unsubscribe}}"}</code>
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -410,7 +419,7 @@ export function EmailTemplatesClient({
           </p>
           <p className="mt-1 text-[11px] leading-relaxed opacity-70">
             Sends the template above to all subscribers with this cover,
-            artist, and title.
+            artist, title, and message.
           </p>
           <div className="mt-4 grid min-w-0 max-w-full gap-4">
             <label className="block min-w-0 max-w-full text-[10px] uppercase tracking-[0.22em] opacity-50">
@@ -474,6 +483,18 @@ export function EmailTemplatesClient({
                 />
               </div>
             </div>
+            <label className="block min-w-0 max-w-full text-[10px] uppercase tracking-[0.22em] opacity-50">
+              Message
+              <textarea
+                value={announceMessage}
+                onChange={(event) => setAnnounceMessage(event.target.value)}
+                rows={2}
+                placeholder={defaultComingSoonMessage(
+                  comingSoonKind === "EP" ? "EP" : comingSoonKind,
+                )}
+                className={`mt-2 ${inputClass} resize-y leading-relaxed`}
+              />
+            </label>
           </div>
           <button
             type="button"

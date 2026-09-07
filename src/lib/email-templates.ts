@@ -13,9 +13,34 @@ export const EMAIL_TEMPLATE_TYPES = [
 
 export type NotifyType = (typeof EMAIL_TEMPLATE_TYPES)[number];
 
+export type ComingSoonKind = "track" | "album" | "EP";
+
 export interface EmailTemplate {
   subject: string;
   html: string;
+}
+
+export function defaultComingSoonMessage(kind: ComingSoonKind): string {
+  return `From the forthcoming ${kind} — watch this space.`;
+}
+
+/**
+ * Sentences shipped in earlier coming-soon defaults. Stored templates that
+ * still contain them verbatim are migrated to the {{message}} token so the
+ * composer input keeps working without changing rendered output.
+ */
+const LEGACY_COMING_SOON_SENTENCES = [
+  "From the forthcoming track — watch this space.",
+  "From the forthcoming album — watch this space.",
+  "From the forthcoming EP — watch this space.",
+];
+
+export function migrateLegacyMessageToken(html: string): string {
+  let result = html;
+  for (const sentence of LEGACY_COMING_SOON_SENTENCES) {
+    result = result.replaceAll(sentence, "{{message}}");
+  }
+  return result;
 }
 
 export const DEFAULT_EMAIL_TEMPLATES: Record<NotifyType, EmailTemplate> = {
@@ -59,7 +84,7 @@ export const DEFAULT_EMAIL_TEMPLATES: Record<NotifyType, EmailTemplate> = {
     html: `<p>{{intro}}</p>
 {{coverImage}}
 <p><strong>{{title}}</strong>{{artistLine}}</p>
-<p>From the forthcoming track — watch this space.</p>
+<p>{{message}}</p>
 {{platformButtons}}`,
   },
   comingSoonAlbum: {
@@ -67,7 +92,7 @@ export const DEFAULT_EMAIL_TEMPLATES: Record<NotifyType, EmailTemplate> = {
     html: `<p>{{intro}}</p>
 {{coverImage}}
 <p><strong>{{title}}</strong>{{artistLine}}</p>
-<p>From the forthcoming album — watch this space.</p>
+<p>{{message}}</p>
 {{platformButtons}}`,
   },
   comingSoonEp: {
@@ -75,7 +100,7 @@ export const DEFAULT_EMAIL_TEMPLATES: Record<NotifyType, EmailTemplate> = {
     html: `<p>{{intro}}</p>
 {{coverImage}}
 <p><strong>{{title}}</strong>{{artistLine}}</p>
-<p>From the forthcoming EP — watch this space.</p>
+<p>{{message}}</p>
 {{platformButtons}}`,
   },
   playlistTrack: {
@@ -150,6 +175,7 @@ const PREVIEW_TOKENS = {
   url: "https://www.yellowwhitenoise.com",
   coverImage: "",
   platformButtons: "",
+  message: "From the forthcoming release — watch this space.",
   trackList:
     '<ul style="margin:16px 0;padding-left:20px;text-align:left;"><li><strong>Example Track</strong> by Example Artist</li></ul>',
   unsubscribe: "#unsubscribe",
