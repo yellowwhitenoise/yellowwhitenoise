@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   DEFAULT_EMAIL_TEMPLATES,
+  emailLayout,
   previewEmailHtml,
+  replaceEmailTokens,
   type EmailTemplate,
   type NotifyType,
 } from "@/lib/email-templates";
@@ -32,6 +34,33 @@ const COMING_SOON_TYPES: NotifyType[] = [
   "comingSoonAlbum",
   "comingSoonEp",
 ];
+
+function escapePreviewText(value: string): string {
+  return value.replace(
+    /[&<>'"]/g,
+    (character) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "'": "&#39;",
+        '"': "&quot;",
+      })[character] ?? character,
+  );
+}
+
+function escapePreviewAttr(value: string): string {
+  return value.trim().replace(/["<>\s]/g, "");
+}
+
+function isPreviewableUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
 
 export function EmailTemplatesClient({
   initial,
@@ -169,6 +198,49 @@ export function EmailTemplatesClient({
     setError(null);
   };
 
+  // Coming-soon preview renders the live composer values (title, artist,
+  // cover) inside the current template. Everything else keeps the sample
+  // preview.
+  const previewSrcDoc = useMemo(() => {
+    if (!isComingSoon) return previewEmailHtml(template, logoUrl);
+    const title = announceTitle.trim() || "Example title";
+    const artist = announceArtist.trim();
+    const cover = announceCover.trim();
+    const kindLabel = comingSoonKind === "EP" ? "EP" : comingSoonKind;
+    const intro = `A new ${kindLabel} is on its way to Yellow White Noise.`;
+    const coverHtml =
+      cover && isPreviewableUrl(cover)
+        ? `<p style="margin:0 0 20px;"><img src="${escapePreviewAttr(cover)}" alt="" width="320" style="display:block;width:100%;max-width:320px;height:auto;margin:0 auto;border:0;border-radius:16px;outline:none;" /></p>`
+        : "";
+    const body = replaceEmailTokens(template.html, {
+      title: escapePreviewText(title),
+      artist: escapePreviewText(artist),
+      artistLine: artist
+        ? ` by <strong style="color:#f0b429;">${escapePreviewText(artist)}</strong>`
+        : "",
+      typeLabel: kindLabel,
+      intro: escapePreviewText(intro),
+      url: "https://www.yellowwhitenoise.com",
+      trackList: "",
+      coverImage: coverHtml,
+      platformButtons: "",
+      playlistName: "Yellow White Noise",
+      unsubscribe: "#unsubscribe",
+    });
+    return replaceEmailTokens(
+      emailLayout(escapePreviewText(title), body, logoUrl),
+      { unsubscribe: "#unsubscribe" },
+    );
+  }, [
+    isComingSoon,
+    template,
+    logoUrl,
+    announceTitle,
+    announceArtist,
+    announceCover,
+    comingSoonKind,
+  ]);
+
   return (
     <main className="mx-auto w-full max-w-5xl px-5 pb-20 pt-10">
       <div className="flex items-center justify-between">
@@ -263,8 +335,8 @@ export function EmailTemplatesClient({
         </ResponsiveMenu>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <section className="rounded-2xl border border-foreground/10 p-5">
+      <div className="mt-6 grid min-w-0 max-w-full gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <section className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 p-5">
           <label className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
             Subject line
             <input
@@ -313,17 +385,18 @@ export function EmailTemplatesClient({
           </div>
         </section>
 
-        <section className="rounded-2xl border border-foreground/10 p-5">
+        <section className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 p-5">
           <p className="text-[10px] uppercase tracking-[0.22em] opacity-50">
             Live preview
           </p>
           <p className="mt-2 text-[11px] leading-relaxed opacity-45">
-            Preview uses sample release data. The recipient footer and
-            unsubscribe link are added automatically.
+            {isComingSoon
+              ? "Preview updates live as you type the title, pick an artist, and add cover art."
+              : "Preview uses sample release data. The recipient footer and unsubscribe link are added automatically."}
           </p>
           <iframe
             title={`${typeLabels[activeType]} email preview`}
-            srcDoc={previewEmailHtml(template, logoUrl)}
+            srcDoc={previewSrcDoc}
             sandbox=""
             className="mt-5 h-[600px] w-full rounded-xl border border-foreground/10 bg-white"
           />
@@ -331,7 +404,7 @@ export function EmailTemplatesClient({
       </div>
 
       {isComingSoon && (
-        <section className="mt-6 rounded-2xl border border-yellow/25 p-5">
+        <section className="mt-6 min-w-0 max-w-full overflow-hidden rounded-2xl border border-yellow/25 p-5">
           <p className="font-display text-base font-semibold uppercase tracking-[0.08em]">
             Announce this {comingSoonKind}
           </p>
@@ -339,8 +412,8 @@ export function EmailTemplatesClient({
             Sends the template above to all subscribers with this cover,
             artist, and title.
           </p>
-          <div className="mt-4 grid gap-4">
-            <label className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+          <div className="mt-4 grid min-w-0 max-w-full gap-4">
+            <label className="block min-w-0 max-w-full text-[10px] uppercase tracking-[0.22em] opacity-50">
               {comingSoonKind === "EP" ? "EP" : comingSoonKind === "album" ? "Album" : "Track"} title
               <input
                 value={announceTitle}
@@ -355,9 +428,9 @@ export function EmailTemplatesClient({
                 className={`mt-2 ${inputClass}`}
               />
             </label>
-            <div className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+            <div className="block min-w-0 max-w-full text-[10px] uppercase tracking-[0.22em] opacity-50">
               Artist
-              <div className="mt-2">
+              <div className="mt-2 min-w-0 max-w-full">
                 {artists.length > 0 ? (
                   <ResponsiveMenu
                     label="Select artist"
@@ -391,9 +464,9 @@ export function EmailTemplatesClient({
                 )}
               </div>
             </div>
-            <div className="block text-[10px] uppercase tracking-[0.22em] opacity-50">
+            <div className="block min-w-0 max-w-full text-[10px] uppercase tracking-[0.22em] opacity-50">
               Cover art
-              <div className="mt-2">
+              <div className="mt-2 min-w-0 max-w-full">
                 <ImageUploadField
                   value={announceCover}
                   onChange={setAnnounceCover}
